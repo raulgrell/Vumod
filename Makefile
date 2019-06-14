@@ -1,9 +1,7 @@
 
-all: llvm gcc 
-
 llvm:
 	clang++ -g src/main.cpp ext/glad/glad.cpp ext/imgui/imgui.cpp ext/imgui/imgui_widgets.cpp ext/imgui/imgui_draw.cpp ext/imgui/imgui_demo.cpp \
-    	-Wall -Wextra \
+    	-Wall \
 		-std=c++11 -stdlib=libc++ \
     	-o build/llvm/main.exe \
     	-I ./glfw/include/ \

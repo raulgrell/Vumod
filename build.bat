@@ -4,4 +4,4 @@ clang++ src/main.cpp ext/glad/glad.cpp ext/imgui/imgui.cpp ext/imgui/imgui_widge
     -I ./glfw/include/ ^
     -I ./ext/ ^
     -L ./glfw/lib-vc2017/ ^
-    -l glfw3dll 
+    -nodefaultlibs -l kernel32 -l user32 -l gdi32 -l shell32  -l opengl32 -l glfw3 -l msvcrt
