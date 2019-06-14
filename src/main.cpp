@@ -1,17 +1,20 @@
 #include "common.h"
-#include "../ext/ext.cpp"
-#include "window.cpp"
-#include "shaders.cpp"
+
+#include "graphics.cpp"
 #include "gui.cpp"
+#include "shader.cpp"
+#include "util.cpp"
+#include "vfs.cpp"
+#include "viewer.cpp"
+#include "window.cpp"
+
+#include <ext.cpp>
 
 static bool show_demo_window = true;
 static ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-int DrawGui(VuGui& vg)
+static void drawGui()
 {
-    ImGui_GLFW_NewFrame(vg);
-    ImGui::NewFrame();
-
     if (show_demo_window)
         ImGui::ShowDemoWindow(&show_demo_window);
     {
@@ -21,18 +24,14 @@ int DrawGui(VuGui& vg)
         ImGui::Text("This is some useful text.");
         ImGui::Checkbox("Demo Window", &show_demo_window);
         ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-        ImGui::ColorEdit3("clear color", (float*)&clear_color);
-        if (ImGui::Button("Button")) counter++;
+        ImGui::ColorEdit3("clear color", (float *)&clear_color);
+        if (ImGui::Button("Button"))
+            counter++;
         ImGui::SameLine();
         ImGui::Text("counter = %d", counter);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::End();
     }
-
-    ImGui::Render();
-    ImGui_GL_RenderDrawData(vg, ImGui::GetDrawData());
-
-    return 0;
 }
 
 int main(void)
@@ -45,6 +44,14 @@ int main(void)
 
     VuShader vs;
     initShader(vs);
+
+    float bmin[3], bmax[3];
+    std::vector<tinyobj::material_t> materials;
+    std::vector<VuObject> objects;
+    std::unordered_map<std::string, GLuint> textures;
+    if (!LoadObjAndConvert(bmin, bmax, objects, materials, textures, "data/blender.obj")){
+        fatal_error("Could not load model.");
+    }
 
     while (!glfwWindowShouldClose(vw.window))
     {
@@ -65,7 +72,9 @@ int main(void)
         glUniformMatrix4fv(vs.mvp_location, 1, GL_FALSE, (const GLfloat*) mvp);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
-        DrawGui(vg);
+        beginGui(vg);
+        drawGui();
+        endGui(vg);
 
         glfwSwapBuffers(vw.window);
         glfwPollEvents();

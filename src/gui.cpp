@@ -39,36 +39,36 @@ static GLFWscrollfun g_PrevUserCallbackScroll = NULL;
 static GLFWkeyfun g_PrevUserCallbackKey = NULL;
 static GLFWcharfun g_PrevUserCallbackChar = NULL;
 
-void ImGui_GL_RenderDrawData(VuGui& vg, ImDrawData *draw_data);
-bool ImGui_GL_CreateFontsTexture(VuGui& vg);
-void ImGui_GL_DestroyFontsTexture(VuGui& vg);
-bool ImGui_GL_CreateDeviceObjects(VuGui& vg);
-void ImGui_GL_DestroyDeviceObjects(VuGui& vg);
+void ImGui_GL_RenderDrawData(VuGui &vg, ImDrawData *draw_data);
+bool ImGui_GL_CreateFontsTexture(VuGui &vg);
+void ImGui_GL_DestroyFontsTexture(VuGui &vg);
+bool ImGui_GL_CreateDeviceObjects(VuGui &vg);
+void ImGui_GL_DestroyDeviceObjects(VuGui &vg);
 
-static void ImGui_GL_SetupRenderState(VuGui& vg, ImDrawData *draw_data, int fb_width, int fb_height, GLuint vertex_array_object);
+static void ImGui_GL_SetupRenderState(VuGui &vg, ImDrawData *draw_data, int fb_width, int fb_height, GLuint vertex_array_object);
 
 static void ImGui_GLFW_MouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
 static void ImGui_GLFW_ScrollCallback(GLFWwindow *window, double xoffset, double yoffset);
 static void ImGui_GLFW_KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods);
 static void ImGui_GLFW_CharCallback(GLFWwindow *window, unsigned int c);
-void ImGui_GLFW_Shutdown(VuGui& vg);
-void ImGui_GLFW_NewFrame(VuGui& vg);
+void ImGui_GLFW_Shutdown(VuGui &vg);
+void ImGui_GLFW_NewFrame(VuGui &vg);
 
 static const char *ImGui_GLFW_GetClipboardText(void *user_data);
 static void ImGui_GLFW_SetClipboardText(void *user_data, const char *text);
 static void ImGui_GLFW_UpdateGamepads();
-static void ImGui_GLFW_UpdateMousePosAndButtons(VuGui& vg);
-static void ImGui_GLFW_UpdateMouseCursor(VuGui& vg);
+static void ImGui_GLFW_UpdateMousePosAndButtons(VuGui &vg);
+static void ImGui_GLFW_UpdateMouseCursor(VuGui &vg);
 
-
-void initGui(VuWindow& vw, VuGui& vg) {
+void initGui(VuWindow &vw, VuGui &vg)
+{
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
-    ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;  // Enable Keyboard Controls
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;   // Enable Gamepad Controls
-    
+    ImGuiIO &io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+
     ImGui::StyleColorsDark();
 
     vg.m_Window = vw.window;
@@ -133,62 +133,43 @@ void initGui(VuWindow& vw, VuGui& vg) {
     ImGui_GL_CreateDeviceObjects(vg);
 }
 
-void destroyGui(VuGui &vg) {
+void destroyGui(VuGui &vg)
+{
     ImGui_GL_DestroyDeviceObjects(vg);
     ImGui_GLFW_Shutdown(vg);
     ImGui::DestroyContext();
 }
 
-static void ImGui_GL_SetupRenderState(VuGui& vg, ImDrawData *draw_data, int fb_width, int fb_height, GLuint vertex_array_object)
-{
-    // Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled, polygon fill
-    glEnable(GL_BLEND);
-    glBlendEquation(GL_FUNC_ADD);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDisable(GL_CULL_FACE);
-    glDisable(GL_DEPTH_TEST);
-    glEnable(GL_SCISSOR_TEST);
-#ifdef GL_POLYGON_MODE
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-#endif
+void beginGui(VuGui &vg) {
+    ImGuiIO &io = ImGui::GetIO();
+    IM_ASSERT(io.Fonts->IsBuilt() && "Font atlas not built.");
 
-    // Setup viewport, orthographic projection matrix
-    // Our visible imgui space lies from draw_data->DisplayPos (top left) to draw_data->DisplayPos+data_data->DisplaySize (bottom right). DisplayMin is typically (0,0) for single viewport apps.
-    glViewport(0, 0, (GLsizei)fb_width, (GLsizei)fb_height);
-    float L = draw_data->DisplayPos.x;
-    float R = draw_data->DisplayPos.x + draw_data->DisplaySize.x;
-    float T = draw_data->DisplayPos.y;
-    float B = draw_data->DisplayPos.y + draw_data->DisplaySize.y;
-    const float ortho_projection[4][4] =
-        {
-            {2.0f / (R - L), 0.0f, 0.0f, 0.0f},
-            {0.0f, 2.0f / (T - B), 0.0f, 0.0f},
-            {0.0f, 0.0f, -1.0f, 0.0f},
-            {(R + L) / (L - R), (T + B) / (B - T), 0.0f, 1.0f},
-        };
-    glUseProgram(vg.m_ShaderHandle);
-    glUniform1i(vg.m_AttribLocationTex, 0);
-    glUniformMatrix4fv(vg.m_AttribLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
+    // Setup display size every frame to account for window resizing
+    int w, h;
+    int display_w, display_h;
+    glfwGetWindowSize(vg.m_Window, &w, &h);
+    glfwGetFramebufferSize(vg.m_Window, &display_w, &display_h);
+    io.DisplaySize = ImVec2((float)w, (float)h);
+    if (w > 0 && h > 0)
+        io.DisplayFramebufferScale = ImVec2((float)display_w / w, (float)display_h / h);
 
-#ifndef IMGUI_IMPL_OPENGL_ES2
-    glBindVertexArray(vertex_array_object);
-#endif
+    // Setup time step
+    double current_time = glfwGetTime();
+    io.DeltaTime = vg.m_Time > 0.0 ? (float)(current_time - vg.m_Time) : (float)(1.0f / 60.0f);
+    vg.m_Time = current_time;
 
-    // Bind vertex/index buffers and setup attributes for ImDrawVert
-    glBindBuffer(GL_ARRAY_BUFFER, vg.m_VboHandle);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vg.m_ElementsHandle);
-    glEnableVertexAttribArray(vg.m_AttribLocationVtxPos);
-    glEnableVertexAttribArray(vg.m_AttribLocationVtxUV);
-    glEnableVertexAttribArray(vg.m_AttribLocationVtxColor);
-    glVertexAttribPointer(vg.m_AttribLocationVtxPos, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid *)IM_OFFSETOF(ImDrawVert, pos));
-    glVertexAttribPointer(vg.m_AttribLocationVtxUV, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid *)IM_OFFSETOF(ImDrawVert, uv));
-    glVertexAttribPointer(vg.m_AttribLocationVtxColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ImDrawVert), (GLvoid *)IM_OFFSETOF(ImDrawVert, col));
+    ImGui_GLFW_UpdateMousePosAndButtons(vg);
+    ImGui_GLFW_UpdateMouseCursor(vg);
+    ImGui_GLFW_UpdateGamepads();
+
+    ImGui::NewFrame();
 }
 
-// OpenGL3 Render function.
 // Note that this implementation is little overcomplicated because we are saving/setting up/restoring every OpenGL state explicitly
-void ImGui_GL_RenderDrawData(VuGui& vg, ImDrawData *draw_data)
-{
+void endGui(VuGui &vg) {
+    ImGui::Render();
+
+    ImDrawData *draw_data = ImGui::GetDrawData();
     // Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
     int fb_width = (int)(draw_data->DisplaySize.x * draw_data->FramebufferScale.x);
     int fb_height = (int)(draw_data->DisplaySize.y * draw_data->FramebufferScale.y);
@@ -340,8 +321,54 @@ void ImGui_GL_RenderDrawData(VuGui& vg, ImDrawData *draw_data)
     glScissor(last_scissor_box[0], last_scissor_box[1], (GLsizei)last_scissor_box[2], (GLsizei)last_scissor_box[3]);
 }
 
-bool ImGui_GL_CreateDeviceObjects(VuGui& vg) {
+static void ImGui_GL_SetupRenderState(VuGui &vg, ImDrawData *draw_data, int fb_width, int fb_height, GLuint vertex_array_object)
+{
+    // Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled, polygon fill
+    glEnable(GL_BLEND);
+    glBlendEquation(GL_FUNC_ADD);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_SCISSOR_TEST);
+#ifdef GL_POLYGON_MODE
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+#endif
 
+    // Setup viewport, orthographic projection matrix
+    // Our visible imgui space lies from draw_data->DisplayPos (top left) to draw_data->DisplayPos+data_data->DisplaySize (bottom right). DisplayMin is typically (0,0) for single viewport apps.
+    glViewport(0, 0, (GLsizei)fb_width, (GLsizei)fb_height);
+    float L = draw_data->DisplayPos.x;
+    float R = draw_data->DisplayPos.x + draw_data->DisplaySize.x;
+    float T = draw_data->DisplayPos.y;
+    float B = draw_data->DisplayPos.y + draw_data->DisplaySize.y;
+    const float ortho_projection[4][4] =
+        {
+            {2.0f / (R - L), 0.0f, 0.0f, 0.0f},
+            {0.0f, 2.0f / (T - B), 0.0f, 0.0f},
+            {0.0f, 0.0f, -1.0f, 0.0f},
+            {(R + L) / (L - R), (T + B) / (B - T), 0.0f, 1.0f},
+        };
+    glUseProgram(vg.m_ShaderHandle);
+    glUniform1i(vg.m_AttribLocationTex, 0);
+    glUniformMatrix4fv(vg.m_AttribLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
+
+#ifndef IMGUI_IMPL_OPENGL_ES2
+    glBindVertexArray(vertex_array_object);
+#endif
+
+    // Bind vertex/index buffers and setup attributes for ImDrawVert
+    glBindBuffer(GL_ARRAY_BUFFER, vg.m_VboHandle);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vg.m_ElementsHandle);
+    glEnableVertexAttribArray(vg.m_AttribLocationVtxPos);
+    glEnableVertexAttribArray(vg.m_AttribLocationVtxUV);
+    glEnableVertexAttribArray(vg.m_AttribLocationVtxColor);
+    glVertexAttribPointer(vg.m_AttribLocationVtxPos, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid *)IM_OFFSETOF(ImDrawVert, pos));
+    glVertexAttribPointer(vg.m_AttribLocationVtxUV, 2, GL_FLOAT, GL_FALSE, sizeof(ImDrawVert), (GLvoid *)IM_OFFSETOF(ImDrawVert, uv));
+    glVertexAttribPointer(vg.m_AttribLocationVtxColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ImDrawVert), (GLvoid *)IM_OFFSETOF(ImDrawVert, col));
+}
+
+bool ImGui_GL_CreateDeviceObjects(VuGui &vg)
+{
     // Backup GL state
     GLint last_texture, last_array_buffer;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
@@ -389,13 +416,13 @@ bool ImGui_GL_CreateDeviceObjects(VuGui& vg) {
     return true;
 }
 
-bool ImGui_GL_CreateFontsTexture(VuGui& vg)
+bool ImGui_GL_CreateFontsTexture(VuGui &vg)
 {
     // Build texture atlas
     ImGuiIO &io = ImGui::GetIO();
     unsigned char *pixels;
     int width, height;
-    
+
     // Load as RGBA 32-bits (75% of the memory is wasted, but default font is so small) because it is more likely
     // to be compatible with user's existing shaders. If your ImTextureId represent a higher-level concept than
     // just a GL texture id, consider calling GetTexDataAsAlpha8() instead to save on GPU memory.
@@ -422,7 +449,7 @@ bool ImGui_GL_CreateFontsTexture(VuGui& vg)
     return true;
 }
 
-void ImGui_GL_DestroyFontsTexture(VuGui& vg)
+void ImGui_GL_DestroyFontsTexture(VuGui &vg)
 {
     if (vg.m_FontTexture)
     {
@@ -433,7 +460,7 @@ void ImGui_GL_DestroyFontsTexture(VuGui& vg)
     }
 }
 
-void ImGui_GL_DestroyDeviceObjects(VuGui& vg)
+void ImGui_GL_DestroyDeviceObjects(VuGui &vg)
 {
     if (vg.m_VboHandle)
         glDeleteBuffers(1, &vg.m_VboHandle);
@@ -517,7 +544,7 @@ void ImGui_GLFW_CharCallback(GLFWwindow *window, unsigned int c)
         io.AddInputCharacter((unsigned short)c);
 }
 
-void ImGui_GLFW_Shutdown(VuGui& vg)
+void ImGui_GLFW_Shutdown(VuGui &vg)
 {
     for (ImGuiMouseCursor cursor_n = 0; cursor_n < ImGuiMouseCursor_COUNT; cursor_n++)
     {
@@ -526,7 +553,7 @@ void ImGui_GLFW_Shutdown(VuGui& vg)
     }
 }
 
-static void ImGui_GLFW_UpdateMousePosAndButtons(VuGui& vg)
+static void ImGui_GLFW_UpdateMousePosAndButtons(VuGui &vg)
 {
     // Update buttons
     ImGuiIO &io = ImGui::GetIO();
@@ -556,7 +583,7 @@ static void ImGui_GLFW_UpdateMousePosAndButtons(VuGui& vg)
     }
 }
 
-static void ImGui_GLFW_UpdateMouseCursor(VuGui& vg)
+static void ImGui_GLFW_UpdateMouseCursor(VuGui &vg)
 {
     ImGuiIO &io = ImGui::GetIO();
     if ((io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange) || glfwGetInputMode(vg.m_Window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED)
@@ -572,8 +599,8 @@ static void ImGui_GLFW_UpdateMouseCursor(VuGui& vg)
     {
         // Show OS mouse cursor
         glfwSetCursor(vg.m_Window, vg.m_MouseCursors[imgui_cursor]
-                                    ? vg.m_MouseCursors[imgui_cursor]
-                                    : vg.m_MouseCursors[ImGuiMouseCursor_Arrow]);
+                                       ? vg.m_MouseCursors[imgui_cursor]
+                                       : vg.m_MouseCursors[ImGuiMouseCursor_Arrow]);
         glfwSetInputMode(vg.m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
 }
@@ -627,26 +654,7 @@ static void ImGui_GLFW_UpdateGamepads()
         io.BackendFlags &= ~ImGuiBackendFlags_HasGamepad;
 }
 
-void ImGui_GLFW_NewFrame(VuGui& vg)
+void ImGui_GLFW_NewFrame(VuGui &vg)
 {
-    ImGuiIO &io = ImGui::GetIO();
-    IM_ASSERT(io.Fonts->IsBuilt() && "Font atlas not built.");
 
-    // Setup display size every frame to account for window resizing
-    int w, h;
-    int display_w, display_h;
-    glfwGetWindowSize(vg.m_Window, &w, &h);
-    glfwGetFramebufferSize(vg.m_Window, &display_w, &display_h);
-    io.DisplaySize = ImVec2((float)w, (float)h);
-    if (w > 0 && h > 0)
-        io.DisplayFramebufferScale = ImVec2((float)display_w / w, (float)display_h / h);
-
-    // Setup time step
-    double current_time = glfwGetTime();
-    io.DeltaTime = vg.m_Time > 0.0 ? (float)(current_time - vg.m_Time) : (float)(1.0f / 60.0f);
-    vg.m_Time = current_time;
-
-    ImGui_GLFW_UpdateMousePosAndButtons(vg);
-    ImGui_GLFW_UpdateMouseCursor(vg);
-    ImGui_GLFW_UpdateGamepads();
 }

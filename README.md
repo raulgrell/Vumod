@@ -2,15 +2,11 @@
 
 An OpenGL based model viewer.
 
-## Features
-
-* Load .obj model
-
 ## Libraries
 
 * glad
 * glfw
-* imgui
+* dear imgui
 * tinyobjloader
 
 ## Building
@@ -31,5 +27,10 @@ clang++ src/main.cpp ext/glad/glad.cpp ext/imgui/imgui.cpp ext/imgui/imgui_widge
 
 ## Roadmap
 
+* Wireframe renderer
+* Global illumination renderer
+* Shaded renderer (Flat, Smooth)
+* Raytracing renderer
 * PBR Materials
 * Model Hot-Reloading
+* Client Side Reloading
