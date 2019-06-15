@@ -116,7 +116,7 @@ static const char *GetGlErrorString(GLenum err)
     }
 }
 
-static int CheckErrors(const char *file, int line)
+static int CheckErrorsInternal(const char *file, int line)
 {
     GLenum err(glGetError());
     while (err != GL_NO_ERROR)

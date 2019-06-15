@@ -25,6 +25,7 @@
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3native.h> // for glfwGetWin32Window
 #endif
+
 #include <ext.h>
 
 struct VuWindow
@@ -96,9 +97,9 @@ struct VuTexture
     void Unbind();
 };
 
+#define CheckErrors() CheckErrorsInternal(__FILE__, __LINE__)
 bool CheckShader(GLuint handle, const char *desc);
 bool CheckProgram(GLuint handle, const char *desc);
-bool CheckErrors(const char *file, const char *desc);
 
 std::string GetBaseDir(const std::string &filepath);
 size_t ReadFile(const std::string &path, std::vector<unsigned char>& buffer);
