@@ -4822,7 +4822,7 @@ static void subscript(Compiler* compiler, bool canAssign)
   callSignature(compiler, CODE_CALL_0, &signature);
 }
 
-static void call(Compiler* compiler, bool canAssign)
+static void call_(Compiler* compiler, bool canAssign)
 {
   ignoreNewlines(compiler);
   consume(compiler, TOKEN_NAME, "Expect method name after '.'.");
@@ -5048,7 +5048,7 @@ GrammarRule rules[] =
   /* TOKEN_LEFT_BRACE    */ PREFIX(map),
   /* TOKEN_RIGHT_BRACE   */ UNUSED,
   /* TOKEN_COLON         */ UNUSED,
-  /* TOKEN_DOT           */ INFIX(PREC_CALL, call),
+  /* TOKEN_DOT           */ INFIX(PREC_CALL, call_),
   /* TOKEN_DOTDOT        */ INFIX_OPERATOR(PREC_RANGE, ".."),
   /* TOKEN_DOTDOTDOT     */ INFIX_OPERATOR(PREC_RANGE, "..."),
   /* TOKEN_COMMA         */ UNUSED,

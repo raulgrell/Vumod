@@ -1,12 +1,12 @@
-#include "../common.h"
+#include <imgui/imgui.h>
 
 struct ConsoleApp
 {
-    char InputBuf[256];
-    ImVector<char *> Items;
-    ImVector<const char *> Commands;
-    ImVector<char *> History;
-    int HistoryPos; // -1: new line, 0..History.Size-1 browsing history.
+    char InputBuf[256]{0};
+    ImVector<std::string> Commands;
+    ImVector<std::string> Items;
+    ImVector<std::string> History;
+    int HistoryPos = -1; // -1: new line, 0..History.Size-1 browsing history.
     ImGuiTextFilter Filter;
     bool AutoScroll;
     bool ScrollToBottom;
@@ -14,12 +14,10 @@ struct ConsoleApp
     ConsoleApp()
     {
         ClearLog();
-        memset(InputBuf, 0, sizeof(InputBuf));
-        HistoryPos = -1;
-        Commands.push_back("HELP");
-        Commands.push_back("HISTORY");
-        Commands.push_back("CLEAR");
-        Commands.push_back("CLASSIFY");
+        Commands.push_back("help");
+        Commands.push_back("history");
+        Commands.push_back("clear");
+        Commands.push_back("close");
         AutoScroll = true;
         ScrollToBottom = true;
         AddLog("Welcome to Dear ImGui!");
@@ -28,54 +26,10 @@ struct ConsoleApp
     ~ConsoleApp()
     {
         ClearLog();
-        for (int i = 0; i < History.Size; i++)
-            free(History[i]);
-    }
-
-    // Portable helpers
-    static int Stricmp(const char *str1, const char *str2)
-    {
-        int d;
-        while ((d = toupper(*str2) - toupper(*str1)) == 0 && *str1)
-        {
-            str1++;
-            str2++;
-        }
-        return d;
-    }
-
-    static int Strnicmp(const char *str1, const char *str2, int n)
-    {
-        int d = 0;
-        while (n > 0 && (d = toupper(*str2) - toupper(*str1)) == 0 && *str1)
-        {
-            str1++;
-            str2++;
-            n--;
-        }
-        return d;
-    }
-    
-    static char *Strdup(const char *str)
-    {
-        size_t len = strlen(str) + 1;
-        void *buf = malloc(len);
-        IM_ASSERT(buf);
-        return (char *)memcpy(buf, (const void *)str, len);
-    }
-    
-    static void Strtrim(char *str)
-    {
-        char *str_end = str + strlen(str);
-        while (str_end > str && str_end[-1] == ' ')
-            str_end--;
-        *str_end = 0;
     }
 
     void ClearLog()
     {
-        for (int i = 0; i < Items.Size; i++)
-            free(Items[i]);
         Items.clear();
         ScrollToBottom = true;
     }
@@ -89,7 +43,7 @@ struct ConsoleApp
         vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
         buf[IM_ARRAYSIZE(buf) - 1] = 0;
         va_end(args);
-        Items.push_back(Strdup(buf));
+        Items.push_back(std::string(buf));
         if (AutoScroll)
             ScrollToBottom = true;
     }
@@ -116,29 +70,21 @@ struct ConsoleApp
         // TODO: display items starting from the bottom
 
         if (ImGui::SmallButton("Add Dummy Text"))
-        {
             AddLog("text %d", Items.Size);
-        }
         ImGui::SameLine();
         if (ImGui::SmallButton("Add Dummy Error"))
-        {
             AddLog("[error] something went wrong");
-        }
         ImGui::SameLine();
         if (ImGui::SmallButton("Clear"))
-        {
             ClearLog();
-        }
         ImGui::SameLine();
         bool copy_to_clipboard = ImGui::SmallButton("Copy");
         ImGui::SameLine();
         if (ImGui::SmallButton("Scroll to bottom"))
             ScrollToBottom = true;
-        //static float t = 0.0f; if (ImGui::GetTime() - t > 0.02f) { t = ImGui::GetTime(); AddLog("Spam %f", t); }
 
         ImGui::Separator();
 
-        // Options menu
         if (ImGui::BeginPopup("Options"))
         {
             if (ImGui::Checkbox("Auto-scroll", &AutoScroll))
@@ -151,7 +97,7 @@ struct ConsoleApp
         if (ImGui::Button("Options"))
             ImGui::OpenPopup("Options");
         ImGui::SameLine();
-        Filter.Draw("Filter (\"incl,-excl\") (\"error\")", 180);
+        Filter.Draw(R"(Filter ("incl,-excl") ("error"))", 180);
         ImGui::Separator();
 
         const float footer_height_to_reserve = ImGui::GetStyle().ItemSpacing.y + ImGui::GetFrameHeightWithSpacing();             // 1 separator, 1 input text
@@ -179,7 +125,7 @@ struct ConsoleApp
             ImGui::LogToClipboard();
         for (int i = 0; i < Items.Size; i++)
         {
-            const char *item = Items[i];
+            const char *item = Items[i].c_str();
             if (!Filter.PassFilter(item))
                 continue;
 
@@ -210,13 +156,14 @@ struct ConsoleApp
 
         // Command-line
         bool reclaim_focus = false;
-        if (ImGui::InputText("Input", InputBuf, IM_ARRAYSIZE(InputBuf), ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory, &TextEditCallbackStub, (void *)this))
+        int flags =  ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackCompletion | ImGuiInputTextFlags_CallbackHistory;
+        if (ImGui::InputText("Input", InputBuf, IM_ARRAYSIZE(InputBuf), flags, &TextEditCallbackStub, (void *)this))
         {
-            char *s = InputBuf;
-            Strtrim(s);
+            auto s = std::string(InputBuf);
+            trim(s);
             if (s[0])
-                ExecCommand(s);
-            strcpy(s, "");
+                ExecCommand(s.c_str());
+            std::fill(std::begin(InputBuf), std::end(InputBuf), 0);
             reclaim_focus = true;
         }
 
@@ -232,33 +179,35 @@ struct ConsoleApp
     {
         AddLog("# %s\n", command_line);
 
+        std::string command_string(command_line);
+
         // Insert into history. First find match and delete it so it can be pushed to the back. This isn't trying to be smart or optimal.
         HistoryPos = -1;
         for (int i = History.Size - 1; i >= 0; i--)
-            if (Stricmp(History[i], command_line) == 0)
+            if (History[i] == command_string)
             {
-                free(History[i]);
                 History.erase(History.begin() + i);
                 break;
             }
-        History.push_back(Strdup(command_line));
+
+        History.push_back(command_string);
 
         // Process command
-        if (Stricmp(command_line, "CLEAR") == 0)
+        if (command_string == "CLEAR")
         {
             ClearLog();
         }
-        else if (Stricmp(command_line, "HELP") == 0)
+        else if (command_string == "HELP")
         {
             AddLog("Commands:");
             for (int i = 0; i < Commands.Size; i++)
-                AddLog("- %s", Commands[i]);
+                AddLog("- %s", Commands[i].c_str());
         }
-        else if (Stricmp(command_line, "HISTORY") == 0)
+        else if (command_string == "HISTORY")
         {
             int first = History.Size - 10;
             for (int i = first > 0 ? first : 0; i < History.Size; i++)
-                AddLog("%3d: %s\n", i, History[i]);
+                AddLog("%3d: %s\n", i, History[i].c_str());
         }
         else
         {
@@ -271,7 +220,7 @@ struct ConsoleApp
 
     static int TextEditCallbackStub(ImGuiInputTextCallbackData *data) // In C++11 you are better off using lambdas for this sort of forwarding callbacks
     {
-        ConsoleApp *console = (ConsoleApp *)data->UserData;
+        auto console = (ConsoleApp *)data->UserData;
         return console->TextEditCallback(data);
     }
 
@@ -298,12 +247,11 @@ struct ConsoleApp
             // Build a list of candidates
             ImVector<const char *> candidates;
             for (int i = 0; i < Commands.Size; i++)
-                if (Strnicmp(Commands[i], word_start, (int)(word_end - word_start)) == 0)
-                    candidates.push_back(Commands[i]);
+                if (Commands[i] == word_start)
+                    candidates.push_back(Commands[i].c_str());
 
             if (candidates.Size == 0)
             {
-                // No match
                 AddLog("No match for \"%.*s\"!\n", (int)(word_end - word_start), word_start);
             }
             else if (candidates.Size == 1)
@@ -366,11 +314,12 @@ struct ConsoleApp
             // A better implementation would preserve the data on the current input line along with cursor position.
             if (prev_history_pos != HistoryPos)
             {
-                const char *history_str = (HistoryPos >= 0) ? History[HistoryPos] : "";
+                const char *history_str = (HistoryPos >= 0) ? History[HistoryPos].c_str() : "";
                 data->DeleteChars(0, data->BufTextLen);
                 data->InsertChars(0, history_str);
             }
         }
+            default: break;
         }
         return 0;
     }

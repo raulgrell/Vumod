@@ -2,7 +2,7 @@
 
 std::unordered_map<std::string, VuTexture> VuTexture::s_Cache;
 
-static VuTexture loadPng(const std::string filePath)
+static VuTexture loadPng(const std::string &filePath)
 {
     int width, height, comp;
     unsigned char *image = stbi_load(filePath.c_str(), &width, &height, &comp, STBI_default);
@@ -36,7 +36,7 @@ static VuTexture loadPng(const std::string filePath)
     return texture;
 }
 
-VuTexture VuTexture::Load(std::string texturePath)
+VuTexture VuTexture::Load(const std::string &texturePath)
 {
     auto textureIterator = VuTexture::s_Cache.find(texturePath);
     if (textureIterator == VuTexture::s_Cache.end())
@@ -54,6 +54,7 @@ void VuTexture::Bind() const
     glBindTexture(GL_TEXTURE_2D, id);
 }
 
+// TODO: Should this be static?
 void VuTexture::Unbind()
 {
     glBindTexture(GL_TEXTURE_2D, 0);

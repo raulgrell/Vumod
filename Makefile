@@ -1,6 +1,6 @@
 
 llvm:
-	clang++ -g src/main.cpp \
+	clang++ -g src/main.cpp ext/ext.cpp \
 		-Wall \
 		-std=c++14 \
 		-o build/llvm/main.exe \

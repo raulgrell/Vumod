@@ -19,7 +19,7 @@ void initWindow(VuWindow &vw)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-    vw.window = glfwCreateWindow(1280, 720, "Simple example", NULL, NULL);
+    vw.window = glfwCreateWindow(1280, 720, "Simple example", nullptr, nullptr);
     if (!vw.window)
     {
         glfwTerminate();

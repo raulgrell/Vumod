@@ -8,27 +8,7 @@
 #undef min
 #endif
 
-typedef struct
-{
-    GLuint vb_id;
-    int num_triangles;
-    size_t material_id;
-} DrawObject;
-
-void normalizeVector(vec3 &v)
-{
-    float len2 = v[0] * v[0] + v[1] * v[1] + v[2] * v[2];
-    if (len2 > 0.0f)
-    {
-        float len = sqrtf(len2);
-
-        v[0] /= len;
-        v[1] /= len;
-        v[2] /= len;
-    }
-}
-
-static void CalcNormal(float N[3], float v0[3], float v1[3], float v2[3])
+static void CalcNormal(float N[3], const float v0[3], const float v1[3], const float v2[3])
 {
     float v10[3];
     v10[0] = v1[0] - v0[0];
@@ -58,13 +38,10 @@ static void CalcNormal(float N[3], float v0[3], float v1[3], float v2[3])
 // Check if `mesh_t` contains smoothing group id.
 bool hasSmoothingGroup(const tinyobj::shape_t &shape)
 {
-    for (size_t i = 0; i < shape.mesh.smoothing_group_ids.size(); i++)
-    {
-        if (shape.mesh.smoothing_group_ids[i] > 0)
-        {
+    for (unsigned int smoothing_group_id : shape.mesh.smoothing_group_ids)
+        if (smoothing_group_id > 0)
             return true;
-        }
-    }
+
     return false;
 }
 
@@ -72,7 +49,6 @@ void computeSmoothingNormals(const tinyobj::attrib_t &attrib, const tinyobj::sha
                              std::unordered_map<int, vec3> &smoothVertexNormals)
 {
     smoothVertexNormals.clear();
-    std::unordered_map<int, vec3>::iterator iter;
 
     for (size_t f = 0; f < shape.mesh.indices.size() / 3; f++)
     {
@@ -103,9 +79,9 @@ void computeSmoothingNormals(const tinyobj::attrib_t &attrib, const tinyobj::sha
         CalcNormal(normal, v[0], v[1], v[2]);
 
         // Add the normal to the three vertexes
-        for (size_t i = 0; i < 3; ++i)
+        for (int i : vi)
         {
-            iter = smoothVertexNormals.find(vi[i]);
+            auto iter = smoothVertexNormals.find(i);
             if (iter != smoothVertexNormals.end())
             {
                 // add
@@ -115,25 +91,28 @@ void computeSmoothingNormals(const tinyobj::attrib_t &attrib, const tinyobj::sha
             }
             else
             {
-                smoothVertexNormals[vi[i]][0] = normal[0];
-                smoothVertexNormals[vi[i]][1] = normal[1];
-                smoothVertexNormals[vi[i]][2] = normal[2];
+                smoothVertexNormals[i][0] = normal[0];
+                smoothVertexNormals[i][1] = normal[1];
+                smoothVertexNormals[i][2] = normal[2];
             }
         }
     }
 
-    // Normalize the normals, that is, make them unit vectors
-    for (iter = smoothVertexNormals.begin(); iter != smoothVertexNormals.end(); iter++)
-    {
-        normalizeVector(iter->second);
-    }
+    // Normals should be unit vectors
+    for (auto &n : smoothVertexNormals)
+        vec3_norm(n.second, n.second);
 }
 
-static bool LoadObjAndConvert(float bmin[3], float bmax[3],
-                              std::vector<VuObject> &drawObjects,
-                              std::vector<tinyobj::material_t> &materials,
-                              std::unordered_map<std::string, GLuint> &textures,
-                              const char *filename)
+void VuScene::LoadFile(const char *path) {
+    const char *filename = path;
+    size_t filesize = GetFileSize(filename);
+    printf("Loading %s, size %dB\n", filename, filesize);
+
+    if (!LoadObject(filename))
+        fatal_error("Could not load model.");
+}
+
+bool VuScene::LoadObject(const char *filename)
 {
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
@@ -165,40 +144,38 @@ static bool LoadObjAndConvert(float bmin[3], float bmax[3],
     printf("# of materials = %d\n", (int)materials.size());
     printf("# of shapes    = %d\n", (int)shapes.size());
 
-    // Append `default` material
-    materials.push_back(tinyobj::material_t());
+    // Append default material
+    materials.emplace_back();
 
     for (size_t i = 0; i < materials.size(); i++)
         printf("material[%d].diffuse_texname = %s\n", int(i), materials[i].diffuse_texname.c_str());
 
-    for (size_t m = 0; m < materials.size(); m++)
+    for (auto & material : materials)
     {
-        tinyobj::material_t *mp = &materials[m];
-
-        if (mp->diffuse_texname.length() > 0)
+        if (material.diffuse_texname.length() > 0)
         {
-            if (textures.find(mp->diffuse_texname) == textures.end())
+            if (textures.find(material.diffuse_texname) == textures.end())
             {
-                std::string texture_filename = mp->diffuse_texname;
+                std::string texture_filename = material.diffuse_texname;
                 if (!FileExists(texture_filename))
                 {
                     // Append base dir.
-                    texture_filename = base_dir + mp->diffuse_texname;
+                    texture_filename = base_dir + material.diffuse_texname;
                     if (!FileExists(texture_filename))
                     {
-                        std::cerr << "Unable to find file: " << mp->diffuse_texname << std::endl;
+                        std::cerr << "Unable to find file: " << material.diffuse_texname << std::endl;
                         exit(1);
                     }
                 }
 
                 VuTexture texture = VuTexture::Load(texture_filename);
-                textures.insert(std::make_pair(mp->diffuse_texname, texture.id));
+                textures.insert(std::make_pair(material.diffuse_texname, texture.id));
             }
         }
     }
 
-    bmin[0] = bmin[1] = bmin[2] = std::numeric_limits<float>::max();
-    bmax[0] = bmax[1] = bmax[2] = -std::numeric_limits<float>::max();
+    bounds_min[0] = bounds_min[1] = bounds_min[2] = std::numeric_limits<float>::max();
+    bounds_max[0] = bounds_max[1] = bounds_max[2] = -std::numeric_limits<float>::max();
 
     for (size_t s = 0; s < shapes.size(); s++)
     {
@@ -230,7 +207,7 @@ static bool LoadObjAndConvert(float bmin[3], float bmax[3],
                 diffuse[i] = materials[current_material_id].diffuse[i];
 
             float tc[3][2];
-            if (attrib.texcoords.size() > 0)
+            if (!attrib.texcoords.empty())
             {
                 if ((idx0.texcoord_index < 0) || (idx1.texcoord_index < 0) ||
                     (idx2.texcoord_index < 0))
@@ -281,18 +258,18 @@ static bool LoadObjAndConvert(float bmin[3], float bmax[3],
                 v[0][k] = attrib.vertices[3 * f0 + k];
                 v[1][k] = attrib.vertices[3 * f1 + k];
                 v[2][k] = attrib.vertices[3 * f2 + k];
-                bmin[k] = std::min(v[0][k], bmin[k]);
-                bmin[k] = std::min(v[1][k], bmin[k]);
-                bmin[k] = std::min(v[2][k], bmin[k]);
-                bmax[k] = std::max(v[0][k], bmax[k]);
-                bmax[k] = std::max(v[1][k], bmax[k]);
-                bmax[k] = std::max(v[2][k], bmax[k]);
+                bounds_min[k] = std::min(v[0][k], bounds_min[k]);
+                bounds_min[k] = std::min(v[1][k], bounds_min[k]);
+                bounds_min[k] = std::min(v[2][k], bounds_min[k]);
+                bounds_max[k] = std::max(v[0][k], bounds_max[k]);
+                bounds_max[k] = std::max(v[1][k], bounds_max[k]);
+                bounds_max[k] = std::max(v[2][k], bounds_max[k]);
             }
 
             float n[3][3];
             {
                 bool invalid_normal_index = false;
-                if (attrib.normals.size() > 0)
+                if (!attrib.normals.empty())
                 {
                     int nf0 = idx0.normal_index;
                     int nf1 = idx1.normal_index;
@@ -381,9 +358,9 @@ static bool LoadObjAndConvert(float bmin[3], float bmax[3],
                     c[1] /= len;
                     c[2] /= len;
                 }
-                buffer.push_back(c[0] * 0.5 + 0.5);
-                buffer.push_back(c[1] * 0.5 + 0.5);
-                buffer.push_back(c[2] * 0.5 + 0.5);
+                buffer.push_back(c[0] * 0.5f + 0.5f);
+                buffer.push_back(c[1] * 0.5f + 0.5f);
+                buffer.push_back(c[2] * 0.5f + 0.5f);
 
                 buffer.push_back(tc[k][0]);
                 buffer.push_back(tc[k][1]);
@@ -394,25 +371,26 @@ static bool LoadObjAndConvert(float bmin[3], float bmax[3],
         o.num_triangles = 0;
 
         // OpenGL viewer does not support texturing with per-face material.
-        if (shapes[s].mesh.material_ids.size() > 0 && shapes[s].mesh.material_ids.size() > s)
+        if (!shapes[s].mesh.material_ids.empty() && shapes[s].mesh.material_ids.size() > s)
             o.material_id = shapes[s].mesh.material_ids[0]; // use the material ID of the first face.
         else
             o.material_id = materials.size() - 1; // = ID for default material.
 
         printf("shape[%d] material_id %d\n", int(s), int(o.material_id));
 
-        if (buffer.size() > 0)
+        if (!buffer.empty())
         {
             glGenBuffers(1, &o.vb_id);
             glBindBuffer(GL_ARRAY_BUFFER, o.vb_id);
             glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(float), &buffer.at(0), GL_STATIC_DRAW);
             // 3:vtx, 3:normal, 3:col, 2:texcoord
-            o.num_triangles = buffer.size() / (3 + 3 + 3 + 2) / 3;
+            o.num_triangles = static_cast<int>(buffer.size() / (3 + 3 + 3 + 2) / 3);
             printf("shape[%d] # of triangles = %d\n", static_cast<int>(s), o.num_triangles);
         }
 
-        drawObjects.push_back(o);
+        objects.push_back(o);
     }
 
     return true;
 }
+

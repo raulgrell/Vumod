@@ -32,11 +32,11 @@ static const struct
 static void initShader(VuShader &vs)
 {
     vs.vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vs.vertex_shader, 1, &vertex_shader_text, NULL);
+    glShaderSource(vs.vertex_shader, 1, &vertex_shader_text, nullptr);
     glCompileShader(vs.vertex_shader);
 
     vs.fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(vs.fragment_shader, 1, &fragment_shader_text, NULL);
+    glShaderSource(vs.fragment_shader, 1, &fragment_shader_text, nullptr);
     glCompileShader(vs.fragment_shader);
 
     vs.program = glCreateProgram();
@@ -69,8 +69,8 @@ static bool CheckShader(GLuint handle, const char *desc)
     if (log_length > 0)
     {
         std::vector<char> buf;
-        buf.resize((int)(log_length + 1));
-        glGetShaderInfoLog(handle, log_length, NULL, (GLchar *)&buf[0]);
+        buf.resize(log_length + 1);
+        glGetShaderInfoLog(handle, log_length, nullptr, &buf[0]);
         fprintf(stderr, "%s\n", &buf[0]);
     }
     
@@ -90,7 +90,7 @@ static bool CheckProgram(GLuint handle, const char *desc)
     {
         ImVector<char> buf;
         buf.resize((int)(log_length + 1));
-        glGetProgramInfoLog(handle, log_length, NULL, (GLchar *)buf.begin());
+        glGetProgramInfoLog(handle, log_length, nullptr, buf.begin());
         fprintf(stderr, "%s\n", buf.begin());
     }
     

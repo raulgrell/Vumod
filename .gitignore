@@ -1,8 +1,9 @@
 # Editor
+.idea/
+.vs/
 .vscode/
 .todo/
 
 # Build Artifacts
-build/
-
-*.exe
+build*/
+cmake*/
