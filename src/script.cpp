@@ -73,7 +73,7 @@ void finalizeType(void* bytes) {
 }
 
 static void write(WrenVM *vm, const char *text) {
-    printf("%s", text);
+    std::cout << text;
 }
 
 VuScript::VuScript() {
@@ -83,8 +83,7 @@ VuScript::VuScript() {
     config.loadModuleFn = loadModule;
     config.writeFn = write;
 
-    WrenVM *vm = wrenNewVM(&config);
-
+    vm = wrenNewVM(&config);
     WrenInterpretResult result = wrenInterpret(vm, "vumod", command_text);
 
     if (result != WREN_RESULT_SUCCESS)
@@ -97,11 +96,17 @@ VuScript::~VuScript() {
 };
 
 void VuScript::InterpretCommands() {
-    for (auto &&command : commands)
-        wrenInterpret(vm, "vumod", command.c_str());
+    for (auto &command : commands) {
+        WrenInterpretResult result = wrenInterpret(vm, "vumod", command.c_str());
+        if (result != WREN_RESULT_SUCCESS)
+            fatal_error("Could not run command.");
+    }
     commands.clear();
 }
 
-
-
+void VuScript::InterpretCommand(const char *command) {
+    WrenInterpretResult result = wrenInterpret(vm, "vumod", command);
+    if (result != WREN_RESULT_SUCCESS)
+        fatal_error("Could not run command.");
+}
 

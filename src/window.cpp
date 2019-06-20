@@ -11,7 +11,7 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
-void initWindow(VuWindow &vw)
+void initWindow(VuWindow &vw, int width, int height)
 {
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
@@ -19,7 +19,7 @@ void initWindow(VuWindow &vw)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-    vw.window = glfwCreateWindow(1280, 720, "Simple example", nullptr, nullptr);
+    vw.window = glfwCreateWindow(width, height, "VuMod", nullptr, nullptr);
     if (!vw.window)
     {
         glfwTerminate();
@@ -36,4 +36,17 @@ void destroyWindow(VuWindow &vw)
 {
     glfwDestroyWindow(vw.window);
     glfwTerminate();
+}
+
+bool VuWindow::IsRunning() const {
+    return !glfwWindowShouldClose(window);
+}
+
+void VuWindow::Begin() {
+    glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void VuWindow::End() {
+    glfwSwapBuffers(window);
+    glfwPollEvents();
 }

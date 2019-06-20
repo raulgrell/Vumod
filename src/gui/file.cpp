@@ -41,7 +41,6 @@ private:
     void SetCurrentDir(const std::string &vPath);
 
     void ComposeNewPath(std::vector<std::string>::iterator vIter);
-
 };
 
 inline bool ReplaceString(std::string &str, const std::string &oldStr, const std::string &newStr) {
@@ -188,9 +187,7 @@ FileGui::FileDialog(const char *vName, const char *vFilters, std::string vPath, 
     }
 
     ImGui::EndChild();
-
     ImGui::Text("File Name : ");
-
     ImGui::SameLine();
 
     float width = ImGui::GetContentRegionAvail().x;

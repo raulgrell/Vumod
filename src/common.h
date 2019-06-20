@@ -35,6 +35,10 @@ struct VuWindow
     GLFWwindow *window = nullptr;
     int width = 0;
     int height = 0;
+
+    bool IsRunning() const;
+    void Begin();
+    void End();
 };
 
 struct VuWindowCallbacks
@@ -54,23 +58,42 @@ struct VuShader
     GLint mvp_location = 0;
     GLint vpos_location = 0;
     GLint vcol_location = 0;
+
+};
+
+struct VuGuiRenderState {
+    GLenum active_texture;
+    GLint program;
+    GLint texture;
+    GLint array_buffer;
+#ifndef IMGUI_IMPL_OPENGL_ES2
+    GLint vertex_array_object;
+#endif
+#ifdef GL_POLYGON_MODE
+    GLint polygon_mode[2];
+#endif
+    GLint viewport[4];
+    GLint scissor_box[4];
+    GLenum blend_src_rgb;
+    GLenum blend_dst_rgb;
+    GLenum blend_src_alpha;
+    GLenum blend_dst_alpha;
+    GLenum blend_equation_rgb;
+    GLenum blend_equation_alpha;
+    GLboolean enable_blend = glIsEnabled(GL_BLEND);
+    GLboolean enable_cull_face = glIsEnabled(GL_CULL_FACE);
+    GLboolean enable_depth_test = glIsEnabled(GL_DEPTH_TEST);
+    GLboolean enable_scissor_test = glIsEnabled(GL_SCISSOR_TEST);
+    bool clip_origin_lower_left = true;
+#if defined(GL_CLIP_ORIGIN) && !defined(__APPLE__)
+    GLenum clip_origin = 0;
+#endif
 };
 
 struct VuGui
 {
     GLFWwindow *m_Window = nullptr;
     double m_Time = 0.0;
-    GLuint m_FontTexture = 0;
-    GLuint m_ShaderHandle = 0;
-    GLuint m_VertHandle = 0;
-    GLuint m_FragHandle = 0;
-    int m_AttribLocationTex = 0;
-    int m_AttribLocationProjMtx = 0;
-    int m_AttribLocationVtxPos = 0;
-    int m_AttribLocationVtxUV = 0;
-    int m_AttribLocationVtxColor = 0;
-    unsigned int m_VboHandle = 0;
-    unsigned int m_ElementsHandle = 0;
 
     ~VuGui();
 
@@ -85,12 +108,27 @@ struct VuObject
     int material_id = 0;
 };
 
+struct VuCamera {
+    mat4x4 mvp;
+};
+
 struct VuScene
 {
+    VuWindow& vw;
+    VuShader& vs;
+    VuCamera vc;
+    int width;
+    int height;
     std::vector<tinyobj::material_t> materials;
     std::vector<VuObject> objects;
     std::unordered_map<std::string, GLuint> textures;
     float bounds_min[3], bounds_max[3];
+
+    VuScene(VuWindow &vw, VuShader &shader);
+
+    void ResizeDisplay();
+    void RotateCamera();
+    void Draw();
 
     void LoadFile(const char *string);
     bool LoadObject(const char *string);
@@ -132,22 +170,24 @@ struct VuTexture
     static VuTexture Load(const std::string &texturePath);
 
     void Bind() const;
-    void Unbind();
+    void Unbind() const;
 };
 
 struct VuScript {
-    WrenConfiguration config;
-    WrenVM *vm;
+    WrenConfiguration config = {};
+    WrenVM *vm = nullptr;
 
     VuScript();
     ~VuScript();
 
     void InterpretCommands();
+    void InterpretCommand(const char *command);
 };
 
-#define CheckErrors() CheckErrorsInternal(__FILE__, __LINE__)
+static int CheckErrorsInternal(const char *file, int line);
 static bool CheckShader(GLuint handle, const char *desc);
 static bool CheckProgram(GLuint handle, const char *desc);
+#define CheckErrors() CheckErrorsInternal(__FILE__, __LINE__)
 
 static std::string GetBaseDir(const std::string &filepath);
 static size_t ReadFile(const std::string &path, std::vector<unsigned char>& buffer);

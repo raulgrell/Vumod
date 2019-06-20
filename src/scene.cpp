@@ -8,6 +8,29 @@
 #undef min
 #endif
 
+VuScene::VuScene(VuWindow &vw, VuShader &vs) : vs(vs), vw(vw) {}
+
+void VuScene::ResizeDisplay() {
+    glfwGetFramebufferSize(vw.window, &width, &height);
+    glViewport(0, 0, width, height);
+}
+
+void VuScene::RotateCamera() {
+    float ratio = width / (float) height;
+    mat4x4 m, p;
+    mat4x4_identity(m);
+    mat4x4_rotate_Z(m, m, (float) glfwGetTime());
+    mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
+    mat4x4_mul(vc.mvp, p, m);
+}
+
+void VuScene::Draw() {
+    glUseProgram(vs.program);
+    glUniformMatrix4fv(vs.mvp_location, 1, GL_FALSE, (const GLfloat *) vc.mvp);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
+    CheckErrors();
+}
+
 static void CalcNormal(float N[3], const float v0[3], const float v1[3], const float v2[3])
 {
     float v10[3];
@@ -28,7 +51,6 @@ static void CalcNormal(float N[3], const float v0[3], const float v1[3], const f
     if (len2 > 0.0f)
     {
         float len = sqrtf(len2);
-
         N[0] /= len;
         N[1] /= len;
         N[2] /= len;

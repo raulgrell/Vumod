@@ -55,7 +55,7 @@ void VuTexture::Bind() const
 }
 
 // TODO: Should this be static?
-void VuTexture::Unbind()
+void VuTexture::Unbind() const
 {
     glBindTexture(GL_TEXTURE_2D, 0);
 }

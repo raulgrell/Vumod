@@ -20,7 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-// Begin file "/e/Repositories/Viewer/wren/src/include/wren.h"
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/include/wren.h"
 #ifndef wren_h
 #define wren_h
 
@@ -508,19 +508,19 @@ void* wrenGetUserData(WrenVM* vm);
 void wrenSetUserData(WrenVM* vm, void* userData);
 
 #endif
-// End file "/e/Repositories/Viewer/wren/src/include/wren.h"
-// Begin file "/e/Repositories/Viewer/wren/src/vm/wren_debug.h"
+// End file "/e/Repositories/Viewer/wren/nanosvg/include/wren.h"
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_debug.h"
 #ifndef wren_debug_h
 #define wren_debug_h
 
-// Begin file "/e/Repositories/Viewer/wren/src/vm/wren_value.h"
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_value.h"
 #ifndef wren_value_h
 #define wren_value_h
 
 #include <stdbool.h>
 #include <string.h>
 
-// Begin file "/e/Repositories/Viewer/wren/src/vm/wren_common.h"
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_common.h"
 #ifndef wren_common_h
 #define wren_common_h
 
@@ -723,8 +723,8 @@ void wrenSetUserData(WrenVM* vm, void* userData);
 #endif
 
 #endif
-// End file "/e/Repositories/Viewer/wren/src/vm/wren_common.h"
-// Begin file "/e/Repositories/Viewer/wren/src/vm/wren_utils.h"
+// End file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_common.h"
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_utils.h"
 #ifndef wren_utils_h
 #define wren_utils_h
 
@@ -844,7 +844,7 @@ int wrenUtf8DecodeNumBytes(uint8_t byte);
 int wrenPowerOf2Ceil(int n);
 
 #endif
-// End file "/e/Repositories/Viewer/wren/src/vm/wren_utils.h"
+// End file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_utils.h"
 
 // This defines the built-in types and their core representations in memory.
 // Since Wren is dynamically typed, any variable can hold a value of any type,
@@ -1713,12 +1713,12 @@ static inline Value wrenNumToValue(double num)
 }
 
 #endif
-// End file "/e/Repositories/Viewer/wren/src/vm/wren_value.h"
-// Begin file "/e/Repositories/Viewer/wren/src/vm/wren_vm.h"
+// End file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_value.h"
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_vm.h"
 #ifndef wren_vm_h
 #define wren_vm_h
 
-// Begin file "/e/Repositories/Viewer/wren/src/vm/wren_compiler.h"
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_compiler.h"
 #ifndef wren_compiler_h
 #define wren_compiler_h
 
@@ -1774,7 +1774,7 @@ void wrenBindMethodCode(ObjClass* classObj, ObjFn* fn);
 void wrenMarkCompiler(WrenVM* vm, Compiler* compiler);
 
 #endif
-// End file "/e/Repositories/Viewer/wren/src/vm/wren_compiler.h"
+// End file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_compiler.h"
 
 // The maximum number of temporary objects that can be made visible to the GC
 // at one time.
@@ -1783,7 +1783,7 @@ void wrenMarkCompiler(WrenVM* vm, Compiler* compiler);
 typedef enum
 {
   #define OPCODE(name, _) CODE_##name,
-// Begin file "/e/Repositories/Viewer/wren/src/vm/wren_opcodes.h"
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_opcodes.h"
 // This defines the bytecode instructions used by the VM. It does so by invoking
 // an OPCODE() macro which is expected to be defined at the point that this is
 // included. (See: http://en.wikipedia.org/wiki/X_Macro for more.)
@@ -1997,7 +1997,7 @@ OPCODE(IMPORT_VARIABLE, 1)
 // This pseudo-instruction indicates the end of the bytecode. It should
 // always be preceded by a `CODE_RETURN`, so is never actually executed.
 OPCODE(END, 0)
-// End file "/e/Repositories/Viewer/wren/src/vm/wren_opcodes.h"
+// End file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_opcodes.h"
   #undef OPCODE
 } Code;
 
@@ -2218,7 +2218,7 @@ static inline ObjClass* wrenGetClassInline(WrenVM* vm, Value value)
 }
 
 #endif
-// End file "/e/Repositories/Viewer/wren/src/vm/wren_vm.h"
+// End file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_vm.h"
 
 // Prints the stack trace for the current fiber.
 //
@@ -2241,8 +2241,8 @@ void wrenDumpCode(WrenVM* vm, ObjFn* fn);
 void wrenDumpStack(ObjFiber* fiber);
 
 #endif
-// End file "/e/Repositories/Viewer/wren/src/vm/wren_debug.h"
-// Begin file "/e/Repositories/Viewer/wren/src/vm/wren_compiler.c"
+// End file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_debug.h"
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_compiler.c"
 #include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -2625,7 +2625,7 @@ typedef struct
 // the value is the stack effect of that instruction.
 static const int stackEffects[] = {
   #define OPCODE(_, effect) effect,
-// Begin file "/e/Repositories/Viewer/wren/src/vm/wren_opcodes.h"
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_opcodes.h"
 // This defines the bytecode instructions used by the VM. It does so by invoking
 // an OPCODE() macro which is expected to be defined at the point that this is
 // included. (See: http://en.wikipedia.org/wiki/X_Macro for more.)
@@ -2839,7 +2839,7 @@ OPCODE(IMPORT_VARIABLE, 1)
 // This pseudo-instruction indicates the end of the bytecode. It should
 // always be preceded by a `CODE_RETURN`, so is never actually executed.
 OPCODE(END, 0)
-// End file "/e/Repositories/Viewer/wren/src/vm/wren_opcodes.h"
+// End file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_opcodes.h"
   #undef OPCODE
 };
 
@@ -6035,8 +6035,8 @@ void wrenMarkCompiler(WrenVM* vm, Compiler* compiler)
   }
   while (compiler != NULL);
 }
-// End file "/e/Repositories/Viewer/wren/src/vm/wren_compiler.c"
-// Begin file "/e/Repositories/Viewer/wren/src/vm/wren_core.c"
+// End file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_compiler.c"
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_core.c"
 #include <ctype.h>
 #include <errno.h>
 #include <float.h>
@@ -6044,7 +6044,7 @@ void wrenMarkCompiler(WrenVM* vm, Compiler* compiler)
 #include <string.h>
 #include <time.h>
 
-// Begin file "/e/Repositories/Viewer/wren/src/vm/wren_core.h"
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_core.h"
 #ifndef wren_core_h
 #define wren_core_h
 
@@ -6067,8 +6067,8 @@ void wrenMarkCompiler(WrenVM* vm, Compiler* compiler)
 void wrenInitializeCore(WrenVM* vm);
 
 #endif
-// End file "/e/Repositories/Viewer/wren/src/vm/wren_core.h"
-// Begin file "/e/Repositories/Viewer/wren/src/vm/wren_primitive.h"
+// End file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_core.h"
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_primitive.h"
 #ifndef wren_primitive_h
 #define wren_primitive_h
 
@@ -6156,10 +6156,10 @@ uint32_t calculateRange(WrenVM* vm, ObjRange* range, uint32_t* length,
                         int* step);
 
 #endif
-// End file "/e/Repositories/Viewer/wren/src/vm/wren_primitive.h"
+// End file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_primitive.h"
 
-// Begin file "/e/Repositories/Viewer/wren/src/vm/wren_core.wren.inc"
-// Generated automatically from src/vm/wren_core.wren. Do not edit.
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_core.wren.inc"
+// Generated automatically from nanosvg/vm/wren_core.wren. Do not edit.
 static const char* coreModuleSource =
 "class Bool {}\n"
 "class Fiber {}\n"
@@ -6599,7 +6599,7 @@ static const char* coreModuleSource =
 "    }\n"
 "  }\n"
 "}\n";
-// End file "/e/Repositories/Viewer/wren/src/vm/wren_core.wren.inc"
+// End file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_core.wren.inc"
 
 DEF_PRIMITIVE(bool_not)
 {
@@ -7980,8 +7980,8 @@ void wrenInitializeCore(WrenVM* vm)
     if (obj->type == OBJ_STRING) obj->classObj = vm->stringClass;
   }
 }
-// End file "/e/Repositories/Viewer/wren/src/vm/wren_core.c"
-// Begin file "/e/Repositories/Viewer/wren/src/vm/wren_debug.c"
+// End file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_core.c"
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_debug.c"
 #include <stdio.h>
 
 
@@ -8368,9 +8368,9 @@ void wrenDumpStack(ObjFiber* fiber)
   }
   printf("\n");
 }
-// End file "/e/Repositories/Viewer/wren/src/vm/wren_debug.c"
-// Begin file "/e/Repositories/Viewer/wren/src/vm/wren_opt_meta.c"
-// Begin file "/e/Repositories/Viewer/wren/src/vm/wren_opt_meta.h"
+// End file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_debug.c"
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_opt_meta.c"
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_opt_meta.h"
 #ifndef wren_opt_meta_h
 #define wren_opt_meta_h
 
@@ -8387,14 +8387,14 @@ WrenForeignMethodFn wrenMetaBindForeignMethod(WrenVM* vm,
 #endif
 
 #endif
-// End file "/e/Repositories/Viewer/wren/src/vm/wren_opt_meta.h"
+// End file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_opt_meta.h"
 
 #if WREN_OPT_META
 
 #include <string.h>
 
-// Begin file "/e/Repositories/Viewer/wren/src/vm/wren_opt_meta.wren.inc"
-// Generated automatically from src/optional/wren_opt_meta.wren. Do not edit.
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_opt_meta.wren.inc"
+// Generated automatically from nanosvg/optional/wren_opt_meta.wren. Do not edit.
 static const char* metaModuleSource =
 "class Meta {\n"
 "  static getModuleVariables(module) {\n"
@@ -8428,7 +8428,7 @@ static const char* metaModuleSource =
 "  foreign static compile_(source, isExpression, printErrors)\n"
 "  foreign static getModuleVariables_(module)\n"
 "}\n";
-// End file "/e/Repositories/Viewer/wren/src/vm/wren_opt_meta.wren.inc"
+// End file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_opt_meta.wren.inc"
 
 void metaCompile(WrenVM* vm)
 {
@@ -8517,9 +8517,9 @@ WrenForeignMethodFn wrenMetaBindForeignMethod(WrenVM* vm,
 }
 
 #endif
-// End file "/e/Repositories/Viewer/wren/src/vm/wren_opt_meta.c"
-// Begin file "/e/Repositories/Viewer/wren/src/vm/wren_opt_random.c"
-// Begin file "/e/Repositories/Viewer/wren/src/vm/wren_opt_random.h"
+// End file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_opt_meta.c"
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_opt_random.c"
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_opt_random.h"
 #ifndef wren_opt_random_h
 #define wren_opt_random_h
 
@@ -8538,7 +8538,7 @@ WrenForeignMethodFn wrenRandomBindForeignMethod(WrenVM* vm,
 #endif
 
 #endif
-// End file "/e/Repositories/Viewer/wren/src/vm/wren_opt_random.h"
+// End file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_opt_random.h"
 
 #if WREN_OPT_RANDOM
 
@@ -8546,8 +8546,8 @@ WrenForeignMethodFn wrenRandomBindForeignMethod(WrenVM* vm,
 #include <time.h>
 
 
-// Begin file "/e/Repositories/Viewer/wren/src/vm/wren_opt_random.wren.inc"
-// Generated automatically from src/optional/wren_opt_random.wren. Do not edit.
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_opt_random.wren.inc"
+// Generated automatically from nanosvg/optional/wren_opt_random.wren. Do not edit.
 static const char* randomModuleSource =
 "foreign class Random {\n"
 "  construct new() {\n"
@@ -8671,7 +8671,7 @@ static const char* randomModuleSource =
 "    }\n"
 "  }\n"
 "}\n";
-// End file "/e/Repositories/Viewer/wren/src/vm/wren_opt_random.wren.inc"
+// End file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_opt_random.wren.inc"
 
 // Implements the well equidistributed long-period linear PRNG (WELL512a).
 //
@@ -8805,8 +8805,8 @@ WrenForeignMethodFn wrenRandomBindForeignMethod(WrenVM* vm,
 }
 
 #endif
-// End file "/e/Repositories/Viewer/wren/src/vm/wren_opt_random.c"
-// Begin file "/e/Repositories/Viewer/wren/src/vm/wren_primitive.c"
+// End file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_opt_random.c"
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_primitive.c"
 
 #include <math.h>
 
@@ -8931,8 +8931,8 @@ uint32_t calculateRange(WrenVM* vm, ObjRange* range, uint32_t* length,
   *step = from < to ? 1 : -1;
   return from;
 }
-// End file "/e/Repositories/Viewer/wren/src/vm/wren_primitive.c"
-// Begin file "/e/Repositories/Viewer/wren/src/vm/wren_utils.c"
+// End file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_primitive.c"
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_utils.c"
 #include <string.h>
 
 
@@ -9127,8 +9127,8 @@ int wrenPowerOf2Ceil(int n)
   
   return n;
 }
-// End file "/e/Repositories/Viewer/wren/src/vm/wren_utils.c"
-// Begin file "/e/Repositories/Viewer/wren/src/vm/wren_value.c"
+// End file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_utils.c"
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_value.c"
 #include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -10448,8 +10448,8 @@ bool wrenValuesEqual(Value a, Value b)
       return false;
   }
 }
-// End file "/e/Repositories/Viewer/wren/src/vm/wren_value.c"
-// Begin file "/e/Repositories/Viewer/wren/src/vm/wren_vm.c"
+// End file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_value.c"
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_vm.c"
 #include <stdarg.h>
 #include <string.h>
 
@@ -11279,7 +11279,7 @@ static WrenInterpretResult runInterpreter(WrenVM* vm, ObjFiber* fiber)
 
   static void* dispatchTable[] = {
     #define OPCODE(name, _) &&code_##name,
-// Begin file "/e/Repositories/Viewer/wren/src/vm/wren_opcodes.h"
+// Begin file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_opcodes.h"
 // This defines the bytecode instructions used by the VM. It does so by invoking
 // an OPCODE() macro which is expected to be defined at the point that this is
 // included. (See: http://en.wikipedia.org/wiki/X_Macro for more.)
@@ -11493,7 +11493,7 @@ OPCODE(IMPORT_VARIABLE, 1)
 // This pseudo-instruction indicates the end of the bytecode. It should
 // always be preceded by a `CODE_RETURN`, so is never actually executed.
 OPCODE(END, 0)
-// End file "/e/Repositories/Viewer/wren/src/vm/wren_opcodes.h"
+// End file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_opcodes.h"
     #undef OPCODE
   };
 
@@ -12433,4 +12433,4 @@ void wrenSetUserData(WrenVM* vm, void* userData)
 {
 	vm->config.userData = userData;
 }
-// End file "/e/Repositories/Viewer/wren/src/vm/wren_vm.c"
+// End file "/e/Repositories/Viewer/wren/nanosvg/vm/wren_vm.c"
