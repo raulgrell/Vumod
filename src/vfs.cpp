@@ -13,7 +13,7 @@ static std::string GetBaseDir(const std::string &filepath)
     size_t index = filepath.find_last_of("/\\");
     if (index != std::string::npos)
         return filepath.substr(0, index);
-    return std::string("");
+    return std::string(".\\");
 }
 
 static bool FileExists(const std::string &path)

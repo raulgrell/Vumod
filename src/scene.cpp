@@ -19,16 +19,27 @@ void VuScene::RotateCamera() {
     float ratio = width / (float) height;
     mat4x4 m, p;
     mat4x4_identity(m);
-    mat4x4_rotate_Z(m, m, (float) glfwGetTime());
-    mat4x4_ortho(p, -ratio, ratio, -1.f, 1.f, 1.f, -1.f);
+    mat4x4_translate(m, 0, 0, -10);
+    mat4x4_rotate_Y(m, m, (float) glfwGetTime());
+    mat4x4_perspective(p, 50, ratio, 0.01, 1000);
     mat4x4_mul(vc.mvp, p, m);
 }
 
 void VuScene::Draw() {
-    glUseProgram(vs.program);
-    glUniformMatrix4fv(vs.mvp_location, 1, GL_FALSE, (const GLfloat *) vc.mvp);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    vs.Bind();
     CheckErrors();
+
+    glUniformMatrix4fv(vs.uniform_mvp, 1, GL_FALSE, (const GLfloat *) vc.mvp);
+    glUniform4fv(vs.uniform_tint, 1, (const GLfloat *) vec4{0, 0, 0, 0});
+
+    for (auto &object : objects) {
+        glBindBuffer(GL_ARRAY_BUFFER, object.vbo_id);
+        glBindTexture(GL_TEXTURE_2D, 1);
+        glDrawArrays(GL_TRIANGLES, 0, (GLsizei)object.buffer.size());
+    }
+
+    CheckErrors();
+    vs.Unbind();
 }
 
 static void CalcNormal(float N[3], const float v0[3], const float v1[3], const float v2[3])
@@ -138,14 +149,8 @@ bool VuScene::LoadObject(const char *filename)
 {
     tinyobj::attrib_t attrib;
     std::vector<tinyobj::shape_t> shapes;
-
+    std::string warn, err;
     std::string base_dir = GetBaseDir(filename);
-    if (base_dir.empty())
-        base_dir = ".";
-    base_dir += "\\";
-
-    std::string warn;
-    std::string err;
     bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filename, base_dir.c_str());
 
     if (!warn.empty())
@@ -166,33 +171,18 @@ bool VuScene::LoadObject(const char *filename)
     printf("# of materials = %d\n", (int)materials.size());
     printf("# of shapes    = %d\n", (int)shapes.size());
 
-    // Append default material
-    materials.emplace_back();
-
     for (size_t i = 0; i < materials.size(); i++)
         printf("material[%d].diffuse_texname = %s\n", int(i), materials[i].diffuse_texname.c_str());
+
+    // Append default material
+    materials.emplace_back();
 
     for (auto & material : materials)
     {
         if (material.diffuse_texname.length() > 0)
         {
-            if (textures.find(material.diffuse_texname) == textures.end())
-            {
-                std::string texture_filename = material.diffuse_texname;
-                if (!FileExists(texture_filename))
-                {
-                    // Append base dir.
-                    texture_filename = base_dir + material.diffuse_texname;
-                    if (!FileExists(texture_filename))
-                    {
-                        std::cerr << "Unable to find file: " << material.diffuse_texname << std::endl;
-                        exit(1);
-                    }
-                }
-
-                VuTexture texture = VuTexture::Load(texture_filename);
-                textures.insert(std::make_pair(material.diffuse_texname, texture.id));
-            }
+            std::string texture_filename = base_dir + "/" + material.diffuse_texname;
+            VuTexture texture = VuTexture::Load(texture_filename);
         }
     }
 
@@ -202,13 +192,12 @@ bool VuScene::LoadObject(const char *filename)
     for (size_t s = 0; s < shapes.size(); s++)
     {
         VuObject o;
-        std::vector<float> buffer; // pos(3float), normal(3float), color(3float)
 
         // Check for smoothing group and compute smoothing normals
         std::unordered_map<int, vec3> smoothVertexNormals;
         if (hasSmoothingGroup(shapes[s]) > 0)
         {
-            std::cout << "Compute smoothingNormal for shape [" << s << "]" << std::endl;
+            std::cout << "Compute smoothingNormal for shape [" << shapes[s].name << "]" << std::endl;
             computeSmoothingNormals(attrib, shapes[s], smoothVertexNormals);
         }
 
@@ -270,16 +259,14 @@ bool VuScene::LoadObject(const char *filename)
             float v[3][3];
             for (int k = 0; k < 3; k++)
             {
-                int f0 = idx0.vertex_index;
-                int f1 = idx1.vertex_index;
-                int f2 = idx2.vertex_index;
-                assert(f0 >= 0);
-                assert(f1 >= 0);
-                assert(f2 >= 0);
+                int f0 = idx0.vertex_index; assert(f0 >= 0);
+                int f1 = idx1.vertex_index; assert(f1 >= 0);
+                int f2 = idx2.vertex_index; assert(f2 >= 0);
 
                 v[0][k] = attrib.vertices[3 * f0 + k];
                 v[1][k] = attrib.vertices[3 * f1 + k];
                 v[2][k] = attrib.vertices[3 * f2 + k];
+
                 bounds_min[k] = std::min(v[0][k], bounds_min[k]);
                 bounds_min[k] = std::min(v[1][k], bounds_min[k]);
                 bounds_min[k] = std::min(v[2][k], bounds_min[k]);
@@ -360,12 +347,6 @@ bool VuScene::LoadObject(const char *filename)
 
             for (int k = 0; k < 3; k++)
             {
-                buffer.push_back(v[k][0]);
-                buffer.push_back(v[k][1]);
-                buffer.push_back(v[k][2]);
-                buffer.push_back(n[k][0]);
-                buffer.push_back(n[k][1]);
-                buffer.push_back(n[k][2]);
                 // Combine normal and diffuse to get color.
                 float normal_factor = 0.2;
                 float diffuse_factor = 1 - normal_factor;
@@ -376,21 +357,14 @@ bool VuScene::LoadObject(const char *filename)
                 if (len2 > 0.0f)
                 {
                     float len = sqrtf(len2);
-                    c[0] /= len;
-                    c[1] /= len;
-                    c[2] /= len;
+                    c[0] = c[0] / len * 0.5f + 0.5f;
+                    c[1] = c[1] / len * 0.5f + 0.5f;
+                    c[2] = c[2] / len * 0.5f + 0.5f;
                 }
-                buffer.push_back(c[0] * 0.5f + 0.5f);
-                buffer.push_back(c[1] * 0.5f + 0.5f);
-                buffer.push_back(c[2] * 0.5f + 0.5f);
 
-                buffer.push_back(tc[k][0]);
-                buffer.push_back(tc[k][1]);
+                o.buffer.emplace_back(v[k], n[k], c, tc[k]);
             }
         }
-
-        o.vb_id = 0;
-        o.num_triangles = 0;
 
         // OpenGL viewer does not support texturing with per-face material.
         if (!shapes[s].mesh.material_ids.empty() && shapes[s].mesh.material_ids.size() > s)
@@ -400,14 +374,13 @@ bool VuScene::LoadObject(const char *filename)
 
         printf("shape[%d] material_id %d\n", int(s), int(o.material_id));
 
-        if (!buffer.empty())
+        if (!o.buffer.empty())
         {
-            glGenBuffers(1, &o.vb_id);
-            glBindBuffer(GL_ARRAY_BUFFER, o.vb_id);
-            glBufferData(GL_ARRAY_BUFFER, buffer.size() * sizeof(float), &buffer.at(0), GL_STATIC_DRAW);
-            // 3:vtx, 3:normal, 3:col, 2:texcoord
-            o.num_triangles = static_cast<int>(buffer.size() / (3 + 3 + 3 + 2) / 3);
-            printf("shape[%d] # of triangles = %d\n", static_cast<int>(s), o.num_triangles);
+            glGenBuffers(1, &o.vbo_id);
+            glBindBuffer(GL_ARRAY_BUFFER, o.vbo_id);
+            glBufferData(GL_ARRAY_BUFFER, o.buffer.size() * sizeof(VuVertex), &o.buffer.at(0), GL_STATIC_DRAW);
+
+            printf("shape[%d] # of triangles = %d\n", static_cast<int>(s), o.NumTriangles());
         }
 
         objects.push_back(o);

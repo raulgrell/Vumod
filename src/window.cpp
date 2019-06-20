@@ -29,6 +29,8 @@ void initWindow(VuWindow &vw, int width, int height)
     glfwSetKeyCallback(vw.window, key_callback);
     glfwMakeContextCurrent(vw.window);
     gladLoadGL();
+
+    glEnable(GL_DEPTH_TEST);
     glfwSwapInterval(1);
 }
 
@@ -43,7 +45,7 @@ bool VuWindow::IsRunning() const {
 }
 
 void VuWindow::Begin() {
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void VuWindow::End() {

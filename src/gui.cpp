@@ -1,5 +1,34 @@
 #include "common.h"
 
+struct VuGuiRenderState {
+    GLenum active_texture;
+    GLint program;
+    GLint texture;
+    GLint array_buffer;
+#ifndef IMGUI_IMPL_OPENGL_ES2
+    GLint vertex_array_object;
+#endif
+#ifdef GL_POLYGON_MODE
+    GLint polygon_mode[2];
+#endif
+    GLint viewport[4];
+    GLint scissor_box[4];
+    GLenum blend_src_rgb;
+    GLenum blend_dst_rgb;
+    GLenum blend_src_alpha;
+    GLenum blend_dst_alpha;
+    GLenum blend_equation_rgb;
+    GLenum blend_equation_alpha;
+    GLboolean enable_blend = glIsEnabled(GL_BLEND);
+    GLboolean enable_cull_face = glIsEnabled(GL_CULL_FACE);
+    GLboolean enable_depth_test = glIsEnabled(GL_DEPTH_TEST);
+    GLboolean enable_scissor_test = glIsEnabled(GL_SCISSOR_TEST);
+    bool clip_origin_lower_left = true;
+#if defined(GL_CLIP_ORIGIN) && !defined(__APPLE__)
+    GLenum clip_origin = 0;
+#endif
+};
+
 #include "gui/console.cpp"
 #include "gui/file.cpp"
 #include "gui/internal.cpp"
@@ -71,7 +100,6 @@ void VuGui::Begin() {
     ImGui::NewFrame();
 }
 
-// Note that this implementation is little overcomplicated because we are saving/setting up/restoring every OpenGL state explicitly
 void VuGui::End() {
     ImGui::Render();
 
@@ -84,8 +112,7 @@ void VuGui::End() {
     int fb_height = (int) (draw_data->DisplaySize.y * draw_data->FramebufferScale.y);
     if (fb_width <= 0 || fb_height <= 0)
         return;
-    ImGui_GL_RenderDrawData(rs, draw_data, fb_width, fb_height);
 
-    // Restore modified GL state
+    ImGui_GL_RenderDrawData(rs, draw_data, fb_width, fb_height);
     ImGui_GL_RestoreRenderState(rs);
 }

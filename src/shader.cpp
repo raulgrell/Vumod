@@ -3,58 +3,74 @@
 static const char *vertex_shader_text = R"(
 #version 130
 uniform mat4 MVP;
-attribute vec3 vCol;
-attribute vec2 vPos;
-varying vec3 color;
+uniform vec4 Tint;
+in vec3 vPos;
+in vec3 vNorm;
+in vec3 vCol;
+in vec2 vTexCoord;
+out vec3 fColor;
 void main()
 {
-    gl_Position = MVP * vec4(vPos, 0.0, 1.0);
-    color = vCol;
+    vec3 x = (vNorm + vCol + vec3(vTexCoord, 0.0)) * 0.00001;
+    gl_Position = MVP * vec4(vPos + x, 1.0);
+    fColor = vCol + Tint.xyz;
 })";
 
 static const char *fragment_shader_text = R"(
 #version 130
-varying vec3 color;
+in vec3 fColor;
 void main()
 {
-    gl_FragColor = vec4(color, 1.0);
+    gl_FragColor = vec4(fColor, 1.0);
 })";
 
-static const struct
-{
-    float x, y;
-    float r, g, b;
-} vertices[3] = {
-    {-0.6f, -0.4f, 1.f, 0.f, 0.f},
-    {0.6f, -0.4f, 0.f, 1.f, 0.f},
-    {0.f, 0.6f, 0.f, 0.f, 1.f}};
+void VuShader::Bind() {
+    glUseProgram(program);
+    glBindVertexArray(vao_id);
+    glEnableVertexAttribArray(attr_position);
+    glVertexAttribPointer(attr_position, 3, GL_FLOAT, GL_FALSE, sizeof(VuVertex), (void *)offsetof(VuVertex, position));
+    glEnableVertexAttribArray(attr_normal);
+    glVertexAttribPointer(attr_normal, 3, GL_FLOAT, GL_FALSE, sizeof(VuVertex), (void *)offsetof(VuVertex, normal));
+    glEnableVertexAttribArray(attr_color);
+    glVertexAttribPointer(attr_color, 3, GL_FLOAT, GL_FALSE, sizeof(VuVertex), (void *)offsetof(VuVertex, color));
+    glEnableVertexAttribArray(attr_uv);
+    glVertexAttribPointer(attr_uv, 2, GL_FLOAT, GL_FALSE, sizeof(VuVertex), (void *)offsetof(VuVertex, uv));
+}
+
+void VuShader::Unbind() {
+    glBindVertexArray(0);
+    glUseProgram(0);
+}
 
 static void initShader(VuShader &vs)
 {
-    vs.vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vs.vertex_shader, 1, &vertex_shader_text, nullptr);
-    glCompileShader(vs.vertex_shader);
+    int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex_shader, 1, &vertex_shader_text, nullptr);
+    glCompileShader(vertex_shader);
+    CheckShader(vertex_shader, "vertex shader");
 
-    vs.fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(vs.fragment_shader, 1, &fragment_shader_text, nullptr);
-    glCompileShader(vs.fragment_shader);
+    int fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment_shader, 1, &fragment_shader_text, nullptr);
+    glCompileShader(fragment_shader);
+    CheckShader(vertex_shader, "fragment shader");
 
     vs.program = glCreateProgram();
-    glAttachShader(vs.program, vs.vertex_shader);
-    glAttachShader(vs.program, vs.fragment_shader);
+    glAttachShader(vs.program, vertex_shader);
+    glAttachShader(vs.program, fragment_shader);
     glLinkProgram(vs.program);
 
-    glGenBuffers(1, &vs.vertex_buffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vs.vertex_buffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    CheckErrors();
 
-    vs.mvp_location = glGetUniformLocation(vs.program, "MVP");
-    vs.vpos_location = glGetAttribLocation(vs.program, "vPos");
-    vs.vcol_location = glGetAttribLocation(vs.program, "vCol");
-    glEnableVertexAttribArray(vs.vpos_location);
-    glVertexAttribPointer(vs.vpos_location, 2, GL_FLOAT, GL_FALSE, sizeof(vertices[0]), (void *)0);
-    glEnableVertexAttribArray(vs.vcol_location);
-    glVertexAttribPointer(vs.vcol_location, 3, GL_FLOAT, GL_FALSE, sizeof(vertices[0]), (void *)(sizeof(float) * 2));
+    glGenVertexArrays(1, &(vs.vao_id));
+    glBindVertexArray(vs.vao_id);
+
+    vs.uniform_mvp = glGetUniformLocation(vs.program, "MVP");
+    vs.uniform_tint = glGetUniformLocation(vs.program, "Tint");
+
+    vs.attr_position = glGetAttribLocation(vs.program, "vPos");
+    vs.attr_normal = glGetAttribLocation(vs.program, "vNorm");
+    vs.attr_color = glGetAttribLocation(vs.program, "vCol");
+    vs.attr_uv = glGetAttribLocation(vs.program, "vTexCoord");
 }
 
 static bool CheckShader(GLuint handle, const char *desc)
@@ -122,7 +138,7 @@ static int CheckErrorsInternal(const char *file, int line)
     while (err != GL_NO_ERROR)
     {
         const char *error = GetGlErrorString(err);
-        fprintf(stderr, "%s at %s:%d\n", error, file, line);
+        fprintf(stderr, "%s at %s: line  %d\n", error, file, line);
         err = glGetError();
     }
     return err;
