@@ -16,7 +16,7 @@ void VuScene::ResizeDisplay() {
 }
 
 void VuScene::RotateCamera() {
-    float ratio = width / (float) height;
+    float ratio = width / (float)height;
     mat4x4 m, p;
     mat4x4_identity(m);
     mat4x4_translate(m, 0, 0, -10);
@@ -29,12 +29,19 @@ void VuScene::Draw() {
     vs.Bind();
     CheckErrors();
 
-    glUniformMatrix4fv(vs.uniform_mvp, 1, GL_FALSE, (const GLfloat *) vc.mvp);
-    glUniform4fv(vs.uniform_tint, 1, (const GLfloat *) vec4{0, 0, 0, 0});
-
     for (auto &object : objects) {
+
         glBindBuffer(GL_ARRAY_BUFFER, object.vbo_id);
         glBindTexture(GL_TEXTURE_2D, 1);
+
+        glUniformMatrix4fv(vs.uniform_mvp, 1, GL_FALSE, (const GLfloat *) vc.mvp);
+        glUniform4fv(vs.uniform_tint, 1, (const GLfloat *) vec4{0, 0, 0, 0});
+
+        glVertexAttribPointer(vs.attr_position, 3, GL_FLOAT, GL_FALSE, sizeof(VuVertex), (void *)offsetof(VuVertex, position));
+        glVertexAttribPointer(vs.attr_normal, 3, GL_FLOAT, GL_FALSE, sizeof(VuVertex), (void *)offsetof(VuVertex, normal));
+        glVertexAttribPointer(vs.attr_color, 3, GL_FLOAT, GL_FALSE, sizeof(VuVertex), (void *)offsetof(VuVertex, color));
+        glVertexAttribPointer(vs.attr_uv, 2, GL_FLOAT, GL_FALSE, sizeof(VuVertex), (void *)offsetof(VuVertex, uv));
+
         glDrawArrays(GL_TRIANGLES, 0, (GLsizei)object.buffer.size());
     }
 
@@ -376,6 +383,7 @@ bool VuScene::LoadObject(const char *filename)
 
         if (!o.buffer.empty())
         {
+            glBindVertexArray(vs.vao_id);
             glGenBuffers(1, &o.vbo_id);
             glBindBuffer(GL_ARRAY_BUFFER, o.vbo_id);
             glBufferData(GL_ARRAY_BUFFER, o.buffer.size() * sizeof(VuVertex), &o.buffer.at(0), GL_STATIC_DRAW);

@@ -28,13 +28,10 @@ void VuShader::Bind() {
     glUseProgram(program);
     glBindVertexArray(vao_id);
     glEnableVertexAttribArray(attr_position);
-    glVertexAttribPointer(attr_position, 3, GL_FLOAT, GL_FALSE, sizeof(VuVertex), (void *)offsetof(VuVertex, position));
     glEnableVertexAttribArray(attr_normal);
-    glVertexAttribPointer(attr_normal, 3, GL_FLOAT, GL_FALSE, sizeof(VuVertex), (void *)offsetof(VuVertex, normal));
     glEnableVertexAttribArray(attr_color);
-    glVertexAttribPointer(attr_color, 3, GL_FLOAT, GL_FALSE, sizeof(VuVertex), (void *)offsetof(VuVertex, color));
     glEnableVertexAttribArray(attr_uv);
-    glVertexAttribPointer(attr_uv, 2, GL_FLOAT, GL_FALSE, sizeof(VuVertex), (void *)offsetof(VuVertex, uv));
+
 }
 
 void VuShader::Unbind() {
@@ -61,9 +58,6 @@ static void initShader(VuShader &vs)
 
     CheckErrors();
 
-    glGenVertexArrays(1, &(vs.vao_id));
-    glBindVertexArray(vs.vao_id);
-
     vs.uniform_mvp = glGetUniformLocation(vs.program, "MVP");
     vs.uniform_tint = glGetUniformLocation(vs.program, "Tint");
 
@@ -71,6 +65,8 @@ static void initShader(VuShader &vs)
     vs.attr_normal = glGetAttribLocation(vs.program, "vNorm");
     vs.attr_color = glGetAttribLocation(vs.program, "vCol");
     vs.attr_uv = glGetAttribLocation(vs.program, "vTexCoord");
+
+    CheckErrors();
 }
 
 static bool CheckShader(GLuint handle, const char *desc)

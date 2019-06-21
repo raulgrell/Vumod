@@ -28,7 +28,7 @@ int main() {
     CheckErrors();
 
     VuScene vc(vw, vs);
-    vc.LoadFile("data/blender.obj");
+    vc.LoadFile("data/doubleg.obj");
 
     while (vw.IsRunning()) {
         vw.Begin();

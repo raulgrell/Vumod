@@ -89,10 +89,28 @@ struct VuGui
     void End();
 };
 
+struct VuTexture
+{
+    GLuint id;
+    GLsizei width, height;
+    std::string path;
+
+    static std::unordered_map<std::string, VuTexture> s_Cache;
+    static VuTexture Load(const std::string &texturePath);
+
+    void Bind() const;
+    void Unbind() const;
+};
+
+struct VuMaterial {
+    VuTexture texture;
+};
+
 struct VuObject
 {
     GLuint vbo_id = 0;
     int material_id = 0;
+    int texture_id = 0;
 
     std::vector<VuVertex> buffer;
 
@@ -150,19 +168,6 @@ struct VuDir {
     std::string BaseName() const;
 
     void Fold(std::vector<VuFile>& file_list, void (*map_fn)(std::vector<VuFile>&, const tinydir_file &));
-};
-
-struct VuTexture
-{
-    GLuint id;
-    GLsizei width, height;
-    std::string path;
-
-    static std::unordered_map<std::string, VuTexture> s_Cache;
-    static VuTexture Load(const std::string &texturePath);
-
-    void Bind() const;
-    void Unbind() const;
 };
 
 struct VuScript {
