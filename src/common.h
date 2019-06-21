@@ -91,8 +91,8 @@ struct VuGui
 
 struct VuTexture
 {
-    GLuint id;
-    GLsizei width, height;
+    GLuint id = 0;
+    GLsizei width = 0, height = 0;
     std::string path;
 
     static std::unordered_map<std::string, VuTexture> s_Cache;

@@ -9,19 +9,23 @@ in vec3 vNorm;
 in vec3 vCol;
 in vec2 vTexCoord;
 out vec3 fColor;
+out vec2 fUV;
 void main()
 {
-    vec3 x = (vNorm + vCol + vec3(vTexCoord, 0.0)) * 0.00001;
-    gl_Position = MVP * vec4(vPos + x, 1.0);
+    vec3 x = (vNorm + vCol) * 0.00001;
     fColor = vCol + Tint.xyz;
+    fUV = vTexCoord;
+    gl_Position = MVP * vec4(vPos + x, 1.0);
 })";
 
 static const char *fragment_shader_text = R"(
 #version 130
+uniform sampler2D Texture;
 in vec3 fColor;
+in vec2 fUV;
 void main()
 {
-    gl_FragColor = vec4(fColor, 1.0);
+    gl_FragColor = texture2D(Texture, fUV) * vec4(fColor, 1.0);
 })";
 
 void VuShader::Bind() {
@@ -31,7 +35,6 @@ void VuShader::Bind() {
     glEnableVertexAttribArray(attr_normal);
     glEnableVertexAttribArray(attr_color);
     glEnableVertexAttribArray(attr_uv);
-
 }
 
 void VuShader::Unbind() {
