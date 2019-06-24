@@ -1,5 +1,7 @@
 #include "../common.h"
 
+#include "../VuShader.h"
+
 struct VuGuiRenderState {
     GLenum active_texture;
     GLint program;

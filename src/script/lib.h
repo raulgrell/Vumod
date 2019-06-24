@@ -1,3 +1,5 @@
+#include "common.h"
+
 struct Vec3f {
     union {
         float v[3];

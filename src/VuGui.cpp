@@ -1,8 +1,7 @@
-#include "common.h"
-
-#include "gui/internal.cpp"
 #include "gui/console.cpp"
-#include "gui/ui.cpp"
+#include "gui/internal.cpp"
+
+#include "VuGui.h"
 
 static const GLchar *vertex_shader_glsl_130 = R"(
 #version 130
@@ -27,6 +26,49 @@ out vec4 Out_Color;
 void main() {
     Out_Color = Frag_Color * texture(Texture, Frag_UV.st);
 })";
+
+void drawMainMenu() {
+    if (ImGui::BeginMainMenuBar()) {
+        if (ImGui::BeginMenu("File")) {
+            if (ImGui::MenuItem("Open", "CTRL+O")) {
+                printf("%s\n", "Open");
+            }
+            if (ImGui::MenuItem("Save", "CTRL+S")) {
+                printf("%s\n", "Save");
+            }
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Edit")) {
+            if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
+            if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
+            ImGui::Separator();
+            if (ImGui::MenuItem("Cut", "CTRL+X")) {}
+            if (ImGui::MenuItem("Copy", "CTRL+C")) {}
+            if (ImGui::MenuItem("Paste", "CTRL+V")) {}
+            ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
+    }
+}
+
+void drawGui(VuScene &vs) {
+    drawMainMenu();
+
+    static bool show_ui = true;
+    ImGui::Begin("Scene", &show_ui);
+    ImGui::DragFloat3("Camera position", vs.vc.position, 0.01f, -16.0f, 16.0f);
+    ImGui::DragFloat3("Camera rotation", vs.vc.rotation, 0.01f, -90.0f, 90.0f);
+    ImGui::End();
+
+    static bool show_demo_window = true;
+    if (show_demo_window) {
+        ImGui::ShowDemoWindow(&show_demo_window);
+    }
+
+    static bool show_console_window = true;
+    if (show_console_window)
+        ShowConsole(&show_console_window);
+}
 
 VuGui::VuGui(VuWindow &vw) : m_Window(vw.window), m_Time(0.0) {
     IMGUI_CHECKVERSION();

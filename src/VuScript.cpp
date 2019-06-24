@@ -1,6 +1,18 @@
 #include "common.h"
 
+#include "VuScript.h"
+
+extern "C" {
+#include <wren/wren.h>
+}
+
 #include "script/lib.h"
+
+static WrenConfiguration config = {};
+static WrenVM *vm = nullptr;
+
+std::vector<std::string> VuScript::commands;
+char VuScript::command_text[4096] = "System.print(\"Scripting enabled!\")";
 
 // note that according to the "vector" module name, our Vec3 definition
 // now lies in the file vector.wren
@@ -74,7 +86,7 @@ void finalizeType(void* bytes) {
 
 static void write(WrenVM *vm, const char *text) {
     std::cout << text;
-}
+};
 
 VuScript::VuScript() {
     wrenInitConfiguration(&config);
@@ -90,10 +102,9 @@ VuScript::VuScript() {
         fatal_error("Could not run script.");
 }
 
-
 VuScript::~VuScript() {
     wrenFreeVM(vm);
-};
+}
 
 void VuScript::InterpretCommands() {
     for (auto &command : commands) {
@@ -103,4 +114,3 @@ void VuScript::InterpretCommands() {
     }
     commands.clear();
 }
-

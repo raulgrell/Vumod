@@ -1,4 +1,4 @@
-#include "common.h"
+#include "VuWindow.h"
 
 static void error_callback(int error, const char *description)
 {
@@ -11,7 +11,7 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action, 
         glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
 
-void initWindow(VuWindow &vw, int width, int height)
+VuWindow::VuWindow(const char *title, int width, int height)
 {
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
@@ -19,24 +19,24 @@ void initWindow(VuWindow &vw, int width, int height)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-    vw.window = glfwCreateWindow(width, height, "VuMod", nullptr, nullptr);
-    if (!vw.window)
+    window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+    if (!window)
     {
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
 
-    glfwSetKeyCallback(vw.window, key_callback);
-    glfwMakeContextCurrent(vw.window);
+    glfwSetKeyCallback(window, key_callback);
+    glfwMakeContextCurrent(window);
     gladLoadGL();
 
     glEnable(GL_DEPTH_TEST);
     glfwSwapInterval(1);
 }
 
-void destroyWindow(VuWindow &vw)
+VuWindow::~VuWindow()
 {
-    glfwDestroyWindow(vw.window);
+    glfwDestroyWindow(window);
     glfwTerminate();
 }
 

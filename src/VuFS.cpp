@@ -1,14 +1,13 @@
-#include "common.h"
+#include "VuFS.h"
 
 // TODO: check return types
-
-static size_t GetFileSize(const std::string &path)
+size_t GetFileSize(const std::string &path)
 {
     std::ifstream in(path, std::ifstream::binary | std::ifstream::ate);
     return in.tellg();
 }
 
-static std::string GetBaseDir(const std::string &filepath)
+std::string GetBaseDir(const std::string &filepath)
 {
     size_t index = filepath.find_last_of("/\\");
     if (index != std::string::npos)
@@ -16,7 +15,7 @@ static std::string GetBaseDir(const std::string &filepath)
     return std::string(".\\");
 }
 
-static bool FileExists(const std::string &path)
+bool FileExists(const std::string &path)
 {
     if (FILE *file = fopen(path.c_str(), "r"))
     {
@@ -29,7 +28,7 @@ static bool FileExists(const std::string &path)
     }
 }
 
-static uint8_t *ReadFile(const std::string &path)
+uint8_t *ReadFile(const std::string &path)
 {
     std::ifstream ifs(path, std::ios::binary | std::ios::ate);
     size_t pos = ifs.tellg();
@@ -39,7 +38,7 @@ static uint8_t *ReadFile(const std::string &path)
     return result;
 }
 
-static size_t ReadFile(const std::string &path, std::vector<unsigned char>& buffer)
+size_t ReadFile(const std::string &path, std::vector<unsigned char>& buffer)
 {
     std::ifstream ifs(path, std::ios::binary | std::ios::ate);
     size_t pos = ifs.tellg();
@@ -49,7 +48,7 @@ static size_t ReadFile(const std::string &path, std::vector<unsigned char>& buff
     return pos;
 }
 
-static size_t ReadTextFile(const std::string& filePath, std::vector<unsigned char>& buffer)
+size_t ReadTextFile(const std::string& filePath, std::vector<unsigned char>& buffer)
 {
     std::ifstream file(filePath);
     if (file.fail()) {
@@ -73,38 +72,28 @@ static size_t ReadTextFile(const std::string& filePath, std::vector<unsigned cha
     return fileSize;
 }
 
-static std::string ReadTextFile(const std::string &path)
+std::string ReadTextFile(const std::string &path)
 {
     std::vector<unsigned char> fileContents = {};
     ReadTextFile(path, fileContents);
     return std::string(fileContents.begin(), fileContents.end());
 }
 
-static bool WriteFile(const std::string &path, uint8_t *buffer)
+bool WriteFile(const std::string &path, uint8_t *buffer)
 {
     std::ofstream file(path, std::ios::out | std::ios::binary);
     file.write(reinterpret_cast<char *>(buffer), sizeof(buffer));
     return true;
 }
 
-static bool WriteTextFile(const std::string &path, const std::string &text)
+bool WriteTextFile(const std::string &path, const std::string &text)
 {
     std::ofstream file(path, std::ios::out | std::ios::binary);
     file.write(text.c_str(), text.length());
     return true;
 }
 
-static void Mount(VuFS &vf, const std::string &virtualPath, const std::string &physicalPath)
-{
-    vf.m_MountPoints[virtualPath].push_back(physicalPath);
-}
-
-static void Unmount(VuFS &vf, const std::string &path)
-{
-    vf.m_MountPoints[path].clear();
-}
-
-static bool ResolvePhysicalPath(VuFS &vf, const std::string &path, std::string &outPhysicalPath)
+bool ResolvePhysicalPath(VuFS &vf, const std::string &path, std::string &outPhysicalPath)
 {
     if (path[0] != '/')
     {
@@ -131,37 +120,37 @@ static bool ResolvePhysicalPath(VuFS &vf, const std::string &path, std::string &
     return false;
 }
 
-static uint8_t *ReadFile(VuFS &vf, const std::string &path)
+uint8_t *ReadFile(VuFS &vf, const std::string &path)
 {
     std::string physicalPath;
     return ResolvePhysicalPath(vf, path, physicalPath) ? ReadFile(physicalPath) : nullptr;
 }
 
-static size_t ReadFile(VuFS &vf, const std::string &path, std::vector<unsigned char>& buffer)
+size_t ReadFile(VuFS &vf, const std::string &path, std::vector<unsigned char>& buffer)
 {
     std::string physicalPath;
     return ResolvePhysicalPath(vf, path, physicalPath) ? ReadFile(physicalPath, buffer) : 0;
 }
 
-static std::string ReadTextFile(VuFS &vf, const std::string &path)
+std::string ReadTextFile(VuFS &vf, const std::string &path)
 {
     std::string physicalPath;
     return ResolvePhysicalPath(vf, path, physicalPath) ? ReadTextFile(physicalPath) : nullptr;
 }
 
-static size_t ReadTextFile(VuFS &vf, const std::string &path, std::vector<unsigned char>& buffer)
+size_t ReadTextFile(VuFS &vf, const std::string &path, std::vector<unsigned char>& buffer)
 {
     std::string physicalPath;
     return ResolvePhysicalPath(vf, path, physicalPath) ? ReadTextFile(physicalPath, buffer) : 0;
 }
 
-static bool WriteFile(VuFS &vf, const std::string &path, uint8_t *buffer)
+bool WriteFile(VuFS &vf, const std::string &path, uint8_t *buffer)
 {
     std::string physicalPath;
     return ResolvePhysicalPath(vf, path, physicalPath) ? WriteFile(physicalPath, buffer) : false;
 }
 
-static bool WriteTextFile(VuFS &vf, const std::string &path, const std::string &text)
+bool WriteTextFile(VuFS &vf, const std::string &path, const std::string &text)
 {
     std::string physicalPath;
     return ResolvePhysicalPath(vf, path, physicalPath) ? WriteTextFile(physicalPath, text) : false;
@@ -204,3 +193,12 @@ VuFile::VuFile(const tinydir_file &file) {
     is_dir = file.is_dir;
 }
 
+void VuFS::Mount(const std::string &virtualPath, const std::string &physicalPath)
+{
+    m_MountPoints[virtualPath].push_back(physicalPath);
+}
+
+void VuFS::Unmount(const std::string &path)
+{
+    m_MountPoints[path].clear();
+}

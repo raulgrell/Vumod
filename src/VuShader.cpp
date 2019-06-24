@@ -1,4 +1,4 @@
-#include "common.h"
+#include "VuShader.h"
 
 static const char *vertex_shader_text = R"(
 #version 130
@@ -28,21 +28,7 @@ void main()
     gl_FragColor = texture2D(Texture, vec2(-fUV.x, fUV.y)) * vec4(fColor, 1.0);
 })";
 
-void VuShader::Bind() {
-    glUseProgram(program);
-    glBindVertexArray(vao_id);
-    glEnableVertexAttribArray(attr_position);
-    glEnableVertexAttribArray(attr_normal);
-    glEnableVertexAttribArray(attr_color);
-    glEnableVertexAttribArray(attr_uv);
-}
-
-void VuShader::Unbind() {
-    glBindVertexArray(0);
-    glUseProgram(0);
-}
-
-static void initShader(VuShader &vs)
+void initShader(VuShader &vs)
 {
     int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex_shader, 1, &vertex_shader_text, nullptr);
@@ -72,15 +58,29 @@ static void initShader(VuShader &vs)
     CheckErrors();
 }
 
-static bool CheckShader(GLuint handle, const char *desc)
+void VuShader::Bind() {
+    glUseProgram(program);
+    glBindVertexArray(vao_id);
+    glEnableVertexAttribArray(attr_position);
+    glEnableVertexAttribArray(attr_normal);
+    glEnableVertexAttribArray(attr_color);
+    glEnableVertexAttribArray(attr_uv);
+}
+
+void VuShader::Unbind() {
+    glBindVertexArray(0);
+    glUseProgram(0);
+}
+
+bool CheckShader(GLuint handle, const char *desc)
 {
     GLint status = 0, log_length = 0;
     glGetShaderiv(handle, GL_COMPILE_STATUS, &status);
     glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &log_length);
-    
+
     if ((GLboolean)status == GL_FALSE)
         fprintf(stderr, "ERROR: Shader failed to compile %s!\n", desc);
-    
+
     if (log_length > 0)
     {
         std::vector<char> buf;
@@ -88,11 +88,11 @@ static bool CheckShader(GLuint handle, const char *desc)
         glGetShaderInfoLog(handle, log_length, nullptr, &buf[0]);
         fprintf(stderr, "%s\n", &buf[0]);
     }
-    
+
     return (GLboolean)status == GL_TRUE;
 }
 
-static bool CheckProgram(GLuint handle, const char *desc)
+bool CheckProgram(GLuint handle, const char *desc)
 {
     GLint status = 0, log_length = 0;
     glGetProgramiv(handle, GL_LINK_STATUS, &status);
@@ -100,7 +100,7 @@ static bool CheckProgram(GLuint handle, const char *desc)
 
     if ((GLboolean)status == GL_FALSE)
         fprintf(stderr, "ERROR: Shader failed to link %s!\n", desc);
-    
+
     if (log_length > 0)
     {
         ImVector<char> buf;
@@ -108,7 +108,7 @@ static bool CheckProgram(GLuint handle, const char *desc)
         glGetProgramInfoLog(handle, log_length, nullptr, buf.begin());
         fprintf(stderr, "%s\n", buf.begin());
     }
-    
+
     return (GLboolean)status == GL_TRUE;
 }
 
@@ -116,22 +116,22 @@ static const char *GetGlErrorString(GLenum err)
 {
     switch (err)
     {
-    case GL_INVALID_OPERATION:
-        return "GL_INVALID_OPERATION";
-    case GL_INVALID_ENUM:
-        return "GL_INVALID_ENUM";
-    case GL_INVALID_VALUE:
-        return "GL_INVALID_VALUE";
-    case GL_OUT_OF_MEMORY:
-        return "GL_OUT_OF_MEMORY";
-    case GL_INVALID_FRAMEBUFFER_OPERATION:
-        return "GL_INVALID_FRAMEBUFFER_OPERATION";
-    default:
-        return "Unknown OpenGL error";
+        case GL_INVALID_OPERATION:
+            return "GL_INVALID_OPERATION";
+        case GL_INVALID_ENUM:
+            return "GL_INVALID_ENUM";
+        case GL_INVALID_VALUE:
+            return "GL_INVALID_VALUE";
+        case GL_OUT_OF_MEMORY:
+            return "GL_OUT_OF_MEMORY";
+        case GL_INVALID_FRAMEBUFFER_OPERATION:
+            return "GL_INVALID_FRAMEBUFFER_OPERATION";
+        default:
+            return "Unknown OpenGL error";
     }
 }
 
-static int CheckErrorsInternal(const char *file, int line)
+int CheckErrorsInternal(const char *file, int line)
 {
     GLenum err(glGetError());
     while (err != GL_NO_ERROR)

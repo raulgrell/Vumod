@@ -1,37 +1,25 @@
+
+#include "VuScene.h"
+#include "VuFS.h"
+#include "VuGui.h"
+#include "VuScript.h"
+#include "VuShader.h"
+#include "VuWindow.h"
+
 #include "common.h"
 
-#include "camera.cpp"
-#include "texture.cpp"
-#include "gui.cpp"
-#include "renderer.cpp"
-#include "script.cpp"
-#include "shader.cpp"
-#include "util.cpp"
-#include "vfs.cpp"
-#include "renderer.cpp"
-#include "scene.cpp"
-#include "window.cpp"
-
-#ifdef _MSC_VER
-    #include "../ext/ext.cpp"
-#endif
-
 int main() {
-    VuWindow vw;
-    initWindow(vw, 1280, 720);
-
+    VuWindow vw("VuMod", 1280, 720);
     VuGui vg(vw);
 
     VuFS vf;
-    Mount(vf, "data", "data/");
-    Unmount(vf, "data");
+    vf.Mount("data", "data/");
+    vf.Unmount("data");
 
     VuScript vk;
 
     VuShader vs;
     initShader(vs);
-
-    CheckErrors();
 
     VuScene vc(vw, vs);
     vc.LoadFile("data/triple.obj");
@@ -50,7 +38,4 @@ int main() {
 
         vw.End();
     }
-
-    destroyWindow(vw);
-    exit(EXIT_SUCCESS);
 }
