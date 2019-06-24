@@ -14,6 +14,3 @@
 #include "imgui/imgui_draw.cpp"
 #include "imgui/imgui_demo.cpp"
 
-extern "C" {
-    #include "tinyfiledialogs/tinyfiledialogs.c"
-}

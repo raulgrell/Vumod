@@ -1,37 +1,7 @@
 #include "common.h"
 
-struct VuGuiRenderState {
-    GLenum active_texture;
-    GLint program;
-    GLint texture;
-    GLint array_buffer;
-#ifndef IMGUI_IMPL_OPENGL_ES2
-    GLint vertex_array_object;
-#endif
-#ifdef GL_POLYGON_MODE
-    GLint polygon_mode[2];
-#endif
-    GLint viewport[4];
-    GLint scissor_box[4];
-    GLenum blend_src_rgb;
-    GLenum blend_dst_rgb;
-    GLenum blend_src_alpha;
-    GLenum blend_dst_alpha;
-    GLenum blend_equation_rgb;
-    GLenum blend_equation_alpha;
-    GLboolean enable_blend = glIsEnabled(GL_BLEND);
-    GLboolean enable_cull_face = glIsEnabled(GL_CULL_FACE);
-    GLboolean enable_depth_test = glIsEnabled(GL_DEPTH_TEST);
-    GLboolean enable_scissor_test = glIsEnabled(GL_SCISSOR_TEST);
-    bool clip_origin_lower_left = true;
-#if defined(GL_CLIP_ORIGIN) && !defined(__APPLE__)
-    GLenum clip_origin = 0;
-#endif
-};
-
-#include "gui/console.cpp"
-#include "gui/file.cpp"
 #include "gui/internal.cpp"
+#include "gui/console.cpp"
 #include "gui/ui.cpp"
 
 static const GLchar *vertex_shader_glsl_130 = R"(
@@ -58,13 +28,9 @@ void main() {
     Out_Color = Frag_Color * texture(Texture, Frag_UV.st);
 })";
 
-void initGui(VuWindow &vw, VuGui &vg) {
+VuGui::VuGui(VuWindow &vw) : m_Window(vw.window), m_Time(0.0) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-
-    vg.m_Window = vw.window;
-    vg.m_Time = 0.0;
-
     ImGui_GL_Init(vw.window);
     ImGui_GL_CreateDeviceObjects(vertex_shader_glsl_130, fragment_shader_glsl_130);
 }

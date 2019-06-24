@@ -12,10 +12,10 @@ out vec3 fColor;
 out vec2 fUV;
 void main()
 {
-    vec3 x = (vNorm + vCol) * 0.00001;
+    float dummy = (vNorm.x + vCol.x) * 0.0000000001;
     fColor = vCol + Tint.xyz;
     fUV = vTexCoord;
-    gl_Position = MVP * vec4(vPos + x, 1.0);
+    gl_Position = MVP * vec4(vPos.x + dummy, -vPos.y, vPos.z, 1.0);
 })";
 
 static const char *fragment_shader_text = R"(
@@ -25,7 +25,7 @@ in vec3 fColor;
 in vec2 fUV;
 void main()
 {
-    gl_FragColor = texture2D(Texture, fUV) * vec4(fColor, 1.0);
+    gl_FragColor = texture2D(Texture, vec2(-fUV.x, fUV.y)) * vec4(fColor, 1.0);
 })";
 
 void VuShader::Bind() {

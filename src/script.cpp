@@ -104,9 +104,3 @@ void VuScript::InterpretCommands() {
     commands.clear();
 }
 
-void VuScript::InterpretCommand(const char *command) {
-    WrenInterpretResult result = wrenInterpret(vm, "vumod", command);
-    if (result != WREN_RESULT_SUCCESS)
-        fatal_error("Could not run command.");
-}
-

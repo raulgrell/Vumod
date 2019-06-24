@@ -1,23 +1,29 @@
 #include "common.h"
 
-#include "graphics.cpp"
+#include "camera.cpp"
+#include "texture.cpp"
 #include "gui.cpp"
+#include "renderer.cpp"
 #include "script.cpp"
 #include "shader.cpp"
 #include "util.cpp"
 #include "vfs.cpp"
+#include "renderer.cpp"
 #include "scene.cpp"
 #include "window.cpp"
+
+#ifdef _MSC_VER
+    #include "../ext/ext.cpp"
+#endif
 
 int main() {
     VuWindow vw;
     initWindow(vw, 1280, 720);
 
-    VuGui vg;
-    initGui(vw, vg);
+    VuGui vg(vw);
 
     VuFS vf;
-    Mount(vf, "data", "data");
+    Mount(vf, "data", "data/");
     Unmount(vf, "data");
 
     VuScript vk;
@@ -33,12 +39,11 @@ int main() {
     while (vw.IsRunning()) {
         vw.Begin();
 
-        vc.ResizeDisplay();
-        vc.RotateCamera();
+        vc.UpdateCamera();
         vc.Draw();
 
         vg.Begin();
-        drawGui();
+        drawGui(vc);
         vg.End();
 
         vk.InterpretCommands();

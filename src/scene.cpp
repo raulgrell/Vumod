@@ -8,21 +8,16 @@
 #undef min
 #endif
 
-VuScene::VuScene(VuWindow &vw, VuShader &vs) : vs(vs), vw(vw) {}
-
-void VuScene::ResizeDisplay() {
-    glfwGetFramebufferSize(vw.window, &width, &height);
-    glViewport(0, 0, width, height);
+VuScene::VuScene(VuWindow &vw, VuShader &vs) : vw(vw), vs(vs) {
+    vc.position[0] = 0;
+    vc.position[1] = 0.5;
+    vc.position[2] = -16;
 }
 
-void VuScene::RotateCamera() {
-    float ratio = width / (float) height;
-    mat4x4 m, p;
-    mat4x4_identity(m);
-    mat4x4_translate(m, 0, 0, -10);
-    mat4x4_rotate_Y(m, m, (float) glfwGetTime());
-    mat4x4_perspective(p, 50, ratio, 0.01, 1000);
-    mat4x4_mul(vc.mvp, p, m);
+void VuScene::UpdateCamera() {
+    glfwGetFramebufferSize(vw.window, &width, &height);
+    glViewport(0, 0, width, height);
+    vc.Update(width, height);
 }
 
 void VuScene::Draw() {
@@ -30,7 +25,6 @@ void VuScene::Draw() {
     CheckErrors();
 
     for (auto &object : objects) {
-
         glBindBuffer(GL_ARRAY_BUFFER, object.vbo_id);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, object.texture_id);
@@ -53,13 +47,13 @@ void VuScene::Draw() {
     vs.Unbind();
 }
 
-static void CalcNormal(float N[3], const float v0[3], const float v1[3], const float v2[3]) {
-    float v10[3];
+static void CalcNormal(vec3 N, const vec3 v0, const vec3 v1, const vec3 v2) {
+    vec3 v10;
     v10[0] = v1[0] - v0[0];
     v10[1] = v1[1] - v0[1];
     v10[2] = v1[2] - v0[2];
 
-    float v20[3];
+    vec3 v20;
     v20[0] = v2[0] - v0[0];
     v20[1] = v2[1] - v0[1];
     v20[2] = v2[2] - v0[2];
@@ -98,7 +92,7 @@ void computeSmoothingNormals(const tinyobj::attrib_t &attrib, const tinyobj::sha
 
         // Get the three vertex indexes and coordinates
         int vi[3];     // indexes
-        float v[3][3]; // coordinates
+        vec3 v[3]; // coordinates
         for (int k = 0; k < 3; k++) {
             vi[0] = idx0.vertex_index;
             vi[1] = idx1.vertex_index;
@@ -140,7 +134,7 @@ void computeSmoothingNormals(const tinyobj::attrib_t &attrib, const tinyobj::sha
 void VuScene::LoadFile(const char *path) {
     const char *filename = path;
     size_t filesize = GetFileSize(filename);
-    printf("Loading %s, size %dB\n", filename, filesize);
+    printf("Loading %s, size %lluB\n", filename, filesize);
 
     if (!LoadObject(filename))
         fatal_error("Could not load model.");
@@ -245,7 +239,7 @@ bool VuScene::LoadObject(const char *filename) {
                 tc[2][1] = 0.0f;
             }
 
-            float v[3][3];
+            vec3 v[3];
             for (int k = 0; k < 3; k++) {
                 int f0 = idx0.vertex_index;
                 assert(f0 >= 0);

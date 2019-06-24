@@ -11,5 +11,4 @@
 
 extern "C" {
     #include <wren/wren.h>
-    #include <tinyfiledialogs/tinyfiledialogs.h>
 }

@@ -19,11 +19,11 @@ static std::vector<std::string> splitString(const std::string &strToSplit, char 
 }
 
 static inline void ltrim(std::string &s) {
-    s.erase(begin(s), std::find_if(begin(s), end(s), [](int ch) { return !std::isspace(ch); }));
+    s.erase(begin(s), std::find_if(begin(s), end(s), [](int ch) { return !isspace(ch); }));
 }
 
 static inline void rtrim(std::string &s) {
-    s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) { return !std::isspace(ch); }).base(), s.end());
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) { return !isspace(ch); }).base(), s.end());
 }
 
 static inline void trim(std::string &s) {

@@ -83,6 +83,8 @@ struct VuGui
     GLFWwindow *m_Window = nullptr;
     double m_Time = 0.0;
 
+    explicit VuGui(VuWindow &vw);
+
     ~VuGui();
 
     void Begin();
@@ -108,6 +110,10 @@ struct VuMaterial {
 
 struct VuObject
 {
+    vec3 position;
+    vec3 rotation;
+    vec3 scale;
+
     GLuint vbo_id = 0;
     int material_id = 0;
     int texture_id = 0;
@@ -120,7 +126,11 @@ struct VuObject
 };
 
 struct VuCamera {
-    mat4x4 mvp;
+    vec3 position{0};
+    vec3 rotation{0};
+        mat4x4 mvp{0};
+
+    void Update(int width, int height);
 };
 
 struct VuScene
@@ -128,20 +138,21 @@ struct VuScene
     VuWindow& vw;
     VuShader& vs;
     VuCamera vc;
-    int width;
-    int height;
     std::vector<tinyobj::material_t> materials;
     std::vector<VuObject> objects;
-    float bounds_min[3], bounds_max[3];
+    vec3 bounds_min;
+    vec3 bounds_max;
 
     VuScene(VuWindow &vw, VuShader &shader);
 
-    void ResizeDisplay();
-    void RotateCamera();
+    void UpdateCamera();
     void Draw();
 
     void LoadFile(const char *path);
     bool LoadObject(const char *path);
+
+    int width = 0;
+    int height = 0;
 };
 
 struct VuFS
@@ -156,6 +167,7 @@ struct VuFile
     std::string ext;
     bool is_dir;
 
+    VuFile() : filePath(""), fileName(""), ext(""), is_dir(false) {}
     explicit VuFile(const tinydir_file &file);
 };
 
@@ -178,7 +190,6 @@ struct VuScript {
     ~VuScript();
 
     void InterpretCommands();
-    void InterpretCommand(const char *command);
 };
 
 static int CheckErrorsInternal(const char *file, int line);

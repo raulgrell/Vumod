@@ -1,3 +1,33 @@
+#include "../common.h"
+
+struct VuGuiRenderState {
+    GLenum active_texture;
+    GLint program;
+    GLint texture;
+    GLint array_buffer;
+#ifndef IMGUI_IMPL_OPENGL_ES2
+    GLint vertex_array_object;
+#endif
+#ifdef GL_POLYGON_MODE
+    GLint polygon_mode[2];
+#endif
+    GLint viewport[4];
+    GLint scissor_box[4];
+    GLenum blend_src_rgb;
+    GLenum blend_dst_rgb;
+    GLenum blend_src_alpha;
+    GLenum blend_dst_alpha;
+    GLenum blend_equation_rgb;
+    GLenum blend_equation_alpha;
+    GLboolean enable_blend = glIsEnabled(GL_BLEND);
+    GLboolean enable_cull_face = glIsEnabled(GL_CULL_FACE);
+    GLboolean enable_depth_test = glIsEnabled(GL_DEPTH_TEST);
+    GLboolean enable_scissor_test = glIsEnabled(GL_SCISSOR_TEST);
+    bool clip_origin_lower_left = true;
+#if defined(GL_CLIP_ORIGIN) && !defined(__APPLE__)
+    GLenum clip_origin = 0;
+#endif
+};
 
 static void ImGui_GL_BackupRenderState(VuGuiRenderState &rs);
 
@@ -31,7 +61,7 @@ static void ImGui_GLFW_SetClipboardText(void *user_data, const char *text);
 
 static const char *ImGui_GLFW_GetClipboardText(void *user_data);
 
-void ImGui_GLFW_Shutdown();
+static void ImGui_GLFW_Shutdown();
 
 static GLFWcursor *g_MouseCursors[ImGuiMouseCursor_COUNT] = {nullptr};
 
@@ -270,7 +300,7 @@ bool ImGui_GL_CreateFontsTexture() {
     return true;
 }
 
-void ImGui_GL_Init(GLFWwindow* window) {
+void ImGui_GL_Init(GLFWwindow *window) {
     ImGuiIO &io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
@@ -506,8 +536,8 @@ static void ImGui_GLFW_UpdateMouseCursor(GLFWwindow *window) {
     } else {
         // Show OS mouse cursor
         glfwSetCursor(window, g_MouseCursors[imgui_cursor]
-                                   ? g_MouseCursors[imgui_cursor]
-                                   : g_MouseCursors[ImGuiMouseCursor_Arrow]);
+                              ? g_MouseCursors[imgui_cursor]
+                              : g_MouseCursors[ImGuiMouseCursor_Arrow]);
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
 }
