@@ -28,7 +28,7 @@ void main()
     gl_FragColor = texture2D(Texture, vec2(-fUV.x, fUV.y)) * vec4(fColor, 1.0);
 })";
 
-void initShader(VuShader &vs)
+VuShader::VuShader()
 {
     int vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex_shader, 1, &vertex_shader_text, nullptr);
@@ -40,20 +40,20 @@ void initShader(VuShader &vs)
     glCompileShader(fragment_shader);
     CheckShader(vertex_shader, "fragment shader");
 
-    vs.program = glCreateProgram();
-    glAttachShader(vs.program, vertex_shader);
-    glAttachShader(vs.program, fragment_shader);
-    glLinkProgram(vs.program);
+    program = glCreateProgram();
+    glAttachShader(program, vertex_shader);
+    glAttachShader(program, fragment_shader);
+    glLinkProgram(program);
 
     CheckErrors();
 
-    vs.uniform_mvp = glGetUniformLocation(vs.program, "MVP");
-    vs.uniform_tint = glGetUniformLocation(vs.program, "Tint");
+    uniform_mvp = glGetUniformLocation(program, "MVP");
+    uniform_tint = glGetUniformLocation(program, "Tint");
 
-    vs.attr_position = glGetAttribLocation(vs.program, "vPos");
-    vs.attr_normal = glGetAttribLocation(vs.program, "vNorm");
-    vs.attr_color = glGetAttribLocation(vs.program, "vCol");
-    vs.attr_uv = glGetAttribLocation(vs.program, "vTexCoord");
+    attr_position = glGetAttribLocation(program, "vPos");
+    attr_normal = glGetAttribLocation(program, "vNorm");
+    attr_color = glGetAttribLocation(program, "vCol");
+    attr_uv = glGetAttribLocation(program, "vTexCoord");
 
     CheckErrors();
 }
@@ -103,10 +103,10 @@ bool CheckProgram(GLuint handle, const char *desc)
 
     if (log_length > 0)
     {
-        ImVector<char> buf;
-        buf.resize((int)(log_length + 1));
-        glGetProgramInfoLog(handle, log_length, nullptr, buf.begin());
-        fprintf(stderr, "%s\n", buf.begin());
+        std::vector<char> buf;
+        buf.resize(log_length + 1);
+        glGetProgramInfoLog(handle, log_length, nullptr, &buf[0]);
+        fprintf(stderr, "%s\n", &buf[0]);
     }
 
     return (GLboolean)status == GL_TRUE;

@@ -1,6 +1,8 @@
-#include "common.h"
-
 #include "VuScript.h"
+
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 extern "C" {
 #include <wren/wren.h>

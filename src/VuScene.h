@@ -3,6 +3,7 @@
 #include "VuWindow.h"
 #include "VuShader.h"
 #include "VuCamera.h"
+#include "VuObject.h"
 
 #include "common.h"
 

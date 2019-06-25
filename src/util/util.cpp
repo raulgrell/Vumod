@@ -1,12 +1,7 @@
 #include "common.h"
 
-void fatal_error(const std::string &errorString)
-{
-    perror(errorString.c_str());
-    glfwTerminate();
-    system("PAUSE");
-    exit(1);
-}
+#include <algorithm>
+#include <sstream>
 
 std::vector<std::string> splitString(const std::string &strToSplit, char delimeter)
 {

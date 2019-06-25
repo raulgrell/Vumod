@@ -6,16 +6,19 @@ set(CMAKE_CXX_STANDARD 17)
 include_directories(ext)
 include_directories(glfw/include)
 include_directories(src)
+include_directories(include)
 
 link_directories(glfw/lib-mingw-w64)
 link_libraries(glfw3 opengl32 user32 gdi32 shell32)
 
 add_executable(Viewer
         ext/ext.cpp
-        src/util.cpp
+        src/util/util.cpp
         src/VuScene.cpp
+        src/VuCamera.cpp
         src/VuFS.cpp
         src/VuGui.cpp
+        src/VuObject.cpp
         src/VuScript.cpp
         src/VuShader.cpp
         src/VuTexture.cpp

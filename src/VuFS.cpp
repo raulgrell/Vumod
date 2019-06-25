@@ -1,10 +1,16 @@
 #include "VuFS.h"
 
+#include <fstream>
+
 // TODO: check return types
 size_t GetFileSize(const std::string &path)
 {
     std::ifstream in(path, std::ifstream::binary | std::ifstream::ate);
-    return in.tellg();
+    if (in.good()) {
+        return in.tellg();
+    } else {
+        return 0;
+    }
 }
 
 std::string GetBaseDir(const std::string &filepath)

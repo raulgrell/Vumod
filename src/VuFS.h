@@ -2,6 +2,9 @@
 
 #include "common.h"
 
+#include <unordered_map>
+#include <memory>
+
 struct VuFS {
     std::unordered_map<std::string, std::vector<std::string>> m_MountPoints;
     void Mount(const std::string &virtualPath, const std::string &physicalPath);

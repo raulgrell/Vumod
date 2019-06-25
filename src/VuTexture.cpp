@@ -1,3 +1,4 @@
+#include <iostream>
 #include "VuTexture.h"
 
 std::unordered_map<std::string, VuTexture> VuTexture::s_Cache;

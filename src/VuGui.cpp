@@ -70,10 +70,10 @@ void drawGui(VuScene &vs) {
         ShowConsole(&show_console_window);
 }
 
-VuGui::VuGui(VuWindow &vw) : m_Window(vw.window), m_Time(0.0) {
+VuGui::VuGui(VuWindow &vw) : m_Window((GLFWwindow *)vw.window), m_Time(0.0) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGui_GL_Init(vw.window);
+    ImGui_GL_Init((GLFWwindow *)vw.window);
     ImGui_GL_CreateDeviceObjects(vertex_shader_glsl_130, fragment_shader_glsl_130);
 }
 
@@ -90,8 +90,8 @@ void VuGui::Begin() {
     // Setup display size every frame to account for window resizing
     int w, h;
     int display_w, display_h;
-    glfwGetWindowSize(m_Window, &w, &h);
-    glfwGetFramebufferSize(m_Window, &display_w, &display_h);
+    glfwGetWindowSize((GLFWwindow *)m_Window, &w, &h);
+    glfwGetFramebufferSize((GLFWwindow *)m_Window, &display_w, &display_h);
     io.DisplaySize = ImVec2((float) w, (float) h);
     if (w > 0 && h > 0)
         io.DisplayFramebufferScale = ImVec2((float) display_w / w, (float) display_h / h);
@@ -101,8 +101,8 @@ void VuGui::Begin() {
     io.DeltaTime = m_Time > 0.0 ? (float) (current_time - m_Time) : (1.0f / 60.0f);
     m_Time = current_time;
 
-    ImGui_GLFW_UpdateMousePosAndButtons(m_Window);
-    ImGui_GLFW_UpdateMouseCursor(m_Window);
+    ImGui_GLFW_UpdateMousePosAndButtons((GLFWwindow *)m_Window);
+    ImGui_GLFW_UpdateMouseCursor((GLFWwindow *)m_Window);
     ImGui_GLFW_UpdateGamepads();
 
     ImGui::NewFrame();

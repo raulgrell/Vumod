@@ -1,4 +1,4 @@
-#include "../common.h"
+#include "common.h"
 
 struct ConsoleApp {
     char InputBuf[256]{0};

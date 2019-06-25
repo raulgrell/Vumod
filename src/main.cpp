@@ -1,41 +1,38 @@
 
-#include "VuScene.h"
-#include "VuFS.h"
-#include "VuGui.h"
-#include "VuScript.h"
-#include "VuShader.h"
-#include "VuWindow.h"
-
-#include "common.h"
+#include <VuScene.h>
+#include <VuFS.h>
+#include <VuGui.h>
+#include <VuScript.h>
+#include <VuShader.h>
+#include <VuWindow.h>
 
 int main() {
-    VuWindow vw("VuMod", 1280, 720);
-    VuGui vg(vw);
+    VuWindow window("VuMod", 1280, 720);
+    VuGui gui(window);
 
-    VuFS vf;
-    vf.Mount("data", "data/");
-    vf.Unmount("data");
+    VuFS files;
+    files.Mount("data", "data/");
+    files.Unmount("data");
 
-    VuScript vk;
+    VuScript scripting;
 
-    VuShader vs;
-    initShader(vs);
+    VuShader shader;
 
-    VuScene vc(vw, vs);
-    vc.LoadFile("data/triple.obj");
+    VuScene scene(window, shader);
+    scene.LoadFile("data/doubleg.obj");
 
-    while (vw.IsRunning()) {
-        vw.Begin();
+    while (window.Continue()) {
+        window.Begin();
 
-        vc.UpdateCamera();
-        vc.Draw();
+        scene.UpdateCamera();
+        scene.Draw();
 
-        vg.Begin();
-        drawGui(vc);
-        vg.End();
+        gui.Begin();
+        drawGui(scene);
+        gui.End();
 
-        vk.InterpretCommands();
+        scripting.InterpretCommands();
 
-        vw.End();
+        window.End();
     }
 }

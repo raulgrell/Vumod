@@ -6,7 +6,7 @@
 #include "common.h"
 
 struct VuGui {
-    GLFWwindow *m_Window = nullptr;
+    void *m_Window = nullptr;
     double m_Time = 0.0;
 
     explicit VuGui(VuWindow &vw);

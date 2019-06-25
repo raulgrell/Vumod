@@ -3,15 +3,15 @@
 #include "common.h"
 
 struct VuWindow {
+    void *window = nullptr;
+
     VuWindow(const char *title, int width, int height);
 
     ~VuWindow();
 
-    GLFWwindow *window = nullptr;
-    int width = 0;
-    int height = 0;
+    void GetSize(int *width, int *height) const;
 
-    bool IsRunning() const;
+    bool Continue() const;
 
     void Begin();
 

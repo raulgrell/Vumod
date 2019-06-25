@@ -2,6 +2,8 @@
 
 #include "common.h"
 
+#include <unordered_map>
+
 struct VuTexture {
     GLuint id = 0;
     GLsizei width = 0, height = 0;
