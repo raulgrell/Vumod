@@ -87,6 +87,7 @@ extern "C" {
 #endif
 
 #if (defined _MSC_VER || defined __MINGW32__)
+# define _CRT_SECURE_NO_WARNINGS
 # include <windows.h>
 # define _TINYDIR_PATH_MAX MAX_PATH
 #elif defined  __linux__

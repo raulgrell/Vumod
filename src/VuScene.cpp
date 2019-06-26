@@ -1,4 +1,5 @@
 #include <iostream>
+#include <algorithm>
 #include "VuScene.h"
 #include "VuFS.h"
 #include "VuTexture.h"

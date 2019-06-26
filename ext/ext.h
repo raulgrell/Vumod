@@ -1,5 +1,9 @@
 #pragma once
 
+#if !defined(_CRT_SECURE_NO_WARNINGS)
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include <glad/glad.h>
 
 #include <stb/stb_image.h>
