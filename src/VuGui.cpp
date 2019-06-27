@@ -1,4 +1,7 @@
+#include <iostream>
 #include "gui/console.cpp"
+#include "gui/file.cpp"
+#include "gui/imfilebrowser.cpp"
 #include "gui/internal.cpp"
 
 #include "VuGui.h"
@@ -51,8 +54,56 @@ void drawMainMenu() {
     }
 }
 
+ImGui::FileBrowser fileDialog;
+
+
+void drawFileGui() {
+    static std::string filePathName;
+    static std::string path;
+    static std::string fileName;
+    static std::string filter;
+    static bool show_file_gui = true;
+
+    ImGui::Begin("Files");
+    if (show_file_gui) {
+        if (FileGui::Instance()->FileDialog("Choose File", "*\0", "./data", "")) {
+            if (FileGui::Instance()->Valid) {
+                filePathName = FileGui::Instance()->GetFilepathName();
+                path = FileGui::Instance()->GetCurrentPath();
+                fileName = FileGui::Instance()->GetCurrentFileName();
+                filter = FileGui::Instance()->GetCurrentFilter();
+            } else {
+                filePathName = "";
+                path = "";
+                fileName = "";
+                filter = "";
+            }
+            show_file_gui = false;
+        }
+    }
+
+    if (ImGui::Button("open file dialog"))
+        fileDialog.Open();
+
+    fileDialog.Display();
+
+    if (fileDialog.HasSelected()) {
+        std::cout << "Selected filename" << fileDialog.GetSelected().string() << std::endl;
+        fileDialog.ClearSelected();
+    }
+
+    if (ImGui::Button("Open file")) show_file_gui = true;
+
+    if (!filePathName.empty()) ImGui::Text("Chose File Path Name : %s", filePathName.c_str());
+    if (!path.empty()) ImGui::Text("Chose Path Name : %s", path.c_str());
+    if (!fileName.empty()) ImGui::Text("Chose File Name : %s", fileName.c_str());
+    if (!filter.empty()) ImGui::Text("Chose Filter : %s", filter.c_str());
+    ImGui::End();
+}
+
 void drawGui(VuScene &vs) {
     drawMainMenu();
+    drawFileGui();
 
     static bool show_ui = true;
     ImGui::Begin("Scene", &show_ui);
@@ -70,10 +121,10 @@ void drawGui(VuScene &vs) {
         ShowConsole(&show_console_window);
 }
 
-VuGui::VuGui(VuWindow &vw) : m_Window((GLFWwindow *)vw.window), m_Time(0.0) {
+VuGui::VuGui(VuWindow &vw) : m_Window((GLFWwindow *) vw.window), m_Time(0.0) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGui_GL_Init((GLFWwindow *)vw.window);
+    ImGui_GL_Init((GLFWwindow *) vw.window);
     ImGui_GL_CreateDeviceObjects(vertex_shader_glsl_130, fragment_shader_glsl_130);
 }
 
@@ -90,8 +141,8 @@ void VuGui::Begin() {
     // Setup display size every frame to account for window resizing
     int w, h;
     int display_w, display_h;
-    glfwGetWindowSize((GLFWwindow *)m_Window, &w, &h);
-    glfwGetFramebufferSize((GLFWwindow *)m_Window, &display_w, &display_h);
+    glfwGetWindowSize((GLFWwindow *) m_Window, &w, &h);
+    glfwGetFramebufferSize((GLFWwindow *) m_Window, &display_w, &display_h);
     io.DisplaySize = ImVec2((float) w, (float) h);
     if (w > 0 && h > 0)
         io.DisplayFramebufferScale = ImVec2((float) display_w / w, (float) display_h / h);
@@ -101,8 +152,8 @@ void VuGui::Begin() {
     io.DeltaTime = m_Time > 0.0 ? (float) (current_time - m_Time) : (1.0f / 60.0f);
     m_Time = current_time;
 
-    ImGui_GLFW_UpdateMousePosAndButtons((GLFWwindow *)m_Window);
-    ImGui_GLFW_UpdateMouseCursor((GLFWwindow *)m_Window);
+    ImGui_GLFW_UpdateMousePosAndButtons((GLFWwindow *) m_Window);
+    ImGui_GLFW_UpdateMouseCursor((GLFWwindow *) m_Window);
     ImGui_GLFW_UpdateGamepads();
 
     ImGui::NewFrame();

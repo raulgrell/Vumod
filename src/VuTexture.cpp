@@ -9,7 +9,7 @@ static VuTexture loadPng(const std::string &filePath)
     unsigned char *image = stbi_load(filePath.c_str(), &width, &height, &comp, STBI_default);
     if (!image)
     {
-        std::cerr << "Unable to load texture: " << filePath << std::endl;
+        std::cerr << "Unable to load image: " << filePath << std::endl;
         exit(1);
     }
 

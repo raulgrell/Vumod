@@ -15,6 +15,8 @@ struct VuScene {
     std::vector<VuObject> objects;
     vec3 bounds_min;
     vec3 bounds_max;
+    int width = 0;
+    int height = 0;
 
     VuScene(VuWindow &vw, VuShader &shader);
 
@@ -26,6 +28,5 @@ struct VuScene {
 
     bool LoadObject(const char *path);
 
-    int width = 0;
-    int height = 0;
+    void Convert(const tinyobj::attrib_t &attrib, const std::vector<tinyobj::shape_t> &shapes, const std::string &base_dir);
 };

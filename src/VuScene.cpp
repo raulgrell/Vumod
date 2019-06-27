@@ -103,6 +103,13 @@ bool VuScene::LoadObject(const char *filename) {
     bounds_min[0] = bounds_min[1] = bounds_min[2] = std::numeric_limits<float>::max();
     bounds_max[0] = bounds_max[1] = bounds_max[2] = -std::numeric_limits<float>::max();
 
+    Convert(attrib, shapes, base_dir);
+
+    return true;
+}
+
+void VuScene::Convert(const tinyobj::attrib_t &attrib, const std::vector<tinyobj::shape_t> &shapes,
+                      const std::string &base_dir) {
     for (size_t s = 0; s < shapes.size(); s++) {
         VuObject o;
         o.name = shapes[s].name;
@@ -291,6 +298,4 @@ bool VuScene::LoadObject(const char *filename) {
 
         objects.push_back(o);
     }
-
-    return true;
 }

@@ -18,7 +18,8 @@ int main() {
     VuShader shader;
 
     VuScene scene(window, shader);
-    scene.LoadFile("data/doubleg.obj");
+    scene.LoadFile("data/triple.obj");
+    scene.LoadFile("data/double.obj");
 
     while (window.Continue()) {
         window.Begin();
