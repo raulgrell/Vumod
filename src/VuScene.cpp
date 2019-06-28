@@ -14,7 +14,7 @@
 #undef min
 #endif
 
-VuScene::VuScene(VuWindow &vw, VuShader &vs) : vw(vw), vs(vs), bounds_max(), bounds_min() {
+VuScene::VuScene(VuWindow &vw, VuWireframe &vs) : vw(vw), vs(vs), bounds_max(), bounds_min() {
     vc.position[0] = 0;
     vc.position[1] = 0.5;
     vc.position[2] = -16;
@@ -32,8 +32,8 @@ void VuScene::Draw() {
 
     for (auto &object : objects) {
         glBindBuffer(GL_ARRAY_BUFFER, object.vbo_id);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, object.texture_id);
+        
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, object.ibo_id);
 
         glUniformMatrix4fv(vs.uniform_mvp, 1, GL_FALSE, (const GLfloat *) vc.mvp);
         glUniform4fv(vs.uniform_tint, 1, (const GLfloat *) vec4{0, 0, 0, 0});
@@ -44,10 +44,28 @@ void VuScene::Draw() {
                               (void *) offsetof(VuVertex, normal));
         glVertexAttribPointer(vs.attr_color, 3, GL_FLOAT, GL_FALSE, sizeof(VuVertex),
                               (void *) offsetof(VuVertex, color));
-        glVertexAttribPointer(vs.attr_uv, 2, GL_FLOAT, GL_FALSE, sizeof(VuVertex), (void *) offsetof(VuVertex, uv));
 
-        glDrawArrays(GL_TRIANGLES, 0, (GLsizei) object.buffer.size());
+        glDrawElements(GL_LINE_STRIP, object.indices.size(), GL_UNSIGNED_INT, (void*)0);
     }
+
+    // for (auto &object : objects) {
+    //     glBindBuffer(GL_ARRAY_BUFFER, object.vbo_id);
+    //     glActiveTexture(GL_TEXTURE0);
+    //     glBindTexture(GL_TEXTURE_2D, object.texture_id);
+
+    //     glUniformMatrix4fv(vs.uniform_mvp, 1, GL_FALSE, (const GLfloat *) vc.mvp);
+    //     glUniform4fv(vs.uniform_tint, 1, (const GLfloat *) vec4{0, 0, 0, 0});
+
+    //     glVertexAttribPointer(vs.attr_position, 3, GL_FLOAT, GL_FALSE, sizeof(VuVertex),
+    //                           (void *) offsetof(VuVertex, position));
+    //     glVertexAttribPointer(vs.attr_normal, 3, GL_FLOAT, GL_FALSE, sizeof(VuVertex),
+    //                           (void *) offsetof(VuVertex, normal));
+    //     glVertexAttribPointer(vs.attr_color, 3, GL_FLOAT, GL_FALSE, sizeof(VuVertex),
+    //                           (void *) offsetof(VuVertex, color));
+    //     glVertexAttribPointer(vs.attr_uv, 2, GL_FLOAT, GL_FALSE, sizeof(VuVertex), (void *) offsetof(VuVertex, uv));
+
+    //     glDrawArrays(GL_TRIANGLES, 0, (GLsizei) object.buffer.size());
+    // }
 
     CheckErrors();
     vs.Unbind();
@@ -265,6 +283,7 @@ void VuScene::Convert(const tinyobj::attrib_t &attrib, const std::vector<tinyobj
                     c[2] = c[2] / len * 0.5f + 0.5f;
                 }
 
+                o.indices.emplace_back(o.buffer.size());
                 o.buffer.emplace_back(v[k], n[k], c, tc[k]);
             }
         }
@@ -292,6 +311,10 @@ void VuScene::Convert(const tinyobj::attrib_t &attrib, const std::vector<tinyobj
             glGenBuffers(1, &o.vbo_id);
             glBindBuffer(GL_ARRAY_BUFFER, o.vbo_id);
             glBufferData(GL_ARRAY_BUFFER, o.buffer.size() * sizeof(VuVertex), &o.buffer.at(0), GL_STATIC_DRAW);
+
+            glGenBuffers(1, &o.ibo_id);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, o.ibo_id);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, o.indices.size() * sizeof(unsigned int), &o.indices[0], GL_STATIC_DRAW);
 
             printf("shape[%d] # of triangles = %d\n", static_cast<int>(s), o.NumTriangles());
         }

@@ -26,10 +26,12 @@ struct VuObject {
     std::string name;
 
     unsigned int vbo_id = 0;
+    unsigned int ibo_id = 0;
     int material_id = 0;
     int texture_id = 0;
 
     std::vector<VuVertex> buffer;
+    std::vector<unsigned int> indices;
 
     int NumTriangles() const {
         return static_cast<int>(buffer.size() / 3);

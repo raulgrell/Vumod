@@ -15,7 +15,7 @@ int main() {
 
     VuScript scripting;
 
-    VuShader shader;
+    VuWireframe shader;
 
     VuScene scene(window, shader);
     scene.LoadFile("data/triple.obj");
