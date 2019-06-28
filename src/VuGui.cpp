@@ -109,6 +109,7 @@ void drawGui(VuScene &vs) {
     ImGui::Begin("Scene", &show_ui);
     ImGui::DragFloat3("Camera position", vs.vc.position, 0.01f, -16.0f, 16.0f);
     ImGui::DragFloat3("Camera rotation", vs.vc.rotation, 0.01f, -90.0f, 90.0f);
+    ImGui::Checkbox("Wireframe", &vs.wireframe);
     ImGui::End();
 
     static bool show_demo_window = true;

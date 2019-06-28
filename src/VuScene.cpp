@@ -30,6 +30,12 @@ void VuScene::Draw() {
     vs.Bind();
     CheckErrors();
 
+    if (wireframe) {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    } else {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
+
     for (auto &object : objects) {
         glBindBuffer(GL_ARRAY_BUFFER, object.vbo_id);
         glActiveTexture(GL_TEXTURE0);
