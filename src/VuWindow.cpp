@@ -39,14 +39,13 @@ VuWindow::VuWindow(const char *title, int width, int height)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
     window = glfwCreateWindow(width, height, title, nullptr, nullptr);
-    if (!window)
-    {
+    if (!window) {
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
 
-    glfwSetKeyCallback((GLFWwindow *)window, key_callback);
-    glfwMakeContextCurrent((GLFWwindow *)window);
+    glfwSetKeyCallback((GLFWwindow *) window, key_callback);
+    glfwMakeContextCurrent((GLFWwindow *) window);
     gladLoadGL();
 
     glEnable(GL_DEPTH_TEST);
@@ -55,23 +54,27 @@ VuWindow::VuWindow(const char *title, int width, int height)
 
 VuWindow::~VuWindow()
 {
-    glfwDestroyWindow((GLFWwindow *)window);
+    glfwDestroyWindow((GLFWwindow *) window);
     glfwTerminate();
 }
 
-bool VuWindow::Continue() const {
-    return !glfwWindowShouldClose((GLFWwindow *)window);
+bool VuWindow::Continue() const
+{
+    return !glfwWindowShouldClose((GLFWwindow *) window);
 }
 
-void VuWindow::Begin() {
+void VuWindow::Begin()
+{
     glfwPollEvents();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void VuWindow::End() {
-    glfwSwapBuffers((GLFWwindow *)window);
+void VuWindow::End()
+{
+    glfwSwapBuffers((GLFWwindow *) window);
 }
 
-void VuWindow::GetSize(int *w, int *h) const {
-    glfwGetFramebufferSize((GLFWwindow *)window, w, h);
+void VuWindow::GetSize(int *w, int *h) const
+{
+    glfwGetFramebufferSize((GLFWwindow *) window, w, h);
 }

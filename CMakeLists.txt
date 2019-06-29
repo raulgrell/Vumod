@@ -23,7 +23,7 @@ add_executable(Viewer
         src/VuShader.cpp
         src/VuTexture.cpp
         src/VuWindow.cpp
-        src/main.cpp)
+        src/main.cpp src/VuRenderer.cpp src/VuRenderer.h src/VuMaterial.cpp src/VuMaterial.h src/shader/VertexBuffer.cpp src/shader/VertexBuffer.h src/shader/IndexBuffer.cpp src/shader/IndexBuffer.h src/shader/BufferLayout.cpp src/shader/BufferLayout.h src/shader/Framebuffer.cpp src/shader/Framebuffer.h src/shader/PostProcessing.cpp src/shader/PostProcessing.h)
 
 target_compile_options(Viewer PRIVATE )
 

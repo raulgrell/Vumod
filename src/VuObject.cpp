@@ -1,6 +1,9 @@
 #include "VuObject.h"
 
-void CalcNormal(vec3 N, const vec3 v0, const vec3 v1, const vec3 v2) {
+#include <cassert>
+
+void CalcNormal(vec3 N, const vec3 v0, const vec3 v1, const vec3 v2)
+{
     vec3 v10;
     v10[0] = v1[0] - v0[0];
     v10[1] = v1[1] - v0[1];
@@ -25,7 +28,8 @@ void CalcNormal(vec3 N, const vec3 v0, const vec3 v1, const vec3 v2) {
 }
 
 // Check if `mesh_t` contains smoothing group id.
-bool hasSmoothingGroup(const tinyobj::shape_t &shape) {
+bool hasSmoothingGroup(const tinyobj::shape_t &shape)
+{
     for (unsigned int smoothing_group_id : shape.mesh.smoothing_group_ids)
         if (smoothing_group_id > 0)
             return true;
@@ -33,8 +37,10 @@ bool hasSmoothingGroup(const tinyobj::shape_t &shape) {
     return false;
 }
 
-void computeSmoothingNormals(const tinyobj::attrib_t &attrib, const tinyobj::shape_t &shape,
-                             std::unordered_map<int, vec3> &smoothVertexNormals) {
+void computeSmoothingNormals(const tinyobj::attrib_t &attrib,
+                             const tinyobj::shape_t &shape,
+                             std::unordered_map<int, vec3> &smoothVertexNormals)
+{
     smoothVertexNormals.clear();
 
     for (size_t f = 0; f < shape.mesh.indices.size() / 3; f++) {

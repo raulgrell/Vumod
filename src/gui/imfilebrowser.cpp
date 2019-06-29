@@ -42,7 +42,7 @@ namespace ImGui {
         void Close();
 
         // the browsing window is opened or not
-        bool IsOpened() const noexcept;
+        bool IsOpen() const noexcept;
 
         // display the browsing window if opened
         void Display();
@@ -167,7 +167,7 @@ inline void ImGui::FileBrowser::Close() {
     openFlag_ = false;
 }
 
-inline bool ImGui::FileBrowser::IsOpened() const noexcept {
+inline bool ImGui::FileBrowser::IsOpen() const noexcept {
     return isOpened_;
 }
 

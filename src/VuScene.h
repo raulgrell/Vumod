@@ -4,14 +4,16 @@
 #include "VuShader.h"
 #include "VuCamera.h"
 #include "VuObject.h"
+#include "VuMaterial.h"
 
 #include "common.h"
 
-struct VuScene {
+struct VuScene
+{
     VuWindow &vw;
     VuShader &vs;
     VuCamera vc;
-    std::vector<tinyobj::material_t> materials;
+    std::vector<VuMaterial> materials;
     std::vector<VuObject> objects;
     vec3 bounds_min;
     vec3 bounds_max;
@@ -21,12 +23,44 @@ struct VuScene {
     VuScene(VuWindow &vw, VuShader &shader);
 
     void UpdateCamera();
-
     void Draw();
 
     void LoadFile(const char *path);
-
     bool LoadObject(const char *path);
 
-    void Convert(const tinyobj::attrib_t &attrib, const std::vector<tinyobj::shape_t> &shapes, const std::string &base_dir);
+    VuObject Convert(const tinyobj::attrib_t &attrib,
+                 const tinyobj::shape_t &shape,
+                 const std::vector<tinyobj::material_t> &obj_materials,
+                 const std::string &base_dir);
+
+    void GetVertices(const tinyobj::attrib_t &attrib,
+                     const tinyobj::index_t &idx0,
+                     const tinyobj::index_t &idx1,
+                     const tinyobj::index_t &idx2,
+                     vec3 *v);
+
+    void GetTexCoords(const tinyobj::attrib_t &attrib,
+                      const tinyobj::index_t &idx0,
+                      const tinyobj::index_t &idx1,
+                      const tinyobj::index_t &idx2,
+                      vec2 *tc) const;
+
+    void GetDiffuse(const std::vector<tinyobj::material_t> &obj_materials,
+                    const tinyobj::shape_t &current_shape,
+                    size_t f,
+                    float *diffuse) const;
+
+    bool GetNormalsAttrib(const tinyobj::attrib_t &attrib,
+                          const tinyobj::index_t &idx0,
+                          const tinyobj::index_t &idx1,
+                          const tinyobj::index_t &idx2,
+                          vec3 *n) const;
+
+    bool GetNormalsSmooth(std::unordered_map<int, vec3> &smoothVertexNormals,
+                          const tinyobj::index_t &idx0,
+                          const tinyobj::index_t &idx1,
+                          const tinyobj::index_t &idx2,
+                          vec3 *n) const;
+
+    bool GetNormalsComputed(vec3 const *v, vec3 *n) const;
 };

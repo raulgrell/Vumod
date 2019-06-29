@@ -1,4 +1,4 @@
-#if defined(_MSC_VER) && !defined(_CRT_SECURE_NO_WARNINGS)
+#if !defined(_CRT_SECURE_NO_WARNINGS)
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
@@ -8,7 +8,8 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tinyobjloader/tiny_obj_loader.h>
 
-#include "glad/glad.cpp" 
+#define IMGUI_USER_CONFIG "imgui_config.h"
+#include "glad/glad.cpp"
 #include "imgui/imgui.cpp"
 #include "imgui/imgui_widgets.cpp"
 #include "imgui/imgui_draw.cpp"

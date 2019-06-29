@@ -5,7 +5,8 @@
 #include <VuShader.h>
 #include <VuWindow.h>
 
-int main() {
+int main()
+{
     VuWindow window("VuMod", 1280, 720);
     VuGui gui(window);
 

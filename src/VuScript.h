@@ -2,9 +2,9 @@
 
 #include "common.h"
 
-struct VuScript {
+struct VuScript
+{
     VuScript();
-
     ~VuScript();
 
     void InterpretCommands();

@@ -36,8 +36,10 @@ std::map<std::string, WrenForeignClassMethods> boundForeignClasses {
         {"vectorVec3", {vec3fAllocate, vec3fFinalize}}
 };
 
-WrenForeignMethodFn bindForeignMethod(WrenVM *, const char *module, const char *className, bool isStatic, const char *signature) {
-    std::string fullSignature{ module };
+WrenForeignMethodFn
+bindForeignMethod(WrenVM *, const char *module, const char *className, bool isStatic, const char *signature)
+{
+    std::string fullSignature {module};
     fullSignature += className;
     fullSignature += signature;
     if (isStatic) {
@@ -50,50 +52,56 @@ WrenForeignMethodFn bindForeignMethod(WrenVM *, const char *module, const char *
     return nullptr;
 }
 
-char* loadModule(WrenVM* vm, const char* name) {
-    std::string path( name );
+char *loadModule(WrenVM *vm, const char *name)
+{
+    std::string path(name);
     path += ".wren";
     std::ifstream fin;
-    fin.open( path, std::ios::in );
+    fin.open(path, std::ios::in);
     std::stringstream buffer;
     buffer << fin.rdbuf() << '\0';
     std::string source = buffer.str();
 
-    char* cbuffer = (char*) malloc( source.size() );
-    memcpy( cbuffer, source.c_str(), source.size() );
+    char *cbuffer = (char *) malloc(source.size());
+    memcpy(cbuffer, source.c_str(), source.size());
     return cbuffer;
 }
 
-WrenForeignClassMethods bindForeignClass(WrenVM *, const char *module, const char *className) {
-    std::string identifier{module};
+WrenForeignClassMethods bindForeignClass(WrenVM *, const char *module, const char *className)
+{
+    std::string identifier {module};
     identifier += className;
     auto it = boundForeignClasses.find(identifier);
     if (it != boundForeignClasses.end()) {
         return it->second;
     }
-    return WrenForeignClassMethods{nullptr, nullptr};
+    return WrenForeignClassMethods {nullptr, nullptr};
 }
 
 template<typename T>
-void allocateType(WrenVM* vm) {
-    void* bytes = wrenSetSlotNewForeign(vm, 0, 0, sizeof(T));
-    new (bytes) T();
+void allocateType(WrenVM *vm)
+{
+    void *bytes = wrenSetSlotNewForeign(vm, 0, 0, sizeof(T));
+    new(bytes) T();
 }
 
 template<typename T>
-void finalizeType(void* bytes) {
-    T* type = (T*)bytes;
+void finalizeType(void *bytes)
+{
+    T *type = (T *) bytes;
     type->~T();
 }
 
-static void write(WrenVM *vm, const char *text) {
+static void write(WrenVM *vm, const char *text)
+{
     std::cout << text;
 };
 
-VuScript::VuScript() {
+VuScript::VuScript()
+{
     wrenInitConfiguration(&config);
     config.bindForeignMethodFn = bindForeignMethod;
-    config.writeFn= write;
+    config.writeFn = write;
     config.loadModuleFn = loadModule;
     config.writeFn = write;
 
@@ -104,11 +112,13 @@ VuScript::VuScript() {
         fatal_error("Could not run script.");
 }
 
-VuScript::~VuScript() {
+VuScript::~VuScript()
+{
     wrenFreeVM(vm);
 }
 
-void VuScript::InterpretCommands() {
+void VuScript::InterpretCommands()
+{
     for (auto &command : commands) {
         WrenInterpretResult result = wrenInterpret(vm, "vumod", command.c_str());
         if (result != WREN_RESULT_SUCCESS)

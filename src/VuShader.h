@@ -2,7 +2,8 @@
 
 #include "common.h"
 
-struct VuShader {
+struct VuShader
+{
     unsigned int program = 0;
     unsigned int vao_id = 0;
 
@@ -19,12 +20,8 @@ struct VuShader {
     void Unbind();
 };
 
-void initShader(VuShader &vs);
-
 #define CheckErrors() CheckErrorsInternal(__FILE__, __LINE__)
 int CheckErrorsInternal(const char *file, int line);
-
 bool CheckShader(unsigned int handle, const char *desc);
-
 bool CheckProgram(unsigned int handle, const char *desc);
 

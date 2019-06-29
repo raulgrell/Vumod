@@ -5,16 +5,15 @@
 
 #include "common.h"
 
-struct VuGui {
+struct VuGui
+{
     void *m_Window = nullptr;
     double m_Time = 0.0;
 
     explicit VuGui(VuWindow &vw);
-
     ~VuGui();
 
     void Begin();
-
     void End();
 };
 

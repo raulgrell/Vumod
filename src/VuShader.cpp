@@ -1,5 +1,7 @@
 #include "VuShader.h"
 
+#include "glad/glad.h"
+
 static const char *vertex_shader_text = R"(
 #version 130
 uniform mat4 MVP;
@@ -58,7 +60,8 @@ VuShader::VuShader()
     CheckErrors();
 }
 
-void VuShader::Bind() {
+void VuShader::Bind()
+{
     glUseProgram(program);
     glBindVertexArray(vao_id);
     glEnableVertexAttribArray(attr_position);
@@ -67,7 +70,8 @@ void VuShader::Bind() {
     glEnableVertexAttribArray(attr_uv);
 }
 
-void VuShader::Unbind() {
+void VuShader::Unbind()
+{
     glBindVertexArray(0);
     glUseProgram(0);
 }
@@ -78,18 +82,17 @@ bool CheckShader(GLuint handle, const char *desc)
     glGetShaderiv(handle, GL_COMPILE_STATUS, &status);
     glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &log_length);
 
-    if ((GLboolean)status == GL_FALSE)
+    if ((GLboolean) status == GL_FALSE)
         fprintf(stderr, "ERROR: Shader failed to compile %s!\n", desc);
 
-    if (log_length > 0)
-    {
+    if (log_length > 0) {
         std::vector<char> buf;
         buf.resize(log_length + 1);
         glGetShaderInfoLog(handle, log_length, nullptr, &buf[0]);
         fprintf(stderr, "%s\n", &buf[0]);
     }
 
-    return (GLboolean)status == GL_TRUE;
+    return (GLboolean) status == GL_TRUE;
 }
 
 bool CheckProgram(GLuint handle, const char *desc)
@@ -98,24 +101,22 @@ bool CheckProgram(GLuint handle, const char *desc)
     glGetProgramiv(handle, GL_LINK_STATUS, &status);
     glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &log_length);
 
-    if ((GLboolean)status == GL_FALSE)
+    if ((GLboolean) status == GL_FALSE)
         fprintf(stderr, "ERROR: Shader failed to link %s!\n", desc);
 
-    if (log_length > 0)
-    {
+    if (log_length > 0) {
         std::vector<char> buf;
         buf.resize(log_length + 1);
         glGetProgramInfoLog(handle, log_length, nullptr, &buf[0]);
         fprintf(stderr, "%s\n", &buf[0]);
     }
 
-    return (GLboolean)status == GL_TRUE;
+    return (GLboolean) status == GL_TRUE;
 }
 
 static const char *GetGlErrorString(GLenum err)
 {
-    switch (err)
-    {
+    switch (err) {
         case GL_INVALID_OPERATION:
             return "GL_INVALID_OPERATION";
         case GL_INVALID_ENUM:
@@ -134,8 +135,7 @@ static const char *GetGlErrorString(GLenum err)
 int CheckErrorsInternal(const char *file, int line)
 {
     GLenum err(glGetError());
-    while (err != GL_NO_ERROR)
-    {
+    while (err != GL_NO_ERROR) {
         const char *error = GetGlErrorString(err);
         fprintf(stderr, "%s at %s: line  %d\n", error, file, line);
         err = glGetError();

@@ -7,12 +7,14 @@ clang++ ^
     src/VuCamera.cpp ^
     src/VuFS.cpp ^
     src/VuGui.cpp ^
+    src/VuMaterial.cpp ^
     src/VuObject.cpp ^
+    src/VuRenderer.cpp ^
     src/VuScript.cpp ^
     src/VuShader.cpp ^
     src/VuTexture.cpp ^
     src/VuWindow.cpp ^
-    -std=c++17 ^
+    -std=c++17 -g -O0 ^
     -o ./build-llvm/main.exe ^
     -I ./src/ ^
     -I ./include/ ^

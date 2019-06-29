@@ -3,13 +3,12 @@
 #include <algorithm>
 #include <sstream>
 
-std::vector<std::string> splitString(const std::string &strToSplit, char delimeter)
-{
+std::vector<std::string> splitString(const std::string &strToSplit, char delimeter) {
     std::vector<std::string> result;
     std::stringstream ss(strToSplit);
     std::string item;
     while (std::getline(ss, item, delimeter))
-       result.push_back(item);
+        result.push_back(item);
     return result;
 }
 
@@ -26,8 +25,7 @@ void trim(std::string &s) {
     rtrim(s);
 }
 
-std::string trimmed(const std::string& str)
-{
+std::string trimmed(const std::string &str) {
     size_t first = str.find_first_not_of(' ');
     if (first == std::string::npos)
         return str;

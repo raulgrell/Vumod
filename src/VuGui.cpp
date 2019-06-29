@@ -1,10 +1,13 @@
-#include <iostream>
+#include "VuGui.h"
+
+#include <imgui.h>
+
 #include "gui/console.cpp"
 #include "gui/file.cpp"
 #include "gui/imfilebrowser.cpp"
 #include "gui/internal.cpp"
 
-#include "VuGui.h"
+#include <iostream>
 
 static const GLchar *vertex_shader_glsl_130 = R"(
 #version 130
@@ -30,7 +33,8 @@ void main() {
     Out_Color = Frag_Color * texture(Texture, Frag_UV.st);
 })";
 
-void drawMainMenu() {
+void drawMainMenu()
+{
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
             if (ImGui::MenuItem("Open", "CTRL+O")) {
@@ -54,15 +58,15 @@ void drawMainMenu() {
     }
 }
 
-ImGui::FileBrowser fileDialog;
-
-
-void drawFileGui() {
+void drawFileGui()
+{
     static std::string filePathName;
     static std::string path;
     static std::string fileName;
     static std::string filter;
     static bool show_file_gui = true;
+    static ImGui::FileBrowser fileDialog;
+
 
     ImGui::Begin("Files");
     if (show_file_gui) {
@@ -101,7 +105,8 @@ void drawFileGui() {
     ImGui::End();
 }
 
-void drawGui(VuScene &vs) {
+void drawGui(VuScene &vs)
+{
     drawMainMenu();
     drawFileGui();
 
@@ -121,20 +126,23 @@ void drawGui(VuScene &vs) {
         ShowConsole(&show_console_window);
 }
 
-VuGui::VuGui(VuWindow &vw) : m_Window((GLFWwindow *) vw.window), m_Time(0.0) {
+VuGui::VuGui(VuWindow &vw) : m_Window((GLFWwindow *) vw.window), m_Time(0.0)
+{
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui_GL_Init((GLFWwindow *) vw.window);
     ImGui_GL_CreateDeviceObjects(vertex_shader_glsl_130, fragment_shader_glsl_130);
 }
 
-VuGui::~VuGui() {
+VuGui::~VuGui()
+{
     ImGui_GL_DestroyDeviceObjects();
     ImGui_GLFW_Shutdown();
     ImGui::DestroyContext();
 }
 
-void VuGui::Begin() {
+void VuGui::Begin()
+{
     ImGuiIO &io = ImGui::GetIO();
     IM_ASSERT(io.Fonts->IsBuilt() && "Font atlas not built.");
 
@@ -159,7 +167,8 @@ void VuGui::Begin() {
     ImGui::NewFrame();
 }
 
-void VuGui::End() {
+void VuGui::End()
+{
     ImGui::Render();
 
     VuGuiRenderState rs;

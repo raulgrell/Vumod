@@ -1,6 +1,7 @@
 #include "VuCamera.h"
 
-void VuCamera::Update(int width, int height) {
+void VuCamera::Update(int width, int height)
+{
     mat4x4 p, m;
     mat4x4_identity(m);
     mat4x4_translate(m, position[0], position[1], position[2]);
@@ -14,7 +15,8 @@ void VuCamera::Update(int width, int height) {
     mat4x4_mul(mvp, p, m);
 }
 
-void VuCamera::GetMatrix(mat4x4 m) {
+void VuCamera::GetMatrix(mat4x4 m)
+{
     mat4x4_dup(m, mvp);
 }
 
