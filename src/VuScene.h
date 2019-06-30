@@ -19,6 +19,7 @@ struct VuScene
     vec3 bounds_max;
     int width = 0;
     int height = 0;
+    bool wireframe = false;
 
     VuScene(VuWindow &vw, VuShader &shader);
 
