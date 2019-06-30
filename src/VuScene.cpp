@@ -3,6 +3,7 @@
 #include "VuFS.h"
 #include "VuObject.h"
 #include "VuTexture.h"
+#include <graphics/VertexArray.h>
 
 #include <glad/glad.h>
 
@@ -37,10 +38,11 @@ void VuScene::Draw()
 {
     vs.Bind();
     CheckErrors();
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     for (auto &object : objects) {
         glBindBuffer(GL_ARRAY_BUFFER, object.vbo_id);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, object.ibo_id);
+
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, object.texture_id);
 
@@ -55,7 +57,7 @@ void VuScene::Draw()
                               (void *) offsetof(VuVertex, color));
         glVertexAttribPointer(vs.attr_uv, 2, GL_FLOAT, GL_FALSE, sizeof(VuVertex), (void *) offsetof(VuVertex, uv));
 
-        glDrawArrays(GL_TRIANGLES, 0, (GLsizei) object.buffer.size());
+        glDrawElements(GL_TRIANGLES, object.indices.size(), GL_UNSIGNED_INT, (void*)0);
     }
 
     CheckErrors();
@@ -101,7 +103,7 @@ bool VuScene::LoadObject(const char *filename)
 
     for (size_t i = 0; i < obj_materials.size(); i++) {
         auto &m = obj_materials[i];
-        std::cout << "material[" << i << "] <" << m.name << " diffuse='" << m.diffuse_texname << "'>" << std::endl;
+        std::cout << "material[" << i << "]<" << m.name << " diffuse='" << m.diffuse_texname << "'>" << std::endl;
     }
 
     // Append default material
@@ -127,10 +129,16 @@ bool VuScene::LoadObject(const char *filename)
                   << " />" << std::endl;
 
         if (!o.buffer.empty()) {
+
             glBindVertexArray(vs.vao_id);
+
             glGenBuffers(1, &o.vbo_id);
             glBindBuffer(GL_ARRAY_BUFFER, o.vbo_id);
             glBufferData(GL_ARRAY_BUFFER, o.buffer.size() * sizeof(VuVertex), &o.buffer.at(0), GL_STATIC_DRAW);
+
+            glGenBuffers(1, &o.ibo_id);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, o.ibo_id);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, o.indices.size() * sizeof(unsigned int), &o.indices.at(0), GL_STATIC_DRAW);
         }
         objects.push_back(o);
     }
@@ -186,6 +194,7 @@ VuObject VuScene::Convert(const tinyobj::attrib_t &attrib,
                 c[2] = c[2] / len * 0.5f + 0.5f;
             }
 
+            o.indices.emplace_back(o.buffer.size());
             o.buffer.emplace_back(v[k], n[k], c, tc[k]);
         }
     }
@@ -193,15 +202,15 @@ VuObject VuScene::Convert(const tinyobj::attrib_t &attrib,
     o.name = shape.name;
     o.material_id = !shape.mesh.material_ids.empty() ? shape.mesh.material_ids[0] : obj_materials.size() - 1;
 
-    std::string texture_filename = !obj_materials[o.material_id].diffuse_texname.empty()
-                                   ? base_dir + "/" + obj_materials[o.material_id].diffuse_texname
-                                   : base_dir + "/white.png";
+    const std::string &texname = obj_materials[o.material_id].diffuse_texname;
+    std::string texture_filename = !texname.empty() ? base_dir + "/" + texname : base_dir + "/white.png";
 
     VuTexture texture = VuTexture::Load(texture_filename);
     o.texture_id = texture.id;
 
     return o;
 }
+
 
 bool VuScene::GetNormalsComputed(vec3 const *v, vec3 *n) const
 {

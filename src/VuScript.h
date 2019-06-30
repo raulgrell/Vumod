@@ -12,5 +12,3 @@ struct VuScript
     static std::vector<std::string> commands;
     static char command_text[4096];
 };
-
-

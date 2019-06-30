@@ -13,6 +13,7 @@ clang++ ^
     src/VuScript.cpp ^
     src/VuShader.cpp ^
     src/VuTexture.cpp ^
+    src/VuWireframe.cpp ^
     src/VuWindow.cpp ^
     -std=c++17 -g -O0 ^
     -o ./build-llvm/main.exe ^

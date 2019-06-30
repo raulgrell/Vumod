@@ -27,12 +27,13 @@ struct VuObject
     vec3 rotation {0, 0, 0};
     vec3 scale {1, 1, 1};
     std::vector<VuVertex> buffer;
+    std::vector<unsigned int> indices;
 
     std::string name;
     unsigned int vbo_id = 0;
+    unsigned int ibo_id = 0;
     int material_id = 0;
     int texture_id = 0;
-
     std::vector<const VuMaterial *> materials;
 
     int NumTriangles() const

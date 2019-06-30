@@ -14,16 +14,22 @@ link_libraries(glfw3 opengl32 user32 gdi32 shell32)
 add_executable(Viewer
         ext/ext.cpp
         src/util/util.cpp
+        src/graphics/Buffer.cpp
+        src/graphics/Framebuffer.cpp
+        src/graphics/PostProcessing.cpp
+        src/graphics/VertexArray.cpp
         src/VuScene.cpp
         src/VuCamera.cpp
         src/VuFS.cpp
         src/VuGui.cpp
+        src/VuMaterial.cpp
         src/VuObject.cpp
+        src/VuRenderer.cpp
         src/VuScript.cpp
         src/VuShader.cpp
         src/VuTexture.cpp
         src/VuWindow.cpp
-        src/main.cpp src/VuRenderer.cpp src/VuRenderer.h src/VuMaterial.cpp src/VuMaterial.h src/shader/VertexBuffer.cpp src/shader/VertexBuffer.h src/shader/IndexBuffer.cpp src/shader/IndexBuffer.h src/shader/BufferLayout.cpp src/shader/BufferLayout.h src/shader/Framebuffer.cpp src/shader/Framebuffer.h src/shader/PostProcessing.cpp src/shader/PostProcessing.h)
+        src/main.cpp )
 
 target_compile_options(Viewer PRIVATE )
 
