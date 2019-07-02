@@ -35,8 +35,12 @@ VuWindow::VuWindow(const char *title, int width, int height)
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
         exit(EXIT_FAILURE);
+
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 
     window = glfwCreateWindow(width, height, title, nullptr, nullptr);
     if (!window) {
@@ -44,6 +48,7 @@ VuWindow::VuWindow(const char *title, int width, int height)
         exit(EXIT_FAILURE);
     }
 
+    glfwGetFramebufferSize((GLFWwindow *) window, &width, &height);
     glfwSetKeyCallback((GLFWwindow *) window, key_callback);
     glfwMakeContextCurrent((GLFWwindow *) window);
     gladLoadGL();
@@ -74,7 +79,9 @@ void VuWindow::End()
     glfwSwapBuffers((GLFWwindow *) window);
 }
 
-void VuWindow::GetSize(int *w, int *h) const
+void VuWindow::GetSize(int *w, int *h)
 {
     glfwGetFramebufferSize((GLFWwindow *) window, w, h);
+    width = *w;
+    height = *h;
 }

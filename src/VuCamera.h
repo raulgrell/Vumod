@@ -9,9 +9,11 @@ struct VuCamera
     float fov = 50.f;
     float nearDistance = 0.01f;
     float farDistance = 1000.f;
+    int width = 1;
+    int height = 1;
     mat4x4 mvp {0};
 
-    void Update(int width, int height);
+    void UpdateMatrix();
 
     void GetMatrix(mat4x4 m);
 };

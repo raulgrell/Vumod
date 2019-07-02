@@ -30,16 +30,14 @@ struct VuObject
     std::vector<unsigned int> indices;
 
     std::string name;
-    unsigned int vbo_id = 0;
-    unsigned int ibo_id = 0;
+    std::shared_ptr<VertexBuffer> vbo;
+    std::shared_ptr<IndexBuffer> ibo;
+    std::shared_ptr<VuMaterial> mtl;
     int material_id = 0;
     int texture_id = 0;
     std::vector<const VuMaterial *> materials;
 
-    int NumTriangles() const
-    {
-        return static_cast<int>(buffer.size() / 3);
-    }
+    int NumTriangles() const { return static_cast<int>(buffer.size() / 3); }
 };
 
 void CalcNormal(vec3 N, const vec3 v0, const vec3 v1, const vec3 v2);

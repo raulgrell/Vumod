@@ -17,7 +17,6 @@ add_executable(Viewer
         src/graphics/Buffer.cpp
         src/graphics/Framebuffer.cpp
         src/graphics/PostProcessing.cpp
-        src/graphics/VertexArray.cpp
         src/VuScene.cpp
         src/VuCamera.cpp
         src/VuFS.cpp
@@ -29,7 +28,8 @@ add_executable(Viewer
         src/VuShader.cpp
         src/VuTexture.cpp
         src/VuWindow.cpp
-        src/main.cpp )
+        src/main.cpp
+        )
 
 target_compile_options(Viewer PRIVATE )
 

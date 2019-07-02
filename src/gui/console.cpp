@@ -4,15 +4,12 @@ struct ConsoleApp {
     char InputBuf[256]{0};
     std::vector<std::string> Items;
     std::vector<std::string> History;
-    int HistoryPos; // -1: new line, 0..History.Size-1 browsing history.
-    bool AutoScroll;
-    bool ScrollToBottom;
+    int HistoryPos = -1; // -1: new line, 0..History.Size-1 browsing history.
+    bool AutoScroll = true;
+    bool ScrollToBottom = true;
 
     ConsoleApp() {
         ClearLog();
-        HistoryPos = -1; // -1: new line, 0..History.Size-1 browsing history.
-        AutoScroll = true;
-        ScrollToBottom = true;
         AddLog("Welcome to Dear ImGui!");
     }
 
@@ -26,14 +23,13 @@ struct ConsoleApp {
     }
 
     void AddLog(const char *fmt, ...) IM_FMTARGS(2) {
-        // FIXME-OPT
         char buf[1024];
         va_list args;
         va_start(args, fmt);
         vsnprintf(buf, IM_ARRAYSIZE(buf), fmt, args);
         buf[IM_ARRAYSIZE(buf) - 1] = 0;
         va_end(args);
-        Items.push_back(std::string(buf));
+        Items.emplace_back(buf);
         if (AutoScroll)
             ScrollToBottom = true;
     }

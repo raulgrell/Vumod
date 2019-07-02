@@ -1,23 +1,20 @@
 #pragma once
 
+#include <graphics/Buffer.h>
 #include "common.h"
 
 struct VuShader
 {
+    std::unique_ptr<VertexArray> vao;
     unsigned int program = 0;
-    unsigned int vao_id = 0;
 
     int uniform_mvp = 0;
     int uniform_tint = 0;
-    int attr_position = 0;
-    int attr_color = 0;
-    int attr_normal = 0;
-    int attr_uv = 0;
 
-    VuShader();
+    VuShader(const char *vertex_shader_source, const char *fragment_shader_source);
 
-    void Bind();
-    void Unbind();
+    void Bind() const;
+    void Unbind() const;
 };
 
 #define CheckErrors() CheckErrorsInternal(__FILE__, __LINE__)

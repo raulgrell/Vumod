@@ -3,7 +3,6 @@
 #include "VuFS.h"
 #include "VuObject.h"
 #include "VuTexture.h"
-#include <graphics/VertexArray.h>
 
 #include <glad/glad.h>
 
@@ -19,25 +18,54 @@
 #undef min
 #endif
 
-VuScene::VuScene(VuWindow &vw, VuShader &vs)
-        : vw(vw), vs(vs), bounds_max(), bounds_min()
+static const char *vertex_shader_text = R"(
+#version 330 core
+layout (location = 0) in vec3 vPos;
+layout (location = 1) in vec3 vNorm;
+layout (location = 2) in vec3 vCol;
+layout (location = 3) in vec2 vTexCoord;
+uniform mat4 MVP;
+uniform vec4 Tint;
+out vec3 fColor;
+out vec2 fUV;
+void main()
+{
+    float dummy = (vNorm.x + vCol.x) * 0.0000000001;
+    fColor = vCol + Tint.xyz;
+    fUV = vTexCoord;
+    gl_Position = MVP * vec4(vPos.x + dummy, -vPos.y, vPos.z, 1.0);
+})";
+
+static const char *fragment_shader_text = R"(
+#version 330 core
+uniform sampler2D Texture;
+in vec3 fColor;
+in vec2 fUV;
+void main()
+{
+    gl_FragColor = texture2D(Texture, vec2(-fUV.x, fUV.y)) * vec4(fColor, 1.0);
+})";
+
+VuScene::VuScene(VuWindow &vw)
+        : vw(vw), vs(vertex_shader_text, fragment_shader_text), bounds_max(), bounds_min()
 {
     vc.position[0] = 0;
     vc.position[1] = 0.5;
     vc.position[2] = -16;
 }
 
-void VuScene::UpdateCamera()
+void VuScene::Update()
 {
     vw.GetSize(&width, &height);
     glViewport(0, 0, width, height);
-    vc.Update(width, height);
+    vc.width = width;
+    vc.height = height;
+    vc.UpdateMatrix();
 }
 
 void VuScene::Draw()
 {
     vs.Bind();
-    CheckErrors();
 
     if (wireframe) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -46,8 +74,21 @@ void VuScene::Draw()
     }
 
     for (auto &object : objects) {
-        glBindBuffer(GL_ARRAY_BUFFER, object.vbo_id);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, object.ibo_id);
+        object.vbo->Bind();
+        object.ibo->Bind();
+        object.mtl->Bind();
+
+        const auto &layout = object.vbo->GetLayout();
+        uint32_t index = 0;
+        for (const auto &element : layout) {
+            glVertexAttribPointer(index,
+                                  element.Count,
+                                  element.Type,
+                                  element.Normalized ? GL_TRUE : GL_FALSE,
+                                  layout.GetStride(),
+                                  reinterpret_cast<void *>(element.Offset));
+            index++;
+        }
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, object.texture_id);
@@ -55,15 +96,11 @@ void VuScene::Draw()
         glUniformMatrix4fv(vs.uniform_mvp, 1, GL_FALSE, (const GLfloat *) vc.mvp);
         glUniform4fv(vs.uniform_tint, 1, (const GLfloat *) vec4 {0, 0, 0, 0});
 
-        glVertexAttribPointer(vs.attr_position, 3, GL_FLOAT, GL_FALSE, sizeof(VuVertex),
-                              (void *) offsetof(VuVertex, position));
-        glVertexAttribPointer(vs.attr_normal, 3, GL_FLOAT, GL_FALSE, sizeof(VuVertex),
-                              (void *) offsetof(VuVertex, normal));
-        glVertexAttribPointer(vs.attr_color, 3, GL_FLOAT, GL_FALSE, sizeof(VuVertex),
-                              (void *) offsetof(VuVertex, color));
-        glVertexAttribPointer(vs.attr_uv, 2, GL_FLOAT, GL_FALSE, sizeof(VuVertex), (void *) offsetof(VuVertex, uv));
+        glDrawElements(GL_TRIANGLES, object.indices.size(), GL_UNSIGNED_INT, (void *) 0);
 
-        glDrawElements(GL_TRIANGLES, object.indices.size(), GL_UNSIGNED_INT, (void*)0);
+        object.mtl->Unbind();
+        object.ibo->Unbind();
+        object.vbo->Unbind();
     }
 
     CheckErrors();
@@ -109,7 +146,10 @@ bool VuScene::LoadObject(const char *filename)
 
     for (size_t i = 0; i < obj_materials.size(); i++) {
         auto &m = obj_materials[i];
-        std::cout << "material[" << i << "]<" << m.name << " diffuse='" << m.diffuse_texname << "'>" << std::endl;
+        std::cout << "M[" << i << "]<"
+                  << m.name
+                  << " diffuse='" << m.diffuse_texname
+                  << "'>" << std::endl;
     }
 
     // Append default material
@@ -128,23 +168,22 @@ bool VuScene::LoadObject(const char *filename)
     for (size_t s = 0; s < shapes.size(); s++) {
         auto o = Convert(attrib, shapes[s], obj_materials, base_dir);
 
-        std::cout << "shape[" << s << "]<"
+        std::cout << "S[" << s << "]<"
                   << shapes[s].name
                   << " material_id=" << o.material_id
                   << " triangles=" << o.NumTriangles()
                   << " />" << std::endl;
 
         if (!o.buffer.empty()) {
-
-            glBindVertexArray(vs.vao_id);
-
-            glGenBuffers(1, &o.vbo_id);
-            glBindBuffer(GL_ARRAY_BUFFER, o.vbo_id);
-            glBufferData(GL_ARRAY_BUFFER, o.buffer.size() * sizeof(VuVertex), &o.buffer.at(0), GL_STATIC_DRAW);
-
-            glGenBuffers(1, &o.ibo_id);
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, o.ibo_id);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, o.indices.size() * sizeof(unsigned int), &o.indices.at(0), GL_STATIC_DRAW);
+            BufferLayout layout {
+                    {"vPos", GL_FLOAT, 3},
+                    {"vCol", GL_FLOAT, 3},
+                    {"vNorm", GL_FLOAT, 3},
+                    {"vUV", GL_FLOAT, 2}};
+            o.vbo = std::make_shared<VertexBuffer>(&o.buffer.at(0), o.buffer.size() * layout.GetStride());
+            o.vbo->SetLayout(layout);
+            o.ibo = std::make_shared<IndexBuffer>(&o.indices.at(0), o.indices.size());
+            vs.vao->AddVertexBuffer(o.vbo);
         }
         objects.push_back(o);
     }
@@ -187,11 +226,11 @@ VuObject VuScene::Convert(const tinyobj::attrib_t &attrib,
 
         for (int k = 0; k < 3; k++) {
             // Combine normal and diffuse to get color.
-            float normal_factor = 0.5;
-            float diffuse_factor = 1 - normal_factor;
-            float c[3] = {n[k][0] * normal_factor + diffuse[0] * diffuse_factor,
-                          n[k][1] * normal_factor + diffuse[1] * diffuse_factor,
-                          n[k][2] * normal_factor + diffuse[2] * diffuse_factor};
+            float n_factor = 0.5;
+            float d_factor = 1 - n_factor;
+            vec3 c = {n[k][0] * n_factor + diffuse[0] * d_factor,
+                      n[k][1] * n_factor + diffuse[1] * d_factor,
+                      n[k][2] * n_factor + diffuse[2] * d_factor};
             float len2 = c[0] * c[0] + c[1] * c[1] + c[2] * c[2];
             if (len2 > 0.0f) {
                 float len = sqrtf(len2);
@@ -206,10 +245,12 @@ VuObject VuScene::Convert(const tinyobj::attrib_t &attrib,
     }
 
     o.name = shape.name;
-    o.material_id = !shape.mesh.material_ids.empty() ? shape.mesh.material_ids[0] : obj_materials.size() - 1;
+    o.material_id = !shape.mesh.material_ids.empty() ? shape.mesh.material_ids[0]
+                                                     : obj_materials.size() - 1;
 
     const std::string &texname = obj_materials[o.material_id].diffuse_texname;
-    std::string texture_filename = !texname.empty() ? base_dir + "/" + texname : base_dir + "/white.png";
+    std::string texture_filename = !texname.empty() ? base_dir + "/" + texname
+                                                    : base_dir + "/white.png";
 
     VuTexture texture = VuTexture::Load(texture_filename);
     o.texture_id = texture.id;

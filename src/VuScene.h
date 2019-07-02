@@ -11,7 +11,7 @@
 struct VuScene
 {
     VuWindow &vw;
-    VuShader &vs;
+    VuShader vs;
     VuCamera vc;
     std::vector<VuMaterial> materials;
     std::vector<VuObject> objects;
@@ -21,9 +21,9 @@ struct VuScene
     int height = 0;
     bool wireframe = false;
 
-    VuScene(VuWindow &vw, VuShader &shader);
+    explicit VuScene(VuWindow &vw);
 
-    void UpdateCamera();
+    void Update();
     void Draw();
 
     void LoadFile(const char *path);

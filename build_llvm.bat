@@ -1,8 +1,10 @@
 mkdir build-llvm
 clang++ ^
-    src/main.cpp ^
     ext/ext.cpp ^
     src/util/util.cpp ^
+    src/graphics/Buffer.cpp ^
+    src/graphics/Framebuffer.cpp ^
+    src/graphics/PostProcessing.cpp ^
     src/VuScene.cpp ^
     src/VuCamera.cpp ^
     src/VuFS.cpp ^
@@ -13,8 +15,8 @@ clang++ ^
     src/VuScript.cpp ^
     src/VuShader.cpp ^
     src/VuTexture.cpp ^
-    src/VuWireframe.cpp ^
     src/VuWindow.cpp ^
+    src/main.cpp ^
     -std=c++17 -g -O0 ^
     -o ./build-llvm/main.exe ^
     -I ./src/ ^

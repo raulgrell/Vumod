@@ -25,9 +25,8 @@ bool FileExists(const std::string &path)
     if (FILE *file = fopen(path.c_str(), "r")) {
         fclose(file);
         return true;
-    } else {
-        return false;
     }
+    return false;
 }
 
 uint8_t *ReadFile(const std::string &path)

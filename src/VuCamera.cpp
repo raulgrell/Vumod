@@ -1,6 +1,6 @@
 #include "VuCamera.h"
 
-void VuCamera::Update(int width, int height)
+void VuCamera::UpdateMatrix()
 {
     mat4x4 p, m;
     mat4x4_identity(m);
@@ -19,4 +19,3 @@ void VuCamera::GetMatrix(mat4x4 m)
 {
     mat4x4_dup(m, mvp);
 }
-
