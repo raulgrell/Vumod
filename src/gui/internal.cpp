@@ -1,7 +1,5 @@
 #include "common.h"
 
-#include "VuShader.h"
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
@@ -13,25 +11,26 @@
 
 #endif
 
-struct VuGuiRenderState {
-    GLenum active_texture;
-    GLint program;
-    GLint texture;
-    GLint array_buffer;
+struct VuGuiRenderState
+{
+    GLenum active_texture {};
+    GLint program {};
+    GLint texture {};
+    GLint array_buffer {};
 #ifndef IMGUI_IMPL_OPENGL_ES2
-    GLint vertex_array_object;
+    GLint vertex_array_object {};
 #endif
 #ifdef GL_POLYGON_MODE
-    GLint polygon_mode[2];
+    GLint polygon_mode[2] {};
 #endif
-    GLint viewport[4];
-    GLint scissor_box[4];
-    GLenum blend_src_rgb;
-    GLenum blend_dst_rgb;
-    GLenum blend_src_alpha;
-    GLenum blend_dst_alpha;
-    GLenum blend_equation_rgb;
-    GLenum blend_equation_alpha;
+    GLint viewport[4] {};
+    GLint scissor_box[4] {};
+    GLenum blend_src_rgb {};
+    GLenum blend_dst_rgb {};
+    GLenum blend_src_alpha {};
+    GLenum blend_dst_alpha {};
+    GLenum blend_equation_rgb {};
+    GLenum blend_equation_alpha {};
     GLboolean enable_blend = glIsEnabled(GL_BLEND);
     GLboolean enable_cull_face = glIsEnabled(GL_CULL_FACE);
     GLboolean enable_depth_test = glIsEnabled(GL_DEPTH_TEST);
@@ -97,7 +96,8 @@ static int g_AttribLocationVtxPos = 0;
 static int g_AttribLocationVtxUV = 0;
 static int g_AttribLocationVtxColor = 0;
 
-static void ImGui_GL_BackupRenderState(VuGuiRenderState &rs) {
+static void ImGui_GL_BackupRenderState(VuGuiRenderState &rs)
+{
     // Backup GL state
     glGetIntegerv(GL_ACTIVE_TEXTURE, (GLint *) &rs.active_texture);
     glActiveTexture(GL_TEXTURE0);
@@ -130,7 +130,8 @@ static void ImGui_GL_BackupRenderState(VuGuiRenderState &rs) {
 #endif
 }
 
-static void ImGui_GL_RestoreRenderState(const VuGuiRenderState &rs) {
+static void ImGui_GL_RestoreRenderState(const VuGuiRenderState &rs)
+{
     glUseProgram(rs.program);
     glBindTexture(GL_TEXTURE_2D, rs.texture);
     glActiveTexture(rs.active_texture);
@@ -164,7 +165,8 @@ static void ImGui_GL_RestoreRenderState(const VuGuiRenderState &rs) {
 }
 
 static void
-ImGui_GL_SetupRenderState(const ImDrawData *draw_data, int fb_width, int fb_height, GLuint vao) {
+ImGui_GL_SetupRenderState(const ImDrawData *draw_data, int fb_width, int fb_height, GLuint vao)
+{
     // Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled, polygon fill
     glEnable(GL_BLEND);
     glBlendEquation(GL_FUNC_ADD);
@@ -212,7 +214,8 @@ ImGui_GL_SetupRenderState(const ImDrawData *draw_data, int fb_width, int fb_heig
 }
 
 void
-ImGui_GL_RenderDrawData(const VuGuiRenderState &rs, const ImDrawData *draw_data, int fb_width, int fb_height) {
+ImGui_GL_RenderDrawData(const VuGuiRenderState &rs, const ImDrawData *draw_data, int fb_width, int fb_height)
+{
     // Setup desired GL state
     // Recreate the VAO every time (this is to easily allow multiple GL contexts to be rendered to. VAO are not shared among GL contexts)
     // The renderer would actually work without any VAO bound, but then our VertexAttrib calls would overwrite the default one currently bound.
@@ -281,7 +284,8 @@ ImGui_GL_RenderDrawData(const VuGuiRenderState &rs, const ImDrawData *draw_data,
 
 }
 
-bool ImGui_GL_CreateFontsTexture() {
+bool ImGui_GL_CreateFontsTexture()
+{
     // Build texture atlas
     ImGuiIO &io = ImGui::GetIO();
     unsigned char *pixels;
@@ -313,7 +317,8 @@ bool ImGui_GL_CreateFontsTexture() {
     return true;
 }
 
-void ImGui_GL_Init(GLFWwindow *window) {
+void ImGui_GL_Init(GLFWwindow *window)
+{
     ImGuiIO &io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
@@ -374,7 +379,8 @@ void ImGui_GL_Init(GLFWwindow *window) {
     g_PrevUserCallbackChar = glfwSetCharCallback(window, ImGui_GLFW_CharCallback);
 }
 
-bool ImGui_GL_CreateDeviceObjects(const char *vertex_shader, const char *fragment_shader) {
+bool ImGui_GL_CreateDeviceObjects(const char *vertex_shader, const char *fragment_shader)
+{
     // Backup GL state
     GLint last_texture, last_array_buffer;
     glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
@@ -385,19 +391,19 @@ bool ImGui_GL_CreateDeviceObjects(const char *vertex_shader, const char *fragmen
     g_VertHandle = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(g_VertHandle, 1, vertex_shader_with_version, nullptr);
     glCompileShader(g_VertHandle);
-    CheckShader(g_VertHandle, "vertex shader");
+    Graphics::CheckShader(g_VertHandle, "vertex shader");
 
     const GLchar *fragment_shader_with_version[1] = {fragment_shader};
     g_FragHandle = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(g_FragHandle, 1, fragment_shader_with_version, nullptr);
     glCompileShader(g_FragHandle);
-    CheckShader(g_FragHandle, "fragment shader");
+    Graphics::CheckShader(g_FragHandle, "fragment shader");
 
     g_ShaderHandle = glCreateProgram();
     glAttachShader(g_ShaderHandle, g_VertHandle);
     glAttachShader(g_ShaderHandle, g_FragHandle);
     glLinkProgram(g_ShaderHandle);
-    CheckProgram(g_ShaderHandle, "shader program");
+    Graphics::CheckProgram(g_ShaderHandle, "shader program");
 
     g_AttribLocationTex = glGetUniformLocation(g_ShaderHandle, "Texture");
     g_AttribLocationProjMtx = glGetUniformLocation(g_ShaderHandle, "ProjMtx");
@@ -419,7 +425,8 @@ bool ImGui_GL_CreateDeviceObjects(const char *vertex_shader, const char *fragmen
 }
 
 
-void ImGui_GL_DestroyFontsTexture() {
+void ImGui_GL_DestroyFontsTexture()
+{
     if (g_FontTexture) {
         ImGuiIO &io = ImGui::GetIO();
         glDeleteTextures(1, &g_FontTexture);
@@ -428,7 +435,8 @@ void ImGui_GL_DestroyFontsTexture() {
     }
 }
 
-void ImGui_GL_DestroyDeviceObjects() {
+void ImGui_GL_DestroyDeviceObjects()
+{
     if (g_VboHandle)
         glDeleteBuffers(1, &g_VboHandle);
     if (g_ElementsHandle)
@@ -454,15 +462,18 @@ void ImGui_GL_DestroyDeviceObjects() {
     ImGui_GL_DestroyFontsTexture();
 }
 
-static const char *ImGui_GLFW_GetClipboardText(void *user_data) {
+static const char *ImGui_GLFW_GetClipboardText(void *user_data)
+{
     return glfwGetClipboardString((GLFWwindow *) user_data);
 }
 
-static void ImGui_GLFW_SetClipboardText(void *user_data, const char *text) {
+static void ImGui_GLFW_SetClipboardText(void *user_data, const char *text)
+{
     glfwSetClipboardString((GLFWwindow *) user_data, text);
 }
 
-void ImGui_GLFW_MouseButtonCallback(GLFWwindow *window, int button, int action, int mods) {
+void ImGui_GLFW_MouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
+{
     if (g_PrevUserCallbackMousebutton != nullptr)
         g_PrevUserCallbackMousebutton(window, button, action, mods);
 
@@ -470,7 +481,8 @@ void ImGui_GLFW_MouseButtonCallback(GLFWwindow *window, int button, int action, 
         g_MouseJustPressed[button] = true;
 }
 
-void ImGui_GLFW_ScrollCallback(GLFWwindow *window, double xoffset, double yoffset) {
+void ImGui_GLFW_ScrollCallback(GLFWwindow *window, double xoffset, double yoffset)
+{
     if (g_PrevUserCallbackScroll != nullptr)
         g_PrevUserCallbackScroll(window, xoffset, yoffset);
 
@@ -479,7 +491,8 @@ void ImGui_GLFW_ScrollCallback(GLFWwindow *window, double xoffset, double yoffse
     io.MouseWheel += (float) yoffset;
 }
 
-void ImGui_GLFW_KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods) {
+void ImGui_GLFW_KeyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
+{
     if (g_PrevUserCallbackKey != nullptr)
         g_PrevUserCallbackKey(window, key, scancode, action, mods);
 
@@ -496,7 +509,8 @@ void ImGui_GLFW_KeyCallback(GLFWwindow *window, int key, int scancode, int actio
     io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
 }
 
-void ImGui_GLFW_CharCallback(GLFWwindow *window, unsigned int c) {
+void ImGui_GLFW_CharCallback(GLFWwindow *window, unsigned int c)
+{
     if (g_PrevUserCallbackChar != nullptr)
         g_PrevUserCallbackChar(window, c);
 
@@ -505,14 +519,16 @@ void ImGui_GLFW_CharCallback(GLFWwindow *window, unsigned int c) {
         io.AddInputCharacter((unsigned short) c);
 }
 
-void ImGui_GLFW_Shutdown() {
+void ImGui_GLFW_Shutdown()
+{
     for (auto &cursor : g_MouseCursors) {
         glfwDestroyCursor(cursor);
         cursor = nullptr;
     }
 }
 
-static void ImGui_GLFW_UpdateMousePosAndButtons(GLFWwindow *window) {
+static void ImGui_GLFW_UpdateMousePosAndButtons(GLFWwindow *window)
+{
     // Update buttons
     ImGuiIO &io = ImGui::GetIO();
     for (int i = 0; i < IM_ARRAYSIZE(io.MouseDown); i++) {
@@ -536,7 +552,8 @@ static void ImGui_GLFW_UpdateMousePosAndButtons(GLFWwindow *window) {
     }
 }
 
-static void ImGui_GLFW_UpdateMouseCursor(GLFWwindow *window) {
+static void ImGui_GLFW_UpdateMouseCursor(GLFWwindow *window)
+{
     ImGuiIO &io = ImGui::GetIO();
     if ((io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange) ||
         glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED)
@@ -555,7 +572,8 @@ static void ImGui_GLFW_UpdateMouseCursor(GLFWwindow *window) {
     }
 }
 
-static void ImGui_GLFW_UpdateGamepads() {
+static void ImGui_GLFW_UpdateGamepads()
+{
     ImGuiIO &io = ImGui::GetIO();
     memset(io.NavInputs, 0, sizeof(io.NavInputs));
     if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) == 0)
@@ -564,13 +582,13 @@ static void ImGui_GLFW_UpdateGamepads() {
 // Update gamepad inputs
 #define MAP_BUTTON(NAV_NO, BUTTON_NO)                                      \
     {                                                                      \
-        if (buttons_count > BUTTON_NO && buttons[BUTTON_NO] == GLFW_PRESS) \
+        if (buttons_count > (BUTTON_NO) && buttons[BUTTON_NO] == GLFW_PRESS) \
             io.NavInputs[NAV_NO] = 1.0f;                                   \
     }
 #define MAP_ANALOG(NAV_NO, AXIS_NO, V0, V1)                    \
     {                                                          \
-        float v = (axes_count > AXIS_NO) ? axes[AXIS_NO] : V0; \
-        v = (v - V0) / (V1 - V0);                              \
+        float v = (axes_count > (AXIS_NO)) ? axes[AXIS_NO] : (V0); \
+        v = (v - (V0)) / ((V1) - (V0));                              \
         if (v > 1.0f)                                          \
             v = 1.0f;                                          \
         if (io.NavInputs[NAV_NO] < v)                          \
@@ -579,22 +597,22 @@ static void ImGui_GLFW_UpdateGamepads() {
     int axes_count = 0, buttons_count = 0;
     const float *axes = glfwGetJoystickAxes(GLFW_JOYSTICK_1, &axes_count);
     const unsigned char *buttons = glfwGetJoystickButtons(GLFW_JOYSTICK_1, &buttons_count);
-    MAP_BUTTON(ImGuiNavInput_Activate, 0);   // Cross / A
-    MAP_BUTTON(ImGuiNavInput_Cancel, 1);     // Circle / B
-    MAP_BUTTON(ImGuiNavInput_Menu, 2);       // Square / X
-    MAP_BUTTON(ImGuiNavInput_Input, 3);      // Triangle / Y
-    MAP_BUTTON(ImGuiNavInput_DpadLeft, 13);  // D-Pad Left
-    MAP_BUTTON(ImGuiNavInput_DpadRight, 11); // D-Pad Right
-    MAP_BUTTON(ImGuiNavInput_DpadUp, 10);    // D-Pad Up
-    MAP_BUTTON(ImGuiNavInput_DpadDown, 12);  // D-Pad Down
-    MAP_BUTTON(ImGuiNavInput_FocusPrev, 4);  // L1 / LB
-    MAP_BUTTON(ImGuiNavInput_FocusNext, 5);  // R1 / RB
-    MAP_BUTTON(ImGuiNavInput_TweakSlow, 4);  // L1 / LB
-    MAP_BUTTON(ImGuiNavInput_TweakFast, 5);  // R1 / RB
-    MAP_ANALOG(ImGuiNavInput_LStickLeft, 0, -0.3f, -0.9f);
-    MAP_ANALOG(ImGuiNavInput_LStickRight, 0, +0.3f, +0.9f);
-    MAP_ANALOG(ImGuiNavInput_LStickUp, 1, +0.3f, +0.9f);
-    MAP_ANALOG(ImGuiNavInput_LStickDown, 1, -0.3f, -0.9f);
+    MAP_BUTTON(ImGuiNavInput_Activate, 0)  // Cross / A
+    MAP_BUTTON(ImGuiNavInput_Cancel, 1)    // Circle / B
+    MAP_BUTTON(ImGuiNavInput_Menu, 2)      // Square / X
+    MAP_BUTTON(ImGuiNavInput_Input, 3)     // Triangle / Y
+    MAP_BUTTON(ImGuiNavInput_DpadLeft, 13) // D-Pad Left
+    MAP_BUTTON(ImGuiNavInput_DpadRight, 11) // D-Pad Right
+    MAP_BUTTON(ImGuiNavInput_DpadUp, 10)   // D-Pad Up
+    MAP_BUTTON(ImGuiNavInput_DpadDown, 12) // D-Pad Down
+    MAP_BUTTON(ImGuiNavInput_FocusPrev, 4) // L1 / LB
+    MAP_BUTTON(ImGuiNavInput_FocusNext, 5) // R1 / RB
+    MAP_BUTTON(ImGuiNavInput_TweakSlow, 4) // L1 / LB
+    MAP_BUTTON(ImGuiNavInput_TweakFast, 5) // R1 / RB
+    MAP_ANALOG(ImGuiNavInput_LStickLeft, 0, -0.3f, -0.9f)
+    MAP_ANALOG(ImGuiNavInput_LStickRight, 0, +0.3f, +0.9f)
+    MAP_ANALOG(ImGuiNavInput_LStickUp, 1, +0.3f, +0.9f)
+    MAP_ANALOG(ImGuiNavInput_LStickDown, 1, -0.3f, -0.9f)
 #undef MAP_BUTTON
 #undef MAP_ANALOG
     if (axes_count > 0 && buttons_count > 0)

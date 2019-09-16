@@ -10,7 +10,8 @@
 
 using ImGuiFileBrowserFlags = int;
 
-enum ImGuiFileBrowserFlags_ {
+enum ImGuiFileBrowserFlags_
+{
     ImGuiFileBrowserFlags_SelectDirectory = 1 << 0, // select directory instead of regular file
     ImGuiFileBrowserFlags_EnterNewFilename = 1 << 1, // allow user to enter new filename when selecting regular file
     ImGuiFileBrowserFlags_NoModal =
@@ -21,8 +22,10 @@ enum ImGuiFileBrowserFlags_ {
     ImGuiFileBrowserFlags_CreateNewDir = 1 << 6, // allow user to create new directory
 };
 
-namespace ImGui {
-    class FileBrowser {
+namespace ImGui
+{
+    class FileBrowser
+    {
     public:
 
         // pwd is set to current working directory by default
@@ -61,7 +64,8 @@ namespace ImGui {
 
     private:
 
-        class ScopeGuard {
+        class ScopeGuard
+        {
             std::function<void()> func_;
 
         public:
@@ -89,8 +93,9 @@ namespace ImGui {
         std::filesystem::path pwd_;
         std::string selectedFilename_;
 
-        struct FileRecord {
-            bool isDir;
+        struct FileRecord
+        {
+            bool isDir {};
             std::string name;
             std::string showName;
         };
@@ -108,7 +113,8 @@ namespace ImGui {
 inline ImGui::FileBrowser::FileBrowser(ImGuiFileBrowserFlags flags)
         : flags_(flags),
           openFlag_(false), closeFlag_(false), isOpened_(false), ok_(false),
-          inputNameBuf_(std::make_unique<std::array<char, INPUT_NAME_BUF_SIZE>>()) {
+          inputNameBuf_(std::make_unique<std::array<char, INPUT_NAME_BUF_SIZE>>())
+{
     if (flags_ & ImGuiFileBrowserFlags_CreateNewDir)
         newDirNameBuf_ = std::make_unique<std::array<char, INPUT_NAME_BUF_SIZE>>();
 
@@ -118,11 +124,13 @@ inline ImGui::FileBrowser::FileBrowser(ImGuiFileBrowserFlags flags)
 }
 
 inline ImGui::FileBrowser::FileBrowser(const FileBrowser &copyFrom)
-        : FileBrowser() {
+        : FileBrowser()
+{
     *this = copyFrom;
 }
 
-inline ImGui::FileBrowser &ImGui::FileBrowser::operator=(const FileBrowser &copyFrom) {
+inline ImGui::FileBrowser &ImGui::FileBrowser::operator=(const FileBrowser &copyFrom)
+{
     flags_ = copyFrom.flags_;
     SetTitle(copyFrom.title_);
 
@@ -147,31 +155,36 @@ inline ImGui::FileBrowser &ImGui::FileBrowser::operator=(const FileBrowser &copy
     return *this;
 }
 
-inline void ImGui::FileBrowser::SetTitle(std::string title) {
+inline void ImGui::FileBrowser::SetTitle(std::string title)
+{
     title_ = std::move(title);
     openLabel_ = title_ + "##filebrowser_" + std::to_string(reinterpret_cast<size_t>(this));
     openNewDirLabel_ = "new dir##new_dir_" + std::to_string(reinterpret_cast<size_t>(this));
 }
 
-inline void ImGui::FileBrowser::Open() {
+inline void ImGui::FileBrowser::Open()
+{
     ClearSelected();
     statusStr_ = std::string();
     openFlag_ = true;
     closeFlag_ = false;
 }
 
-inline void ImGui::FileBrowser::Close() {
+inline void ImGui::FileBrowser::Close()
+{
     ClearSelected();
     statusStr_ = std::string();
     closeFlag_ = true;
     openFlag_ = false;
 }
 
-inline bool ImGui::FileBrowser::IsOpen() const noexcept {
+inline bool ImGui::FileBrowser::IsOpen() const noexcept
+{
     return isOpened_;
 }
 
-inline void ImGui::FileBrowser::Display() {
+inline void ImGui::FileBrowser::Display()
+{
     PushID(this);
     ScopeGuard exitThis([this] {
         openFlag_ = false;
@@ -337,11 +350,13 @@ inline void ImGui::FileBrowser::Display() {
     }
 }
 
-inline bool ImGui::FileBrowser::HasSelected() const noexcept {
+inline bool ImGui::FileBrowser::HasSelected() const noexcept
+{
     return ok_;
 }
 
-inline bool ImGui::FileBrowser::SetPwd(const std::filesystem::path &pwd) {
+inline bool ImGui::FileBrowser::SetPwd(const std::filesystem::path &pwd)
+{
     try {
         SetPwdUncatched(pwd);
         return true;
@@ -357,18 +372,21 @@ inline bool ImGui::FileBrowser::SetPwd(const std::filesystem::path &pwd) {
     return false;
 }
 
-inline std::filesystem::path ImGui::FileBrowser::GetSelected() const {
+inline std::filesystem::path ImGui::FileBrowser::GetSelected() const
+{
     return pwd_ / selectedFilename_;
 }
 
-inline void ImGui::FileBrowser::ClearSelected() {
+inline void ImGui::FileBrowser::ClearSelected()
+{
     selectedFilename_ = std::string();
     (*inputNameBuf_)[0] = '\0';
     ok_ = false;
 }
 
-inline void ImGui::FileBrowser::SetPwdUncatched(const std::filesystem::path &pwd) {
-    fileRecords_ = {FileRecord{true, "..", "[D] .."}};
+inline void ImGui::FileBrowser::SetPwdUncatched(const std::filesystem::path &pwd)
+{
+    fileRecords_ = {FileRecord {true, "..", "[D] .."}};
 
     for (auto &p : std::filesystem::directory_iterator(pwd)) {
         FileRecord rcd;

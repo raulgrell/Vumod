@@ -1,5 +1,5 @@
 
-#include <VuFS.h>
+#include <files/VFS.h>
 #include <algorithm>
 #include "../common.h"
 
@@ -22,7 +22,7 @@ struct FileGui {
         return _instance;
     }
 
-    bool FileDialog(const char *vName, const char *vFilters = 0, std::string vPath = ".",
+    bool FileDialog(const char *vName, const char *vFilters = nullptr, std::string vPath = ".",
                     const std::string &vDefaultFileName = "");
 
     std::string GetFilepathName() const;

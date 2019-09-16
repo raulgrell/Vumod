@@ -1,28 +1,34 @@
+#include <util/StringUtils.h>
 #include "common.h"
 
-struct ConsoleApp {
-    char InputBuf[256]{0};
+struct ConsoleApp
+{
+    char InputBuf[256] {0};
     std::vector<std::string> Items;
     std::vector<std::string> History;
     int HistoryPos = -1; // -1: new line, 0..History.Size-1 browsing history.
     bool AutoScroll = true;
     bool ScrollToBottom = true;
 
-    ConsoleApp() {
+    ConsoleApp()
+    {
         ClearLog();
         AddLog("Welcome to Dear ImGui!");
     }
 
-    ~ConsoleApp() {
+    ~ConsoleApp()
+    {
         ClearLog();
     }
 
-    void ClearLog() {
+    void ClearLog()
+    {
         Items.clear();
         ScrollToBottom = true;
     }
 
-    void AddLog(const char *fmt, ...) IM_FMTARGS(2) {
+    void AddLog(const char *fmt, ...) IM_FMTARGS(2)
+    {
         char buf[1024];
         va_list args;
         va_start(args, fmt);
@@ -34,7 +40,8 @@ struct ConsoleApp {
             ScrollToBottom = true;
     }
 
-    void Draw(const char *title, bool *p_open) {
+    void Draw(const char *title, bool *p_open)
+    {
         ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
         if (!ImGui::Begin(title, p_open)) {
             ImGui::End();
@@ -119,14 +126,15 @@ struct ConsoleApp {
         ImGui::End();
     }
 
-    void ExecCommand(const char *command_line) {
+    void ExecCommand(const char *command_line)
+    {
         AddLog("# %s\n", command_line);
 
         std::string command_string(command_line);
 
         // Insert into history. First find match and delete it so it can be pushed to the back. This isn't trying to be smart or optimal.
         HistoryPos = -1;
-        for (int i = History.size() - 1; i >= 0; i--)
+        for (size_t i = History.size() - 1; i >= 0; i--)
             if (History[i] == command_string) {
                 History.erase(History.begin() + i);
                 break;
@@ -144,7 +152,8 @@ struct ConsoleApp {
         return console->TextEditCallback(data);
     }
 
-    int TextEditCallback(ImGuiInputTextCallbackData *data) {
+    int TextEditCallback(ImGuiInputTextCallbackData *data)
+    {
         switch (data->EventFlag) {
             case ImGuiInputTextFlags_CallbackCompletion: {
                 break;
@@ -169,14 +178,14 @@ struct ConsoleApp {
                     data->InsertChars(0, history_str);
                 }
             }
-            default:
-                break;
+            default:break;
         }
         return 0;
     }
 };
 
-static void ShowConsole(bool *p_open) {
+static void ShowConsole(bool *p_open)
+{
     static ConsoleApp console;
     console.Draw("Example: Console", p_open);
 }

@@ -4,6 +4,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include <ext.h>
-#include <util/util.h>
+#include <string>
 
+void fatal_error(const std::string &errorString);
