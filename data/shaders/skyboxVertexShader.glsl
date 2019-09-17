@@ -1,6 +1,7 @@
 #version 330 core
 
-in vec3 position;
+layout (location = 0) in vec3 position;
+
 out vec3 textureCoords;
 
 uniform mat4 projectionMatrix;

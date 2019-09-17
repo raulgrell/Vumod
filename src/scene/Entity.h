@@ -1,7 +1,7 @@
 #pragma once
 
-#include <models/TexturedModel.h>
 #include <math/Vec.h>
+#include <models/Model.h>
 
 struct Entity
 {
@@ -9,22 +9,29 @@ struct Entity
     Vec3 position;
     Vec3 rotation;
     Vec3 scale;
-    int textureIndex = 0;
+    int atlasIndex = 0;
 
     Entity(TexturedModel &model,
            Vec3 position,
            Vec3 rotation,
            Vec3 scale)
-            : model(model), position(position), rotation(rotation), scale(scale)
+            : model(model),
+              position(position),
+              rotation(rotation),
+              scale(scale)
     {
     }
 
     Entity(TexturedModel &model,
-           int textureIndex,
+           int atlasIndex,
            Vec3 position,
            Vec3 rotation,
            Vec3 scale)
-            : model(model), position(position), rotation(rotation), scale(scale), textureIndex(textureIndex)
+            : model(model),
+              position(position),
+              rotation(rotation),
+              scale(scale),
+              atlasIndex(atlasIndex)
     {
     }
 

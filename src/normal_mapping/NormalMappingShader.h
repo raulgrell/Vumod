@@ -2,7 +2,6 @@
 
 #include <light/Light.h>
 #include <math/Mat.h>
-#include <scene/Light.h>
 #include <shaders/ShaderGL.h>
 #include <scene/Camera.h>
 
@@ -16,9 +15,9 @@ public:
     void BindAttributes() override;
     void GetUniformLocations() override;
 
-    void connectTextureUnits();
+    void ConnectTextureUnits();
     void LoadShineVariables(float damper, float reflectivity);
-    void LoadTransformationMatrix(const Mat4 *matrix);
+    void LoadTransformationMatrix(const Mat4 &matrix);
     void LoadLights(const std::vector<Light *> &lights);
     void LoadProjectionMatrix(const Mat4 *matrix);
     void LoadViewMatrix(const Camera *camera);

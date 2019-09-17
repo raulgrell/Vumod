@@ -7,37 +7,34 @@
 
 void Camera::Update()
 {
-    if (InputManager::isKeyDown(GLFW_KEY_S)) {
+    if (InputManager::IsKeyDown(GLFW_KEY_S)) {
         position += Vec3(0, 0, -1);
     }
-    if (InputManager::isKeyDown(GLFW_KEY_W)) {
+    if (InputManager::IsKeyDown(GLFW_KEY_W)) {
         position += Vec3(0, 0, 1);
     }
-    if (InputManager::isKeyDown(GLFW_KEY_A)) {
+    if (InputManager::IsKeyDown(GLFW_KEY_A)) {
         position += Vec3(-1, 0, 0);
     }
-    if (InputManager::isKeyDown(GLFW_KEY_D)) {
+    if (InputManager::IsKeyDown(GLFW_KEY_D)) {
         position += Vec3(1, 0, 0);
     }
-    if (InputManager::isKeyDown(GLFW_KEY_SPACE)) {
+    if (InputManager::IsKeyDown(GLFW_KEY_SPACE)) {
         position += Vec3(0, 1, 0);
     }
-    if (InputManager::isKeyDown(GLFW_KEY_LEFT_CONTROL)) {
+    if (InputManager::IsKeyDown(GLFW_KEY_LEFT_CONTROL)) {
         position += Vec3(0, -1, 0);
     }
-    if (InputManager::isKeyDown(GLFW_KEY_Q)) {
+    if (InputManager::IsKeyDown(GLFW_KEY_Q)) {
         rotation.y += 1;
     }
-    if (InputManager::isKeyDown(GLFW_KEY_E)) {
+    if (InputManager::IsKeyDown(GLFW_KEY_E)) {
         rotation.y -= 1;
     }
-}
 
-Mat4 Camera::GetViewMatrix() const
-{
-    Mat4 viewMatrix(1.0f);
+    viewMatrix = Mat4::Identity();
+    viewMatrix *= projectionMatrix;
     viewMatrix *= Mat4::Rotate(math::radians(rotation.x), Vec3(1, 0, 0));
     viewMatrix *= Mat4::Rotate(math::radians(rotation.y), Vec3(0, 1, 0));
     viewMatrix *= Mat4::Translate(-position);
-    return viewMatrix;
 }

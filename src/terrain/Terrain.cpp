@@ -12,9 +12,9 @@ Terrain::Terrain(int gridX, int gridZ, Loader &loader,
 	TerrainTexturePack &texturePack, TerrainTexture& blendMap, const std::string& heightMap)
 	: texturePack(texturePack), blendMap(blendMap), position(gridX * SIZE, 0, gridZ * SIZE)
 {
-	auto start = Time::microseconds();
+	auto start = Time::Microseconds();
 	model = Generate(loader, heightMap);
-	auto finish = Time::microseconds();
+	auto finish = Time::Microseconds();
 	std::cout << "Terrain::Terrain: generateTerrain took " << finish - start << " microseconds" << std::endl;
 }
 
@@ -97,7 +97,7 @@ RawModel Terrain::Generate(Loader &loader, const std::string &heightMap)
 		}
 	}
 
-	return loader.LoadToVAO(verticesArray, textureArray, normalsArray, indicesArray);
+	return loader.LoadToVao(verticesArray, textureArray, normalsArray, indicesArray);
 }
 
 float Terrain::GenerateHeight(int x, int z, HeightsGenerator &generator)

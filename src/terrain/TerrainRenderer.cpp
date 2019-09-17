@@ -7,7 +7,7 @@ TerrainRenderer::TerrainRenderer(TerrainShader& shader, Mat4& projectionMatrix) 
 {
     shader.Bind();
 	shader.LoadProjectionMatrix(projectionMatrix);
-	CheckGL();
+	CHECK_GL();
 	shader.connectTextureUnits();
     shader.Unbind();
 }
@@ -17,27 +17,27 @@ void TerrainRenderer::Render(std::vector<Terrain *> *terrains)
 	for (auto terrain : *terrains) {
         Prepare(*terrain);
 		LoadModelMatrix(*terrain);
-	CheckGL();
+	CHECK_GL();
 		glDrawElements(GL_TRIANGLES, terrain->model.vertexCount, GL_UNSIGNED_INT, nullptr);
-	CheckGL();
+	CHECK_GL();
        UnbindTexturedModel();
-	CheckGL();
+	CHECK_GL();
 	}
 }
 
 void TerrainRenderer::Prepare(Terrain& terrain)
 {
-	glBindVertexArray(terrain.model.vaoID);
+	glBindVertexArray(terrain.model.vaoId);
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
-	CheckGL();
+	CHECK_GL();
 
     BindTextures(terrain);
-    	CheckGL();
+    	CHECK_GL();
 
 	shader.LoadShineVariables(1, 0);
-	CheckGL();
+	CHECK_GL();
 }
 
 void TerrainRenderer::BindTextures(Terrain &terrain)
@@ -53,7 +53,7 @@ void TerrainRenderer::BindTextures(Terrain &terrain)
 	glBindTexture(GL_TEXTURE_2D, texturePack.getbTexture().getTextureId());
 	glActiveTexture(GL_TEXTURE4);
 	glBindTexture(GL_TEXTURE_2D, terrain.blendMap.getTextureId());
-    CheckGL();
+    CHECK_GL();
 }
 
 void TerrainRenderer::UnbindTexturedModel()
@@ -62,7 +62,7 @@ void TerrainRenderer::UnbindTexturedModel()
 	glDisableVertexAttribArray(1);
 	glDisableVertexAttribArray(2);
 	glBindVertexArray(0);
-    CheckGL();
+    CHECK_GL();
 }
 
 void TerrainRenderer::LoadModelMatrix(Terrain& terrain)

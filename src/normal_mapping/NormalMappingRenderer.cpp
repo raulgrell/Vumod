@@ -1,50 +1,52 @@
-#include "../models/RawModel.h"
 #include "NormalMappingRenderer.h"
 
-#include <glad/glad.h>
 #include <math/Math.h>
+#include <models/Model.h>
 #include <scene/SceneRenderer.h>
+#include <graphics/Graphics.h>
+
+#include <glad/glad.h>
 
 NormalMappingRenderer::NormalMappingRenderer(Mat4 &projectionMatrix)
 {
     shader.Bind();
     shader.LoadProjectionMatrix(&projectionMatrix);
-    shader.connectTextureUnits();
+    shader.ConnectTextureUnits();
     shader.Unbind();
 }
 
-void NormalMappingRenderer::render(
-        std::unordered_map<TexturedModel *, std::vector<Entity *> *> *entityMap,
+void NormalMappingRenderer::Render(
+        std::unordered_map<TexturedModel *, std::vector<Entity *> *> &entityMap,
         Vec4 &clipPlane,
         std::vector<Light *> &lights,
         Camera &camera)
 {
     shader.Bind();
-    prepare(clipPlane, lights, camera);
+    Prepare(clipPlane, lights, camera);
 
-    for (auto entityList : *entityMap) {
+    for (auto entityList : entityMap) {
         TexturedModel *model = entityList.first;
 
-        prepareTexturedModel(*model);
+        PrepareTexturedModel(*model);
 
-        auto it = entityMap->find(model);
-        if (it != entityMap->end()) {
+        auto it = entityMap.find(model);
+        if (it != entityMap.end()) {
             for (auto entity : *it->second) {
-                prepareInstance(*entity);
-                glDrawElements(GL_TRIANGLES, model->rawModel.vertexCount, GL_UNSIGNED_INT, 0);
+                PrepareInstance(*entity);
+                glDrawElements(GL_TRIANGLES, model->rawModel.vertexCount, GL_UNSIGNED_INT, nullptr);
             }
         }
 
-        unbindTexturedModel();
+        UnbindTexturedModel();
     }
 
     shader.Unbind();
 }
 
-void NormalMappingRenderer::prepareTexturedModel(TexturedModel &model)
+void NormalMappingRenderer::PrepareTexturedModel(TexturedModel &model)
 {
     RawModel &rawModel = model.rawModel;
-    glBindVertexArray(rawModel.vaoID);
+    glBindVertexArray(rawModel.vaoId);
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
@@ -52,7 +54,7 @@ void NormalMappingRenderer::prepareTexturedModel(TexturedModel &model)
     ModelTexture &texture = model.texture;
     shader.LoadNumberOfRows(texture.numberOfRows);
     if (texture.hasTransparency) {
-        SceneRenderer::disableCulling();
+        Graphics::CullBackFaces(false);
     }
     shader.LoadFakeLightingVariable(texture.useFakeLighting);
     shader.LoadShineVariables(texture.shineDamper, texture.reflectivity);
@@ -62,9 +64,9 @@ void NormalMappingRenderer::prepareTexturedModel(TexturedModel &model)
     glBindTexture(GL_TEXTURE_2D, model.texture.getNormalMap());
 }
 
-void NormalMappingRenderer::unbindTexturedModel()
+void NormalMappingRenderer::UnbindTexturedModel()
 {
-    SceneRenderer::enableCulling();
+    Graphics::CullBackFaces(true);
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
     glDisableVertexAttribArray(2);
@@ -72,14 +74,14 @@ void NormalMappingRenderer::unbindTexturedModel()
     glBindVertexArray(0);
 }
 
-void NormalMappingRenderer::prepareInstance(Entity &entity)
+void NormalMappingRenderer::PrepareInstance(Entity &entity)
 {
     Mat4 transformationMatrix = Mat4::TRS(entity.position, entity.rotation, entity.scale);
-    shader.LoadTransformationMatrix(&transformationMatrix);
+    shader.LoadTransformationMatrix(transformationMatrix);
     shader.LoadTextureOffset(entity.getTextureXOffset(), entity.getTextureYOffset());
 }
 
-void NormalMappingRenderer::prepare(Vec4 &clipPlane, std::vector<Light *> &lights, Camera &camera)
+void NormalMappingRenderer::Prepare(Vec4 &clipPlane, std::vector<Light *> &lights, Camera &camera)
 {
     shader.LoadClipPlane(clipPlane);
     shader.LoadSkyColor(SceneRenderer::skyColour);

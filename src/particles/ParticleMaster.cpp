@@ -6,7 +6,7 @@ ParticleMaster::ParticleMaster(Loader &loader, Mat4 &projectionMatrix)
 {
 }
 
-void ParticleMaster::update(Camera &camera)
+void ParticleMaster::Update(Camera &camera)
 {
     auto mit = particlesMap.begin();
     while (mit != particlesMap.end()) {
@@ -31,12 +31,12 @@ void ParticleMaster::update(Camera &camera)
     }
 }
 
-void ParticleMaster::renderParticles(Camera &camera)
+void ParticleMaster::Render(Camera &camera)
 {
     renderer.render(particlesMap, camera);
 }
 
-void ParticleMaster::addParticle(Particle particle)
+void ParticleMaster::AddParticle(Particle particle)
 {
     ParticleTexture *texture = particle.texture;
     auto it = particlesMap.find(texture);

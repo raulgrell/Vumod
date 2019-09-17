@@ -25,7 +25,7 @@ Scene::Scene()
         : vs("Scene", VERTEX_FILE, FRAGMENT_FILE), bounds_max(), bounds_min()
 {
     vc.position = {0, 10, 0};
-    vc.rotation = {M_PI / 4, 0, 0};
+    vc.rotation = {-M_PI / 4, 0, 0};
 }
 
 void Scene::Update(VuWindow &vw)
@@ -34,11 +34,8 @@ void Scene::Update(VuWindow &vw)
     glViewport(0, 0, width, height);
 }
 
-void Scene::Draw()
+void Scene::Render()
 {
-    vs.Bind();
-    CheckGL();
-
     if (wireframe) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     } else {
@@ -46,6 +43,7 @@ void Scene::Draw()
     }
 
     for (auto &object : objects) {
+        vs.Bind();
         object.vbo->Bind();
         object.ibo->Bind();
         object.mtl->Bind();
@@ -60,9 +58,8 @@ void Scene::Draw()
         object.vbo->Unbind();
     }
 
-
     vs.Unbind();
-    CheckGL();
+    CHECK_GL();
 }
 
 void Scene::LoadFile(const char *path)
@@ -78,12 +75,11 @@ bool Scene::LoadObject(const char *filename)
     std::vector<tinyobj::shape_t> shapes;
     std::vector<tinyobj::material_t> obj_materials;
     std::string warn, err;
-    std::string base_dir = GetBaseDir(filename);
+    std::string base_dir = file::baseDir(filename);
 
-    bool ret = tinyobj::LoadObj(
-            &attrib, &shapes, &obj_materials,
-            &warn, &err,
-            filename, base_dir.c_str());
+    bool ret = tinyobj::LoadObj(&attrib, &shapes, &obj_materials,
+                                &warn, &err,
+                                filename, base_dir.c_str());
 
     if (!warn.empty())
         std::cout << "WARN: " << warn << std::endl;
@@ -103,7 +99,7 @@ bool Scene::LoadObject(const char *filename)
               << " texcoords=" << attrib.texcoords.size() / 2
               << " materials=" << obj_materials.size()
               << " shapes=" << shapes.size()
-              << " />" << std::endl;;
+              << " />" << std::endl;
 
     for (auto &m : obj_materials) {
         auto mtl = materials.emplace_back(vs, m, base_dir);
@@ -135,9 +131,7 @@ bool Scene::LoadObject(const char *filename)
                     {"vNorm", GL_FLOAT, 3},
                     {"vUV",   GL_FLOAT, 2}};
 
-            o.vbo = std::make_shared<VertexBuffer>(
-                    &o.buffer.at(0),
-                    o.buffer.size() * layout.GetStride());
+            o.vbo = std::make_shared<VertexBuffer>(&o.buffer.at(0), o.buffer.size() * layout.GetStride());
             o.vbo->SetLayout(layout);
 
             o.ibo = std::make_shared<IndexBuffer>(&o.indices.at(0), o.indices.size());
@@ -146,6 +140,8 @@ bool Scene::LoadObject(const char *filename)
         }
         objects.push_back(o);
     }
+
+    CHECK_GL();
 
     return true;
 }
@@ -214,13 +210,9 @@ VuObject Scene::Convert(const tinyobj::attrib_t &attrib,
 
 bool Scene::GetNormalsComputed(Vec3 *v, Vec3 *n) const
 {
-    CalcNormal(n[0], v[0], v[1], v[2]);
-    n[1][0] = n[0][0];
-    n[1][1] = n[0][1];
-    n[1][2] = n[0][2];
-    n[2][0] = n[0][0];
-    n[2][1] = n[0][1];
-    n[2][2] = n[0][2];
+    n[0] = calcNormal(v[0], v[1], v[2]);
+    n[1] = n[0];
+    n[2] = n[0];
     return true;
 }
 

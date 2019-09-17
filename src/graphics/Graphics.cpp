@@ -3,6 +3,7 @@
 #include <cassert>
 #include <cstdio>
 #include <vector>
+#include <iostream>
 
 void Graphics::Antialias(bool enable)
 {
@@ -52,6 +53,17 @@ void Graphics::EnableDepthTesting(bool enable)
     } else if (!enable && depthTesting) {
         glDisable(GL_DEPTH_TEST);
         depthTesting = false;
+    }
+}
+
+void Graphics::EnableClipping(bool enable)
+{
+    if (enable && !clipping) {
+        glEnable(GL_CLIP_DISTANCE0);
+        clipping = true;
+    } else if (!enable && clipping) {
+        glDisable(GL_CLIP_DISTANCE0);
+        clipping = false;
     }
 }
 
@@ -135,13 +147,12 @@ static const char *GetGlErrorString(GLenum err)
     }
 }
 
-int Graphics::CheckErrors(const char *file, int line)
+void Graphics::CheckErrors(const char *file, int line)
 {
     GLenum err(glGetError());
     while (err != GL_NO_ERROR) {
         const char *error = GetGlErrorString(err);
-        fprintf(stderr, "%s at %s: line  %d\n", error, file, line);
+        std::cerr << error << " at " << file << ": " << line << std::endl;
         err = glGetError();
     }
-    return err;
 }

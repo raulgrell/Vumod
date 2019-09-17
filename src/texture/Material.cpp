@@ -1,12 +1,12 @@
 
-#include "VuMaterial.h"
+#include "Material.h"
 
-VuMaterial::VuMaterial(const SceneShader &shader)
+Material::Material(const SceneShader &shader)
     : shader(shader)
 {
 }
 
-VuMaterial::VuMaterial(const SceneShader &shader, const tinyobj::material_t &material, const std::string &base_dir)
+Material::Material(const SceneShader &shader, const tinyobj::material_t &material, const std::string &base_dir)
     : shader(shader), name(material.name)
 {
     diffuse_texname = !material.diffuse_texname.empty()
@@ -22,7 +22,7 @@ VuMaterial::VuMaterial(const SceneShader &shader, const tinyobj::material_t &mat
     normal_texture = VuTexture::Load(normal_texname);
 }
 
-void VuMaterial::Bind() const
+void Material::Bind() const
 {
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, diffuse_texture.id);
@@ -30,7 +30,7 @@ void VuMaterial::Bind() const
     glBindTexture(GL_TEXTURE_2D, normal_texture.id);
 }
 
-void VuMaterial::Unbind() const
+void Material::Unbind() const
 {
 }
 

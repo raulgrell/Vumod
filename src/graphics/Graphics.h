@@ -10,19 +10,21 @@ struct Graphics
     inline static bool additiveBlending = false;
     inline static bool antialiasing = false;
     inline static bool depthTesting = false;
+    inline static bool clipping = false;
 
     static void Antialias(bool enable);
     static void EnableAlphaBlending();
     static void EnableAdditiveBlending();
     static void DisableBlending();
     static void EnableDepthTesting(bool enable);
+    static void EnableClipping(bool enable);
     static void CullBackFaces(bool cull);
     static void Wireframe(bool goWireframe);
 
     static int SizeOf(unsigned int type);
-    static int CheckErrors(const char *file, int line);
+    static void CheckErrors(const char *file, int line);
     static bool CheckShader(unsigned int handle, const char *desc);
     static bool CheckProgram(unsigned int handle, const char *desc);
 };
 
-#define CheckGL() Graphics::CheckErrors(__FILE__, __LINE__)
+#define CHECK_GL() Graphics::CheckErrors(__FILE__, __LINE__)

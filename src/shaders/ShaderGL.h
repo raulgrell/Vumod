@@ -3,7 +3,7 @@
 #include <string>
 
 #include <math/Math.h>
-#include <interfaces/IShader.h>
+#include <api/IShader.h>
 
 class ShaderGL : IShader
 {

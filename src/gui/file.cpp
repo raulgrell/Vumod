@@ -61,7 +61,7 @@ void FileGui::ScanDir(const std::string &vPath) {
 
 void FileGui::SetCurrentDir(const std::string &vPath) {
     m_CurrentPath = std::string(vPath);
-    m_SplitPath = splitString(m_CurrentPath, '/');
+    m_SplitPath = str::split(m_CurrentPath, '/');
 }
 
 void FileGui::ComposeNewPath(std::vector<std::string>::iterator vIter) {
@@ -133,7 +133,7 @@ FileGui::FileDialog(const char *vName, const char *vFilters, std::string vPath, 
 
     if (pathClick) {
         ScanDir(m_CurrentPath);
-        m_SplitPath = splitString(m_CurrentPath, '/');
+        m_SplitPath = str::split(m_CurrentPath, '/');
         if (m_SplitPath.size() == 2) {
             if (m_SplitPath[1].empty())
                 m_SplitPath.erase(m_SplitPath.end() - 1);

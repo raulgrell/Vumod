@@ -4,7 +4,7 @@
 #include "platform/VuWindow.h"
 #include "SceneShader.h"
 #include "models/VuObject.h"
-#include "texture/VuMaterial.h"
+#include "texture/Material.h"
 
 #include "common.h"
 
@@ -12,7 +12,7 @@ struct Scene
 {
     SceneShader vs;
     Camera vc;
-    std::vector<VuMaterial> materials;
+    std::vector<Material> materials;
     std::vector<VuObject> objects;
     Vec3 bounds_min;
     Vec3 bounds_max;
@@ -23,7 +23,7 @@ struct Scene
     explicit Scene();
 
     void Update(VuWindow &vw);
-    void Draw();
+    void Render();
 
     void LoadFile(const char *path);
     bool LoadObject(const char *path);

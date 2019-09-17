@@ -3,8 +3,6 @@
 #include "scene/Camera.h"
 #include <shaders/ShaderGL.h>
 
-class Camera;
-
 class SkyboxShader : public ShaderGL
 {
 public:
@@ -14,7 +12,7 @@ public:
 	void GetUniformLocations() override;
 
 	void LoadProjectionMatrix(const Mat4 *matrix);
-	void LoadViewMatrix(Camera *camera);
+	void LoadViewMatrix(Camera &camera);
 	void LoadFogColor(float r, float g, float b);
 	void LoadBlendFactor(float blend);
 	void ConnectTextureUnits();

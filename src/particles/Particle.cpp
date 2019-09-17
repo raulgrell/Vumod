@@ -17,7 +17,7 @@ Particle::Particle(ParticleTexture *texture,
     this->lifeLength = lifeLength;
     this->rotation = rotation;
     this->scale = scale;
-    ParticleMaster::addParticle(*this);
+    ParticleMaster::AddParticle(*this);
 }
 
 bool Particle::operator<(const Particle &r) const

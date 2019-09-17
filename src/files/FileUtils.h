@@ -3,12 +3,15 @@
 #include <string>
 #include <vector>
 
-bool FileExists(const std::string &path);
-uint8_t *ReadFile(const std::string &path);
-size_t ReadFile(const std::string &path, std::vector<unsigned char> &buffer);
-std::string ReadTextFile(const std::string &path);
-bool WriteFile(const std::string &path, uint8_t *buffer);
-bool WriteTextFile(const std::string &path, const std::string &text);
-size_t GetFileSize(const std::string &path);
-std::string GetBaseDir(const std::string &filepath);
+namespace file
+{
+    bool exists(const std::string &path);
+    uint8_t *read(const std::string &path);
+    size_t read(const std::string &path, std::vector<unsigned char> &buffer);
+    std::string readText(const std::string &path);
+    bool write(const std::string &path, uint8_t *buffer);
+    bool writeText(const std::string &path, const std::string &text);
+    size_t size(const std::string &path);
+    std::string baseDir(const std::string &filepath);
+}
 

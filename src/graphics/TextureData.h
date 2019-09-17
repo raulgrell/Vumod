@@ -8,7 +8,7 @@ struct TextureData
     unsigned char *buffer = nullptr;
 
     TextureData() = default;
-    TextureData(unsigned char *buffer, int width, int height, int channels)
+    TextureData(int width, int height, int channels, unsigned char *buffer)
             : width(width), height(height), channels(channels), buffer(buffer) {}
 };
 
@@ -21,29 +21,13 @@ struct ModelTexture
     int numberOfRows = 1;
 
 private:
-    unsigned int textureID = 0;
-    unsigned int normalMap = 0;
+    unsigned int textureId = 0;
+    unsigned int normalMapId = 0;
 
 public:
-    explicit ModelTexture(unsigned int id) : textureID(id) {}
+    explicit ModelTexture(unsigned int id) : textureId(id) {}
 
-    unsigned int getTextureID() const { return textureID; }
+    unsigned int getTextureID() const { return textureId; }
+    unsigned int getNormalMap() const { return normalMapId; }
 
-    unsigned int getNormalMap() const { return normalMap; }
-    void setNormalMap(unsigned int value) { normalMap = value; }
-
-    float getShineDamper() const { return shineDamper; }
-    void setShineDamper(float value) { shineDamper = value; }
-
-    float getReflectivity() const { return reflectivity; }
-    void setReflectivity(float value) { reflectivity = value; }
-
-    bool isHasTransparency() const { return hasTransparency; }
-    void setHasTransparency(bool value) { hasTransparency = value; }
-
-    bool getUseFakeLighting() const { return useFakeLighting; }
-    void setUseFakeLighting(bool value) { useFakeLighting = value; }
-
-    int getNumberOfRows() const { return numberOfRows; }
-    void setNumberOfRows(int value) { numberOfRows = value; }
 };

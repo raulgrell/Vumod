@@ -4,7 +4,7 @@
 #include "scene/SceneShader.h"
 #include "VuTexture.h"
 
-struct VuMaterial
+struct Material
 {
     std::string name;
     std::string diffuse_texname;
@@ -14,8 +14,8 @@ struct VuMaterial
     VuTexture diffuse_texture;
     VuTexture normal_texture;
 
-    explicit VuMaterial(const SceneShader &shader);
-    VuMaterial(const SceneShader &shader, const tinyobj::material_t &material, const std::string &base_dir);
+    explicit Material(const SceneShader &shader);
+    Material(const SceneShader &shader, const tinyobj::material_t &material, const std::string &base_dir);
 
     void Bind() const;
     void Unbind() const;

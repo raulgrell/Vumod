@@ -3,13 +3,13 @@
 float Entity::getTextureXOffset()
 {
     int rows = model.texture.numberOfRows;
-    int column = textureIndex % rows;
+    int column = atlasIndex % rows;
     return (float) column / (float) rows;
 }
 
 float Entity::getTextureYOffset()
 {
     int rows = model.texture.numberOfRows;
-    int row = textureIndex / rows;
+    int row = atlasIndex / rows;
     return (float) row / (float) rows;
 }

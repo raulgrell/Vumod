@@ -2,36 +2,24 @@
 
 #include <cassert>
 
-void CalcNormal(Vec3 N, Vec3 &v0, Vec3 &v1, Vec3 &v2)
+Vec3 calcNormal(Vec3 &v0, Vec3 &v1, Vec3 &v2)
 {
-    Vec3 v10;
-    v10[0] = v1[0] - v0[0];
-    v10[1] = v1[1] - v0[1];
-    v10[2] = v1[2] - v0[2];
+    Vec3 v10 = v1 - v0;
+    Vec3 v20 = v2 - v0;
+    Vec3 n = Vec3::Cross(v10, v20);
 
-    Vec3 v20;
-    v20[0] = v2[0] - v0[0];
-    v20[1] = v2[1] - v0[1];
-    v20[2] = v2[2] - v0[2];
-
-    N[0] = v20[1] * v10[2] - v20[2] * v10[1];
-    N[1] = v20[2] * v10[0] - v20[0] * v10[2];
-    N[2] = v20[0] * v10[1] - v20[1] * v10[0];
-
-    float len2 = N[0] * N[0] + N[1] * N[1] + N[2] * N[2];
+    float len2 = n.Length2();
     if (len2 > 0.0f) {
-        float len = sqrtf(len2);
-        N[0] /= len;
-        N[1] /= len;
-        N[2] /= len;
+        n /= sqrtf(len2);
     }
+
+    return n;
 }
 
-// Check if `mesh_t` contains smoothing group id.
 bool hasSmoothingGroup(const tinyobj::shape_t &shape)
 {
-    for (unsigned int smoothing_group_id : shape.mesh.smoothing_group_ids)
-        if (smoothing_group_id > 0)
+    for (unsigned int id : shape.mesh.smoothing_group_ids)
+        if (id > 0)
             return true;
 
     return false;
@@ -66,8 +54,7 @@ void computeSmoothingNormals(const tinyobj::attrib_t &attrib,
         }
 
         // Compute the normal of the face
-        Vec3 normal;
-        CalcNormal(normal, v[0], v[1], v[2]);
+        Vec3 normal = calcNormal(v[0], v[1], v[2]);
 
         // Add the normal to the three vertexes
         for (int i : vi) {

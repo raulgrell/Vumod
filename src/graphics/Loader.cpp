@@ -6,97 +6,97 @@
 #include <cassert>
 #include <scene/SceneShader.h>
 
-RawModel Loader::LoadToVAO(
+RawModel Loader::LoadToVao(
         std::vector<float> &positions,
         std::vector<float> &textureCoords,
         std::vector<float> &normals,
         std::vector<float> &tangents,
         std::vector<unsigned int> &indices)
 {
-    unsigned int vaoID = createVAO();
-    bindIndexBuffer(indices);
-    storeDataInAttributeList(0, 3, positions);
-    storeDataInAttributeList(1, 2, textureCoords);
-    storeDataInAttributeList(2, 3, normals);
-    storeDataInAttributeList(3, 3, tangents);
-    unbindVAO();
+    unsigned int vaoID = CreateVao();
+    BindIndexBuffer(indices);
+    StoreDataInAttributeList(0, 3, positions);
+    StoreDataInAttributeList(1, 2, textureCoords);
+    StoreDataInAttributeList(2, 3, normals);
+    StoreDataInAttributeList(3, 3, tangents);
+    UnbindVao();
     return RawModel(vaoID, indices.size());
 }
 
-RawModel Loader::LoadToVAO(
+RawModel Loader::LoadToVao(
         std::vector<float> &positions,
         std::vector<float> &textureCoords,
         std::vector<float> &normals,
         std::vector<unsigned int> &indices)
 {
-    unsigned int vaoID = createVAO();
-    bindIndexBuffer(indices);
-    storeDataInAttributeList(0, 3, positions);
-    storeDataInAttributeList(1, 2, textureCoords);
-    storeDataInAttributeList(2, 3, normals);
-    unbindVAO();
+    unsigned int vaoID = CreateVao();
+    BindIndexBuffer(indices);
+    StoreDataInAttributeList(0, 3, positions);
+    StoreDataInAttributeList(1, 2, textureCoords);
+    StoreDataInAttributeList(2, 3, normals);
+    UnbindVao();
     return RawModel(vaoID, indices.size());
 }
 
-RawModel Loader::LoadToVAO(
+RawModel Loader::LoadToVao(
         std::vector<float> &positions,
         std::vector<float> &textureCoords)
 {
-    unsigned int vaoID = createVAO();
-    storeDataInAttributeList(0, 2, positions);
-    storeDataInAttributeList(1, 2, textureCoords);
-    unbindVAO();
+    unsigned int vaoID = CreateVao();
+    StoreDataInAttributeList(0, 2, positions);
+    StoreDataInAttributeList(1, 2, textureCoords);
+    UnbindVao();
     return RawModel(vaoID, 0);
 }
 
-RawModel Loader::LoadToVAO(
+RawModel Loader::LoadToVao(
         std::vector<float> &positions,
         int dimensions)
 {
-    unsigned int vaoID = createVAO();
-    storeDataInAttributeList(0, dimensions, positions);
-    unbindVAO();
+    unsigned int vaoID = CreateVao();
+    StoreDataInAttributeList(0, dimensions, positions);
+    UnbindVao();
 
     return RawModel(vaoID, positions.size() / dimensions);
 }
 
-unsigned int Loader::createEmptyVbo(std::vector<float> &data)
+unsigned int Loader::CreateEmptyVbo(std::vector<float> &data)
 {
     unsigned int vboID = 0;
     glGenBuffers(1, &vboID);
     glBindBuffer(GL_ARRAY_BUFFER, vboID);
     glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float), &data[0], GL_STREAM_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    CheckGL();
+    CHECK_GL();
 
     return vboID;
 }
 
-void Loader::addInstancedAttribute(
-        unsigned int vaoID,
-        unsigned int vboID,
+void Loader::AddInstancedAttribute(
+        unsigned int vaoId,
+        unsigned int vboId,
         unsigned int attribute,
         int dataSize,
         int instancedDataLength,
         int offset)
 {
-    glBindBuffer(GL_ARRAY_BUFFER, vboID);
-    glBindVertexArray(vaoID);
+    glBindBuffer(GL_ARRAY_BUFFER, vboId);
+    glBindVertexArray(vaoId);
     glVertexAttribPointer(attribute, dataSize, GL_FLOAT, GL_FALSE,
                           instancedDataLength * sizeof(float), (const void *) (offset * sizeof(float)));
     glVertexAttribDivisor(attribute, 1);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
-    CheckGL();
+    CHECK_GL();
 }
 
-void Loader::updateVbo(unsigned int vboID, std::vector<float> &vboData)
+void Loader::UpdateVbo(unsigned int vboId, std::vector<float> &vboData)
 {
-    glBindBuffer(GL_ARRAY_BUFFER, vboID);
+    glBindBuffer(GL_ARRAY_BUFFER, vboId);
     glBufferData(GL_ARRAY_BUFFER, vboData.size() * sizeof(float), &vboData[0], GL_STREAM_DRAW);
     glBufferSubData(GL_ARRAY_BUFFER, 0, vboData.size() * sizeof(float), &vboData[0]);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    CheckGL();
+    CHECK_GL();
 }
 
 // GL_TEXTURE_CUBE_MAP_POSITIVE_X   = Right Face
@@ -131,7 +131,7 @@ unsigned int Loader::LoadCubeMap(std::vector<std::string> &textureFiles)
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    CheckGL();
+    CHECK_GL();
 
     return textureID;
 }
@@ -149,7 +149,7 @@ unsigned int Loader::LoadTexture(const std::string &fileName, float lodBias)
 
     auto path = fileName + ".png";
 
-    bytes = LoadPNGImage(path, width, height, channels);
+    bytes = LoadPngImage(path, width, height, channels);
     if (!bytes) {
         std::cerr << "Loader: LoadTexture failed for " << path << "\n";
         exit(1);
@@ -179,7 +179,7 @@ unsigned int Loader::LoadTexture(const std::string &fileName, float lodBias)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     }
 
-    CheckGL();
+    CHECK_GL();
 
     return textureID;
 }
@@ -189,46 +189,44 @@ unsigned int Loader::LoadFontAtlasTexture(const std::string &fileName)
     return LoadTexture(fileName, 0.0);
 }
 
-unsigned int Loader::createVAO()
+unsigned int Loader::CreateVao()
 {
     unsigned int vaoID = 0;
     glGenVertexArrays(1, &vaoID);
     glBindVertexArray(vaoID);
-    CheckGL();
     return vaoID;
 }
 
-void Loader::unbindVAO()
+void Loader::UnbindVao()
 {
     glBindVertexArray(0);
 }
 
-unsigned int Loader::createVBO(GLenum target)
+unsigned int Loader::CreateVbo(GLenum target)
 {
     unsigned int vboID = 0;
     glGenBuffers(1, &vboID);
     glBindBuffer(target, vboID);
-    CheckGL();
     return vboID;
 }
 
-void Loader::storeDataInAttributeList(int attributeNumber, int coordinateSize, std::vector<float> &data)
+void Loader::StoreDataInAttributeList(int attributeNumber, int coordinateSize, std::vector<float> &data)
 {
-    createVBO(GL_ARRAY_BUFFER);
+    CreateVbo(GL_ARRAY_BUFFER);
     glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float), &data[0], GL_STATIC_DRAW);
     glVertexAttribPointer(attributeNumber, coordinateSize, GL_FLOAT, GL_FALSE, 0, nullptr);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
-    CheckGL();
+    CHECK_GL();
 }
 
-void Loader::bindIndexBuffer(std::vector<unsigned int> &indices)
+void Loader::BindIndexBuffer(std::vector<unsigned int> &indices)
 {
-    createVBO(GL_ELEMENT_ARRAY_BUFFER);
+    CreateVbo(GL_ELEMENT_ARRAY_BUFFER);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
-    CheckGL();
+    CHECK_GL();
 }
 
-GLubyte *Loader::LoadPNGImage(const std::string &path, int &width, int &height, int &comp)
+GLubyte *Loader::LoadPngImage(const std::string &path, int &width, int &height, int &comp)
 {
     stbi_set_flip_vertically_on_load(true);
     unsigned char *image = stbi_load(path.c_str(), &width, &height, &comp, STBI_default);
@@ -238,12 +236,12 @@ GLubyte *Loader::LoadPNGImage(const std::string &path, int &width, int &height, 
 TextureData Loader::DecodeImage(const std::string &path)
 {
     int width, height, format;
-    unsigned char *buffer = LoadPNGImage(path, width, height, format);
+    unsigned char *buffer = LoadPngImage(path, width, height, format);
     if (!buffer) {
         std::cerr << "Loader: Failed to load texture \"" + path + "\"" << std::endl;
         exit(1);
     }
 
-    return TextureData(buffer, width, height, format);
+    return TextureData(width, height, format, buffer);
 }
 

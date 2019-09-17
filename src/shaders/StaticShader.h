@@ -3,7 +3,7 @@
 #include "ShaderGL.h"
 
 #include <light/Light.h>
-#include <scene/Light.h>
+#include <scene/Camera.h>
 
 #include <vector>
 
@@ -21,7 +21,7 @@ public:
 	void LoadTransformationMatrix(const Mat4 *matrix);
 	void LoadLights(std::vector<Light*>& lights);
 	void LoadProjectionMatrix(Mat4& matrix);
-	void LoadViewMatrix(Camera *camera);
+	void LoadViewMatrix(Camera &camera);
 	void LoadFakeLightingVariable(bool useFakeLighting);
 	void LoadSkyColor(float r, float g, float b);
 	void LoadFogVariables(float density, float gradient);

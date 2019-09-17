@@ -100,9 +100,9 @@ RawModel ObjLoader::LoadOBJ(const std::string &objFileName, Loader &loader)
                 i--;
             }
 
-            processVertex(u[0], u[1], u[2], vertices, indices);
-            processVertex(u[3], u[4], u[5], vertices, indices);
-            processVertex(u[6], u[7], u[8], vertices, indices);
+            ProcessVertex(u[0], u[1], u[2], vertices, indices);
+            ProcessVertex(u[3], u[4], u[5], vertices, indices);
+            ProcessVertex(u[6], u[7], u[8], vertices, indices);
 
             faces++;
         }
@@ -110,9 +110,9 @@ RawModel ObjLoader::LoadOBJ(const std::string &objFileName, Loader &loader)
         getline(inFile, line);
     }
 
-    removeUnusedVertices(vertices);
+    RemoveUnusedVertices(vertices);
 
-    float furthest = convertDataToArrays(vertices, textures, normals,
+    float furthest = ConvertDataToArrays(vertices, textures, normals,
                                          verticesArray, texturesArray, normalsArray);
     (void) furthest;
 
@@ -125,10 +125,10 @@ RawModel ObjLoader::LoadOBJ(const std::string &objFileName, Loader &loader)
         delete vertice;
     }
 
-    return loader.LoadToVAO(verticesArray, texturesArray, normalsArray, indicesArray);
+    return loader.LoadToVao(verticesArray, texturesArray, normalsArray, indicesArray);
 }
 
-void ObjLoader::processVertex(
+void ObjLoader::ProcessVertex(
         unsigned int index,
         unsigned int textureIndex,
         unsigned int normalIndex,
@@ -136,16 +136,16 @@ void ObjLoader::processVertex(
         std::vector<unsigned int> &indices)
 {
     Vertex *currentVertex = vertices[index];
-    if (!currentVertex->isSet()) {
-        currentVertex->setTextureIndex(textureIndex);
-        currentVertex->setNormalIndex(normalIndex);
+    if (!currentVertex->IsSet()) {
+        currentVertex->SetTextureIndex(textureIndex);
+        currentVertex->SetNormalIndex(normalIndex);
         indices.push_back(index);
     } else {
-        dealWithAlreadyProcessedVertex(currentVertex, textureIndex, normalIndex, indices, vertices);
+        DealWithAlreadyProcessedVertex(currentVertex, textureIndex, normalIndex, indices, vertices);
     }
 }
 
-float ObjLoader::convertDataToArrays(
+float ObjLoader::ConvertDataToArrays(
         std::vector<Vertex *> &vertices,
         std::vector<Vec2> &textures,
         std::vector<Vec3> &normals,
@@ -156,12 +156,12 @@ float ObjLoader::convertDataToArrays(
     float furthestPoint = 0;
 
     for (auto currentVertex : vertices) {
-        if (currentVertex->getLength() > furthestPoint) {
-            furthestPoint = currentVertex->getLength();
+        if (currentVertex->GetLength() > furthestPoint) {
+            furthestPoint = currentVertex->GetLength();
         }
-        Vec3 position = currentVertex->getPosition();
-        Vec2 textureCoord = textures[currentVertex->getTextureIndex()];
-        Vec3 normalVector = normals[currentVertex->getNormalIndex()];
+        Vec3 position = currentVertex->GetPosition();
+        Vec2 textureCoord = textures[currentVertex->GetTextureIndex()];
+        Vec3 normalVector = normals[currentVertex->GetNormalIndex()];
 
         verticesArray.push_back(position.x);
         verticesArray.push_back(position.y);
@@ -175,40 +175,40 @@ float ObjLoader::convertDataToArrays(
     return furthestPoint;
 }
 
-void ObjLoader::dealWithAlreadyProcessedVertex(
+void ObjLoader::DealWithAlreadyProcessedVertex(
         Vertex *previousVertex,
         int newTextureIndex,
         int newNormalIndex,
         std::vector<unsigned int> &indices,
         std::vector<Vertex *> &vertices)
 {
-    if (previousVertex->hasSameTextureAndNormal(newTextureIndex, newNormalIndex)) {
-        indices.push_back(previousVertex->getIndex());
+    if (previousVertex->HasSameTextureAndNormal(newTextureIndex, newNormalIndex)) {
+        indices.push_back(previousVertex->GetIndex());
     } else {
-        Vertex *anotherVertex = previousVertex->getDuplicateVertex();
+        Vertex *anotherVertex = previousVertex->GetDuplicateVertex();
         if (anotherVertex != nullptr) {
-            dealWithAlreadyProcessedVertex(anotherVertex, newTextureIndex, newNormalIndex,
+            DealWithAlreadyProcessedVertex(anotherVertex, newTextureIndex, newNormalIndex,
                                            indices, vertices);
         } else {
-            Vertex *duplicateVertex = new Vertex(vertices.size(), previousVertex->getPosition());
-            duplicateVertex->setTextureIndex(newTextureIndex);
-            duplicateVertex->setNormalIndex(newNormalIndex);
-            previousVertex->setDuplicateVertex(duplicateVertex);
+            Vertex *duplicateVertex = new Vertex(vertices.size(), previousVertex->GetPosition());
+            duplicateVertex->SetTextureIndex(newTextureIndex);
+            duplicateVertex->SetNormalIndex(newNormalIndex);
+            previousVertex->SetDuplicateVertex(duplicateVertex);
             vertices.push_back(duplicateVertex);
-            indices.push_back(duplicateVertex->getIndex());
+            indices.push_back(duplicateVertex->GetIndex());
         }
     }
 }
 
-void ObjLoader::removeUnusedVertices(std::vector<Vertex *> &vertices)
+void ObjLoader::RemoveUnusedVertices(std::vector<Vertex *> &vertices)
 {
     std::vector<Vertex *>::iterator it;
 
     for (it = vertices.begin(); it != vertices.end(); it++) {
         Vertex *vertex = *it;
-        if (!vertex->isSet()) {
-            vertex->setTextureIndex(0);
-            vertex->setNormalIndex(0);
+        if (!vertex->IsSet()) {
+            vertex->SetTextureIndex(0);
+            vertex->SetNormalIndex(0);
         }
     }
 }

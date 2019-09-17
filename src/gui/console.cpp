@@ -111,7 +111,7 @@ struct ConsoleApp
                     ImGuiInputTextFlags_CallbackHistory;
         if (ImGui::InputText("Input", InputBuf, IM_ARRAYSIZE(InputBuf), flags, &TextEditCallbackStub, (void *) this)) {
             auto s = std::string(InputBuf);
-            trim(s);
+            str::trim(s);
             if (s[0])
                 ExecCommand(s.c_str());
             std::fill(std::begin(InputBuf), std::end(InputBuf), 0);

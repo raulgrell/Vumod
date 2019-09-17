@@ -9,6 +9,7 @@
 
 #include <GLFW/glfw3native.h> // for glfwGetWin32Window
 #include <input/InputManager.h>
+#include <graphics/Graphics.h>
 
 #endif
 
@@ -20,9 +21,9 @@ static void error_callback(int error, const char *description)
 static void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
     if (action == GLFW_PRESS) {
-        InputManager::pressKey(key);
+        InputManager::PressKey(key);
     } else if (action == GLFW_RELEASE) {
-        InputManager::releaseKey(key);
+        InputManager::ReleaseKey(key);
     }
 
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -48,7 +49,7 @@ VuWindow::VuWindow(const char *title, int width, int height)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 
     window = glfwCreateWindow(width, height, title, nullptr, nullptr);
     if (!window) {
@@ -62,6 +63,7 @@ VuWindow::VuWindow(const char *title, int width, int height)
     gladLoadGL();
 
     glEnable(GL_DEPTH_TEST);
+    glClearColor(0, 0, 0, 1);
 
     glfwSwapInterval(1);
 }
@@ -80,6 +82,8 @@ bool VuWindow::Continue() const
 void VuWindow::Begin() const
 {
     glfwPollEvents();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    CHECK_GL();
 }
 
 void VuWindow::End() const

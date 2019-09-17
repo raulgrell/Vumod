@@ -10,18 +10,18 @@ class NormalMappingObjLoader
 public:
     static RawModel LoadOBJ(const std::string &objFileName, Loader &loader);
 private:
-    static Vertex *processVertex(
+    static Vertex *ProcessVertex(
             unsigned int index,
             unsigned int textureIndex,
             unsigned int normalIndex,
             std::vector<Vertex *> &vertices,
             std::vector<unsigned int> &indices);
 
-    static void calculateTangents(
+    static void CalculateTangents(
             Vertex *v0, Vertex *v1, Vertex *v2,
             std::vector<Vec2> &textures);
 
-    static float convertDataToArrays(
+    static float ConvertDataToArrays(
             std::vector<Vertex *> &vertices,
             std::vector<Vec2> &textures,
             std::vector<Vec3> &normals,
@@ -31,12 +31,12 @@ private:
             std::vector<float> &tangentsArray
     );
 
-    static Vertex *dealWithAlreadyProcessedVertex(
+    static Vertex *DealWithAlreadyProcessedVertex(
             Vertex *previousVertex,
             int newTextureIndex,
             int newNormalIndex,
             std::vector<unsigned int> &indices,
             std::vector<Vertex *> &vertices);
 
-    static void removeUnusedVertices(std::vector<Vertex *> &vertices);
+    static void RemoveUnusedVertices(std::vector<Vertex *> &vertices);
 };

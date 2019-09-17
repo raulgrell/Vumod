@@ -1,49 +1,47 @@
 #include <iostream>
 #include "InputManager.h"
 
-void InputManager::update()
+void InputManager::Update()
 {
     for (auto &key : m_KeyMap) {
         m_PrevKeyMap[key.first] = key.second;
     }
 }
 
-void InputManager::pressKey(unsigned int keyID)
+void InputManager::PressKey(unsigned int keyId)
 {
-    m_KeyMap[keyID] = true;
-    std::cout << "Key " << keyID << " pressed" << std::endl;
+    m_KeyMap[keyId] = true;
 }
 
-void InputManager::releaseKey(unsigned int keyID)
+void InputManager::ReleaseKey(unsigned int keyId)
 {
-    m_KeyMap[keyID] = false;
-    std::cout << "Key " << keyID << " released" << std::endl;
+    m_KeyMap[keyId] = false;
 }
 
-bool InputManager::isKeyDown(unsigned int keyID)
+bool InputManager::IsKeyDown(unsigned int keyId)
 {
-    auto iter = m_KeyMap.find(keyID);
+    auto iter = m_KeyMap.find(keyId);
     if (iter != m_KeyMap.end()) {
         return iter->second;
     }
     return false;
 }
 
-bool InputManager::wasKeyDown(unsigned int keyID)
+bool InputManager::WasKeyDown(unsigned int keyId)
 {
-    auto iter = m_PrevKeyMap.find(keyID);
+    auto iter = m_PrevKeyMap.find(keyId);
     if (iter != m_PrevKeyMap.end()) {
         return iter->second;
     }
     return false;
 }
 
-bool InputManager::isKeyPressed(unsigned int keyID)
+bool InputManager::IsKeyPressed(unsigned int keyId)
 {
-    return isKeyDown(keyID) && !wasKeyDown(keyID);
+    return IsKeyDown(keyId) && !WasKeyDown(keyId);
 }
 
-bool InputManager::isButtonDown(unsigned int keyID)
+bool InputManager::IsButtonDown(unsigned int keyID)
 {
     auto iter = m_ButtonMap.find(keyID);
     if (iter != m_ButtonMap.end()) {
@@ -52,21 +50,21 @@ bool InputManager::isButtonDown(unsigned int keyID)
     return false;
 }
 
-bool InputManager::wasButtonDown(unsigned int keyID)
+bool InputManager::WasButtonDown(unsigned int buttonId)
 {
-    auto iter = m_PrevButtonMap.find(keyID);
+    auto iter = m_PrevButtonMap.find(buttonId);
     if (iter != m_PrevButtonMap.end()) {
         return iter->second;
     }
     return false;
 }
 
-bool InputManager::isButtonPressed(unsigned int keyID)
+bool InputManager::IsButtonPressed(unsigned int keyID)
 {
-    return isButtonDown(keyID) && !wasButtonDown(keyID);
+    return IsButtonDown(keyID) && !WasButtonDown(keyID);
 }
 
-void InputManager::setMouseCoords(float x, float y)
+void InputManager::SetMouseCoords(float x, float y)
 {
     m_PrevMouseCoords = m_MouseCoords;
     m_MouseCoords.x = x;

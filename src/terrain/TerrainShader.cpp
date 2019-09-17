@@ -19,7 +19,7 @@ void TerrainShader::BindAttributes()
     BindAttribute(0, "position");
     BindAttribute(1, "textureCoords");
     BindAttribute(2, "normal");
-    CheckGL();
+    CHECK_GL();
 }
 
 void TerrainShader::GetUniformLocations()
@@ -38,14 +38,14 @@ void TerrainShader::GetUniformLocations()
 	location_bTexture = GetUniformLocation("bTexture");
 	location_blendMap = GetUniformLocation("blendMap");
 	location_clipPlane = GetUniformLocation("clipPlane");
-	CheckGL();
+	CHECK_GL();
 
 	for (int i = 0; i < MAX_LIGHTS; i++) {
 		std::string iStr = std::to_string(i);
 		location_lightPosition[i] = GetUniformLocation("lightPosition[" + iStr + "]");
 		location_lightColor[i] = GetUniformLocation("lightColor[" + iStr + "]");
 		location_attenuation[i] = GetUniformLocation("attenuation[" + iStr + "]");
-		CheckGL();
+		CHECK_GL();
 	}
 }
 
@@ -62,7 +62,7 @@ void TerrainShader::LoadLights(std::vector<Light*>& lights)
             LoadVector(location_lightPosition[i], light->position);
             LoadVector(location_lightColor[i], light->color);
             LoadVector(location_attenuation[i], light->attenuation);
-            CheckGL();
+            CHECK_GL();
 		} else {
 			// If less than MAX_LIGHTS lights are in the lights vector,
 			// load up empty information to the shaders.
@@ -71,7 +71,7 @@ void TerrainShader::LoadLights(std::vector<Light*>& lights)
             LoadVector(location_lightPosition[i], zero);
             LoadVector(location_lightColor[i], zero);
             LoadVector(location_attenuation[i], unit);
-            CheckGL();
+            CHECK_GL();
 		}
 	}
 }

@@ -9,5 +9,5 @@ out vec4 out_Color;
 
 void main()
 {
-    out_Color = texture2D(Texture, vec2(-fUV.x, fUV.y)) * vec4(fColor, 1.0);
+    out_Color = texture(Texture, vec2(-fUV.x, fUV.y)) * vec4(fColor, 1.0);
 }

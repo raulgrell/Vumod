@@ -1,7 +1,6 @@
 #include "StaticShader.h"
 #include "scene/SceneShader.h"
 
-#include <scene/Camera.h>
 
 static const char* VERTEX_FILE = "data/shaders/vertexShader.glsl";
 static const char* FRAGMENT_FILE = "data/shaders/fragmentShader.glsl";
@@ -18,7 +17,7 @@ void StaticShader::BindAttributes()
     BindAttribute(0, "position");
     BindAttribute(1, "textureCoords");
     BindAttribute(2, "normal");
-    CheckGL();
+    CHECK_GL();
 }
 
 void StaticShader::GetUniformLocations()
@@ -35,7 +34,7 @@ void StaticShader::GetUniformLocations()
 	location_numberOfRows = GetUniformLocation("numberOfRows");
 	location_textureOffset = GetUniformLocation("textureOffset");
 	location_clipPlane = GetUniformLocation("clipPlane");
-    CheckGL();
+    CHECK_GL();
 
 
 	for (int i = 0; i < MAX_LIGHTS; i++) {
@@ -43,14 +42,14 @@ void StaticShader::GetUniformLocations()
 		location_lightPosition[i] = GetUniformLocation("lightPosition[" + iStr + "]");
 		location_lightColor[i] = GetUniformLocation("lightColor[" + iStr + "]");
 		location_attenuation[i] = GetUniformLocation("attenuation[" + iStr + "]");
-        CheckGL();
+        CHECK_GL();
 	}
 }
 
 void StaticShader::LoadTransformationMatrix(const Mat4 *matrix)
 {
     LoadMatrix(location_transformationMatrix, *matrix);
-    CheckGL();
+    CHECK_GL();
 }
 
 void StaticShader::LoadLights(std::vector<Light*>& lights)
@@ -71,64 +70,62 @@ void StaticShader::LoadLights(std::vector<Light*>& lights)
             LoadVector(location_attenuation[i], unit);
 		}
 	}
-    CheckGL();
+    CHECK_GL();
 }
 
 void StaticShader::LoadProjectionMatrix(Mat4& matrix)
 {
     LoadMatrix(location_projectionMatrix, matrix);
-    CheckGL();
+    CHECK_GL();
 }
 
-void StaticShader::LoadViewMatrix(Camera *camera)
+void StaticShader::LoadViewMatrix(Camera &camera)
 {
-	Mat4 viewMatrix = camera->GetViewMatrix();
+	Mat4 viewMatrix = camera.GetViewMatrix();
     LoadMatrix(location_viewMatrix, viewMatrix);
-    CheckGL();
+    CHECK_GL();
 }
 
 void StaticShader::LoadFakeLightingVariable(bool useFakeLighting)
 {
     LoadBoolean(location_useFakeLighting, useFakeLighting);
-    CheckGL();
+    CHECK_GL();
 }
 
 void StaticShader::LoadShineVariables(float damper, float reflectivity)
 {
     LoadFloat(location_shineDamper, damper);
     LoadFloat(location_reflectivity, reflectivity);
-    CheckGL();
+    CHECK_GL();
 }
 
 void StaticShader::LoadSkyColor(float r, float g, float b)
 {
-	Vec3 vec(r, g, b);
-    LoadVector(location_skyColor, vec);
-    CheckGL();
+    LoadVector(location_skyColor, {r, g, b});
+    CHECK_GL();
 }
 
 void StaticShader::LoadFogVariables(float density, float gradient)
 {
     LoadFloat(location_fogDensity, density);
     LoadFloat(location_fogGradient, gradient);
-    CheckGL();
+    CHECK_GL();
 }
 
 void StaticShader::LoadNumberOfRows(int numberOfRows)
 {
     LoadFloat(location_numberOfRows, (float) numberOfRows);
-    CheckGL();
+    CHECK_GL();
 }
 
 void StaticShader::LoadTextureOffset(float x, float y)
 {
-	Vec2 vec(x, y);
-    LoadVector(location_textureOffset, vec);
-    CheckGL();
+    LoadVector(location_textureOffset, {x, y});
+    CHECK_GL();
 }
 
 void StaticShader::LoadClipPlane(Vec4& vec)
 {
     LoadVector(location_clipPlane, vec);
-    CheckGL();
+    CHECK_GL();
 }

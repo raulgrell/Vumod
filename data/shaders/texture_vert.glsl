@@ -1,9 +1,9 @@
 #version 330 core
 
-layout (location = 0) in vec3 vPos;
-layout (location = 1) in vec3 vNorm;
-layout (location = 2) in vec3 vCol;
-layout (location = 3) in vec2 vTexCoord;
+in vec3 vPos;
+in vec3 vNorm;
+in vec3 vCol;
+in vec2 vTexCoord;
 
 uniform mat4 MVP;
 uniform vec4 Tint;

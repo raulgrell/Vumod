@@ -1,152 +1,118 @@
 
 #include "SceneRenderer.h"
 
-#include "graphics/VertexArray.h"
-
-#include "SceneRenderer.h"
-
-#include <glad/glad.h>
-#include <iostream>
+#include <graphics/VertexArray.h>
 #include <platform/VuWindow.h>
 #include <scene/SceneShader.h>
 
-SceneRenderer::SceneRenderer(Loader& loader, Mat4 &projectionMatrix)
-    : staticShader(),
-    terrainShader(),
-    modelRenderer(staticShader, projectionMatrix),
-    terrainRenderer(terrainShader, projectionMatrix),
-    skyboxRenderer(loader, projectionMatrix),
-    normalMappingRenderer(projectionMatrix)
+#include <glad/glad.h>
+
+#include <iostream>
+
+SceneRenderer::SceneRenderer(Loader &loader, Mat4 &projectionMatrix)
+        : projectionMatrix(projectionMatrix),
+          staticShader(),
+          terrainShader(),
+          modelRenderer(staticShader, projectionMatrix),
+          terrainRenderer(terrainShader, projectionMatrix),
+          skyboxRenderer(loader, projectionMatrix),
+          normalMappingRenderer(projectionMatrix)
 {
-	enableCulling();
+    Graphics::CullBackFaces(true);
 }
 
-void SceneRenderer::renderScene(
-	std::vector<Entity*>& entities,
-	std::vector<Entity*>& normalMapEntities,
-	std::vector<Terrain>& terrainList,
-	std::vector<Light*>&lights,
-	Camera& camera,
-	Vec4& clipPlane,
-	bool useClipping)
+void SceneRenderer::Render(
+        std::vector<Entity *> &entities,
+        std::vector<Entity *> &normalMapEntities,
+        std::vector<Terrain> &terrains,
+        std::vector<Light *> &lights,
+        Camera &camera,
+        Vec4 &clipPlane,
+        bool useClipping)
 {
-	for (Terrain terrain : terrainList) {
-		processTerrain(terrain);
-	}
-	for (Entity* entity : entities) {
-		processEntity(*entity);
-	}
-	for (Entity* entity : normalMapEntities) {
-		processNormalMapEntity(*entity);
-	}
+    for (Terrain terrain : terrains) {
+        ProcessTerrain(terrain);
+    }
+    for (Entity *entity : entities) {
+        ProcessEntity(*entity);
+    }
+    for (Entity *entity : normalMapEntities) {
+        ProcessNormalMapEntity(*entity);
+    }
 
-	render(lights, camera, clipPlane, useClipping);
-}
-
-void SceneRenderer::enableCulling()
-{
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_BACK);
-    CheckGL();
-}
-
-void SceneRenderer::disableCulling()
-{
-	glDisable(GL_CULL_FACE);
-    CheckGL();
-}
-
-void SceneRenderer::enableClipping()
-{
-	glEnable(GL_CLIP_DISTANCE0);
-    CheckGL();
-}
-
-void SceneRenderer::disableClipping()
-{
-	glDisable(GL_CLIP_DISTANCE0);
-    CheckGL();
+    render(lights, camera, clipPlane, useClipping);
 }
 
 void SceneRenderer::Begin()
 {
-	glClearColor(skyColour.x, skyColour.y, skyColour.z, 1);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    CheckGL();
+    glClearColor(skyColour.x, skyColour.y, skyColour.z, 1);
+    CHECK_GL();
 }
 
 void SceneRenderer::render(
-	std::vector<Light*>& lights,
-	Camera& camera,
-	Vec4& clipPlane,
-	bool useClipping)
+        std::vector<Light *> &lights,
+        Camera &camera,
+        Vec4 &clipPlane,
+        bool useClipping)
 {
-    Begin();
-
-	if (useClipping) {
-		enableClipping();
-	} else {
-		disableClipping();
-	}
+    Graphics::EnableClipping(useClipping);
 
     staticShader.Bind();
-	staticShader.LoadClipPlane(clipPlane);
-	staticShader.LoadSkyColor(skyColour.x, skyColour.y, skyColour.z);
-	staticShader.LoadFogVariables(SceneRenderer::fogDensity, SceneRenderer::fogGradient);
-	staticShader.LoadLights(lights);
-	staticShader.LoadViewMatrix(&camera);
-	modelRenderer.render(&entitiesMap);
+    staticShader.LoadClipPlane(clipPlane);
+    staticShader.LoadSkyColor(skyColour.x, skyColour.y, skyColour.z);
+    staticShader.LoadFogVariables(fogDensity, fogGradient);
+    staticShader.LoadLights(lights);
+    staticShader.LoadViewMatrix(camera);
+    modelRenderer.Render(&entitiesMap);
     staticShader.Unbind();
 
-	normalMappingRenderer.render(&normalMapEntitiesMap, clipPlane, lights, camera);
+    normalMappingRenderer.Render(normalMapEntitiesMap, clipPlane, lights, camera);
 
     terrainShader.Bind();
-	terrainShader.LoadClipPlane(clipPlane);
-	terrainShader.LoadSkyColor(skyColour.x, skyColour.y, skyColour.z);
-	terrainShader.LoadFogVariables(SceneRenderer::fogDensity, SceneRenderer::fogGradient);
-	terrainShader.LoadLights(lights);
-	terrainShader.LoadViewMatrix(&camera);
+    terrainShader.LoadClipPlane(clipPlane);
+    terrainShader.LoadSkyColor(skyColour.x, skyColour.y, skyColour.z);
+    terrainShader.LoadFogVariables(fogDensity, fogGradient);
+    terrainShader.LoadLights(lights);
+    terrainShader.LoadViewMatrix(&camera);
     terrainRenderer.Render(&terrains);
     terrainShader.Unbind();
 
-	if (useClipping) {
-		disableClipping();
-	}
+    Graphics::EnableClipping(false);
 
-    skyboxRenderer.Render(&camera, skyColour.x, skyColour.y, skyColour.z);
+    skyboxRenderer.Render(camera, skyColour.x, skyColour.y, skyColour.z);
 
-	terrains.clear();
-	entitiesMap.clear();
-	normalMapEntitiesMap.clear();
+    terrains.clear();
+    entitiesMap.clear();
+    normalMapEntitiesMap.clear();
 }
 
-void SceneRenderer::processTerrain(Terrain& terrain)
+void SceneRenderer::ProcessTerrain(Terrain &terrain)
 {
-	terrains.push_back(&terrain);
+    terrains.push_back(&terrain);
 }
 
-void SceneRenderer::processEntity(Entity& entity)
+void SceneRenderer::ProcessEntity(Entity &entity)
 {
-	auto it = entitiesMap.find(&entity.model);
-  	if (it != entitiesMap.end()) {
-  		auto batch = it->second;
-  		batch->push_back(&entity);
-  	} else {
-  		auto* newBatch = new std::vector<Entity*>();
-  		newBatch->push_back(&entity);
-  		entitiesMap.insert(std::make_pair(&entity.model, newBatch));
-  	}
+    auto it = entitiesMap.find(&entity.model);
+    if (it != entitiesMap.end()) {
+        auto batch = it->second;
+        batch->push_back(&entity);
+    } else {
+        auto *newBatch = new std::vector<Entity *>();
+        newBatch->push_back(&entity);
+        entitiesMap.insert(std::make_pair(&entity.model, newBatch));
+    }
 }
 
-void SceneRenderer::processNormalMapEntity(Entity& entity)
+void SceneRenderer::ProcessNormalMapEntity(Entity &entity)
 {
-	auto it = normalMapEntitiesMap.find(&entity.model);
-	if (it != normalMapEntitiesMap.end()) {
-		std::vector<Entity*>* batch = it->second;
-		batch->push_back(&entity);
-	} else {
-		auto* newBatch = new std::vector<Entity*>();
-		newBatch->push_back(&entity);
-		normalMapEntitiesMap.insert(std::make_pair(&entity.model, newBatch));
-	}
+    auto it = normalMapEntitiesMap.find(&entity.model);
+    if (it != normalMapEntitiesMap.end()) {
+        auto batch = it->second;
+        batch->push_back(&entity);
+    } else {
+        auto *newBatch = new std::vector<Entity *>();
+        newBatch->push_back(&entity);
+        normalMapEntitiesMap.insert(std::make_pair(&entity.model, newBatch));
+    }
 }

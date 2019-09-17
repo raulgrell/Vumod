@@ -93,10 +93,10 @@ RawModel NormalMappingObjLoader::LoadOBJ(const std::string &objFileName, Loader 
                 i--;
             }
 
-            Vertex *v0 = processVertex(u[0], u[1], u[2], vertices, indices);
-            Vertex *v1 = processVertex(u[3], u[4], u[5], vertices, indices);
-            Vertex *v2 = processVertex(u[6], u[7], u[8], vertices, indices);
-            calculateTangents(v0, v1, v2, textures);
+            Vertex *v0 = ProcessVertex(u[0], u[1], u[2], vertices, indices);
+            Vertex *v1 = ProcessVertex(u[3], u[4], u[5], vertices, indices);
+            Vertex *v2 = ProcessVertex(u[6], u[7], u[8], vertices, indices);
+            CalculateTangents(v0, v1, v2, textures);
 
             faces++;
         }
@@ -106,12 +106,12 @@ RawModel NormalMappingObjLoader::LoadOBJ(const std::string &objFileName, Loader 
 
     //cout << "NormalMappingObjLoader: Read " << faces << " faces from " << fileName << endl;
 
-    removeUnusedVertices(vertices);
+    RemoveUnusedVertices(vertices);
     std::vector<float> vertexArray;
     std::vector<float> texturesArray;
     std::vector<float> normalArray;
     std::vector<float> tangentArray;
-    float furthest = convertDataToArrays(
+    float furthest = ConvertDataToArrays(
             vertices, textures, normals,
             vertexArray, texturesArray, normalArray, tangentArray);
     (void) furthest;
@@ -126,18 +126,18 @@ RawModel NormalMappingObjLoader::LoadOBJ(const std::string &objFileName, Loader 
         delete vertice;
     }
 
-    return loader.LoadToVAO(vertexArray, texturesArray, normalArray, tangentArray, indexArray);
+    return loader.LoadToVao(vertexArray, texturesArray, normalArray, tangentArray, indexArray);
 }
 
-void NormalMappingObjLoader::calculateTangents(
+void NormalMappingObjLoader::CalculateTangents(
         Vertex *v0, Vertex *v1, Vertex *v2,
         std::vector<Vec2> &textures)
 {
-    Vec3 deltaPos1 = v1->getPosition() - v0->getPosition();
-    Vec3 deltaPos2 = v2->getPosition() - v0->getPosition();
-    Vec2 uv0 = textures[v0->getTextureIndex()];
-    Vec2 uv1 = textures[v1->getTextureIndex()];
-    Vec2 uv2 = textures[v2->getTextureIndex()];
+    Vec3 deltaPos1 = v1->GetPosition() - v0->GetPosition();
+    Vec3 deltaPos2 = v2->GetPosition() - v0->GetPosition();
+    Vec2 uv0 = textures[v0->GetTextureIndex()];
+    Vec2 uv1 = textures[v1->GetTextureIndex()];
+    Vec2 uv2 = textures[v2->GetTextureIndex()];
     Vec2 deltaUv1 = uv1 - uv0;
     Vec2 deltaUv2 = uv2 - uv0;
 
@@ -146,12 +146,12 @@ void NormalMappingObjLoader::calculateTangents(
     deltaPos2 *= deltaUv1.y;
     Vec3 tangent = deltaPos1 - deltaPos2;
     tangent *= r;
-    v0->addTangent(tangent);
-    v1->addTangent(tangent);
-    v2->addTangent(tangent);
+    v0->AddTangent(tangent);
+    v1->AddTangent(tangent);
+    v2->AddTangent(tangent);
 }
 
-Vertex *NormalMappingObjLoader::processVertex(
+Vertex *NormalMappingObjLoader::ProcessVertex(
         unsigned int index,
         unsigned int textureIndex,
         unsigned int normalIndex,
@@ -159,18 +159,18 @@ Vertex *NormalMappingObjLoader::processVertex(
         std::vector<unsigned int> &indices)
 {
     Vertex *currentVertex = vertices[index];
-    if (!currentVertex->isSet()) {
-        currentVertex->setTextureIndex(textureIndex);
-        currentVertex->setNormalIndex(normalIndex);
+    if (!currentVertex->IsSet()) {
+        currentVertex->SetTextureIndex(textureIndex);
+        currentVertex->SetNormalIndex(normalIndex);
         indices.push_back(index);
         return currentVertex;
     } else {
-        return dealWithAlreadyProcessedVertex(
+        return DealWithAlreadyProcessedVertex(
                 currentVertex, textureIndex, normalIndex, indices, vertices);
     }
 }
 
-float NormalMappingObjLoader::convertDataToArrays(
+float NormalMappingObjLoader::ConvertDataToArrays(
         std::vector<Vertex *> &vertices,
         std::vector<Vec2> &textures,
         std::vector<Vec3> &normals,
@@ -182,13 +182,13 @@ float NormalMappingObjLoader::convertDataToArrays(
     float furthestPoint = 0;
 
     for (auto currentVertex : vertices) {
-        if (currentVertex->getLength() > furthestPoint) {
-            furthestPoint = currentVertex->getLength();
+        if (currentVertex->GetLength() > furthestPoint) {
+            furthestPoint = currentVertex->GetLength();
         }
-        Vec3 position = currentVertex->getPosition();
-        Vec2 textureCoord = textures[currentVertex->getTextureIndex()];
-        Vec3 normalVector = normals[currentVertex->getNormalIndex()];
-        Vec3 tangent = currentVertex->getAverageTangent();
+        Vec3 position = currentVertex->GetPosition();
+        Vec2 textureCoord = textures[currentVertex->GetTextureIndex()];
+        Vec3 normalVector = normals[currentVertex->GetNormalIndex()];
+        Vec3 tangent = currentVertex->GetAverageTangent();
 
         verticesArray.push_back(position.x);
         verticesArray.push_back(position.y);
@@ -205,40 +205,40 @@ float NormalMappingObjLoader::convertDataToArrays(
     return furthestPoint;
 }
 
-Vertex *NormalMappingObjLoader::dealWithAlreadyProcessedVertex(
+Vertex *NormalMappingObjLoader::DealWithAlreadyProcessedVertex(
         Vertex *previousVertex,
         int newTextureIndex,
         int newNormalIndex,
         std::vector<unsigned int> &indices,
         std::vector<Vertex *> &vertices)
 {
-    if (previousVertex->hasSameTextureAndNormal(newTextureIndex, newNormalIndex)) {
-        indices.push_back(previousVertex->getIndex());
+    if (previousVertex->HasSameTextureAndNormal(newTextureIndex, newNormalIndex)) {
+        indices.push_back(previousVertex->GetIndex());
         return previousVertex;
     } else {
-        Vertex *anotherVertex = previousVertex->getDuplicateVertex();
+        Vertex *anotherVertex = previousVertex->GetDuplicateVertex();
         if (anotherVertex != nullptr) {
-            return dealWithAlreadyProcessedVertex(anotherVertex, newTextureIndex, newNormalIndex,
+            return DealWithAlreadyProcessedVertex(anotherVertex, newTextureIndex, newNormalIndex,
                                                   indices, vertices);
         } else {
-            Vertex *duplicateVertex = new Vertex(vertices.size(), previousVertex->getPosition());
-            duplicateVertex->setTextureIndex(newTextureIndex);
-            duplicateVertex->setNormalIndex(newNormalIndex);
-            previousVertex->setDuplicateVertex(duplicateVertex);
+            auto *duplicateVertex = new Vertex(vertices.size(), previousVertex->GetPosition());
+            duplicateVertex->SetTextureIndex(newTextureIndex);
+            duplicateVertex->SetNormalIndex(newNormalIndex);
+            previousVertex->SetDuplicateVertex(duplicateVertex);
             vertices.push_back(duplicateVertex);
-            indices.push_back(duplicateVertex->getIndex());
+            indices.push_back(duplicateVertex->GetIndex());
             return duplicateVertex;
         }
     }
 }
 
-void NormalMappingObjLoader::removeUnusedVertices(std::vector<Vertex *> &vertices)
+void NormalMappingObjLoader::RemoveUnusedVertices(std::vector<Vertex *> &vertices)
 {
     for (Vertex *vertex : vertices) {
-        vertex->averageTangents();
-        if (!vertex->isSet()) {
-            vertex->setTextureIndex(0);
-            vertex->setNormalIndex(0);
+        vertex->AverageTangents();
+        if (!vertex->IsSet()) {
+            vertex->SetTextureIndex(0);
+            vertex->SetNormalIndex(0);
         }
     }
 }

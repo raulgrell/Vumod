@@ -10,7 +10,6 @@
 struct SceneShader : ShaderGL
 {
     std::unique_ptr<VertexArray> vao;
-    unsigned int id = 0;
     int uniform_mvp = 0;
     int uniform_tint = 0;
     int uniform_texture = 0;
@@ -24,10 +23,5 @@ struct SceneShader : ShaderGL
 
     void Bind() const override;
     void Unbind() const override;
-
-    const std::string &GetName() const override
-    {
-        return name;
-    };
 };
 

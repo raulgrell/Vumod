@@ -8,7 +8,7 @@ class Camera;
 class SkyboxRenderer {
 public:
 	SkyboxRenderer(Loader& loader, Mat4& projectionMatrix);
-	void Render(Camera *camera, float r, float g, float b);
+	void Render(Camera &camera, float r, float g, float b);
 private:
 	void BindTextures();
 

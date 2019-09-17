@@ -10,14 +10,20 @@ struct Vec2
         {
             float x, y;
         };
-        float c[2]{0};
+        float c[2] {0};
     };
 
     constexpr Vec2() noexcept : x(0), y(0) {}
     constexpr Vec2(float value) noexcept : x(value), y(value) {}
     constexpr Vec2(float x, float y) noexcept : x(x), y(y) {}
 
-    float& operator[](int index) {
+    float *Get()
+    {
+        return &c[0];
+    }
+
+    float &operator[](int index)
+    {
         return c[index];
     }
 
@@ -31,6 +37,16 @@ struct Vec2
         return {x + vec.x, y + vec.y};
     }
 
+    Vec2 operator*(Vec2 vec) const
+    {
+        return {x * vec.x, y * vec.y};
+    }
+
+    Vec2 operator/(Vec2 vec) const
+    {
+        return {x / vec.x, y / vec.y};
+    }
+
     Vec2 operator*(float value) const
     {
         return {x * value, y * value};
@@ -39,6 +55,11 @@ struct Vec2
     Vec2 operator/(float value) const
     {
         return {x / value, y / value};
+    }
+
+    bool operator==(Vec2 vec) const
+    {
+        return x == vec.x && y == vec.y;
     }
 };
 
@@ -57,7 +78,13 @@ struct Vec3
     constexpr Vec3(float value) noexcept : x(value), y(value), z(value) {}
     constexpr Vec3(float x, float y, float z) noexcept : x(x), y(y), z(z) {}
 
-    float& operator[](int index) {
+    float *Get()
+    {
+        return &c[0];
+    }
+
+    float &operator[](int index)
+    {
         return c[index];
     }
 
@@ -68,7 +95,21 @@ struct Vec3
         z *= value;
     }
 
+    void operator/=(float value)
+    {
+        x /= value;
+        y /= value;
+        z /= value;
+    }
+
     void operator+=(float value)
+    {
+        x += value;
+        y += value;
+        z += value;
+    }
+
+    void operator-=(float value)
     {
         x += value;
         y += value;
@@ -97,6 +138,16 @@ struct Vec3
         return {x + vec.x, y + vec.y, z + vec.z};
     }
 
+    Vec3 operator*(const Vec3 vec) const
+    {
+        return {x * vec.x, y * vec.y, z * vec.z};
+    }
+
+    Vec3 operator/(const Vec3 vec) const
+    {
+        return {x / vec.x, y / vec.y, z / vec.z};
+    }
+
     Vec3 operator/(float value) const
     {
         return {x / value, y / value, z / value};
@@ -105,6 +156,11 @@ struct Vec3
     Vec3 operator*(float value) const
     {
         return {x * value, y * value, z * value};
+    }
+
+    bool operator==(Vec3 vec) const
+    {
+        return (x == vec.x) && (y == vec.y) && (z == vec.z);
     }
 
     Vec3 Normalize()
@@ -119,6 +175,11 @@ struct Vec3
     float Length() const
     {
         return sqrtf(x * x + y * y + z * z);
+    }
+
+    float Length2() const
+    {
+        return x * x + y * y + z * z;
     }
 
     static Vec3 Normal(Vec3 v)
@@ -161,8 +222,49 @@ struct Vec4
     constexpr Vec4(float value) noexcept : x(value), y(value), z(value), w(value) {};
     constexpr Vec4(float x, float y, float z, float w) noexcept : x(x), y(y), z(z), w(w) {}
 
-    float& operator[](int index) {
+    float *Get()
+    {
+        return &c[0];
+    }
+
+    float &operator[](int index)
+    {
         return c[index];
+    }
+
+    Vec4 operator-(Vec4 vec) const
+    {
+        return {x - vec.x, y - vec.y, z - vec.z, w - vec.w};
+    }
+
+    Vec4 operator+(Vec4 vec) const
+    {
+        return {x + vec.x, y + vec.y, z + vec.z, w + vec.w};
+    }
+
+    Vec4 operator*(Vec4 vec) const
+    {
+        return {x * vec.x, y * vec.y, z * vec.z, w * vec.w};
+    }
+
+    Vec4 operator/(Vec4 vec) const
+    {
+        return {x / vec.x, y / vec.y, z / vec.z, w / vec.w};
+    }
+
+    Vec4 operator*(float value) const
+    {
+        return {x * value, y * value, z * value, w * value};
+    }
+
+    Vec4 operator/(float value) const
+    {
+        return {x / value, y / value, z / value, w / value};
+    }
+
+    bool operator==(Vec4 vec) const
+    {
+        return (x == vec.x) && (y == vec.y) && (z == vec.z) && (w == vec.w);
     }
 };
 

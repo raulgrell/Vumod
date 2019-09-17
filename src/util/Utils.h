@@ -1,7 +1,5 @@
 
 #include <cstdint>
-#include <cstdlib>
-#include <sys/time.h>
 
 class Random {
 public:
@@ -12,5 +10,5 @@ public:
 
 class Time {
 public:
-    static uint64_t microseconds();
+    static uint64_t Microseconds();
 };

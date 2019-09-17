@@ -31,9 +31,9 @@ void SkyboxShader::LoadProjectionMatrix(const Mat4 *matrix)
     LoadMatrix(location_projectionMatrix, *matrix);
 }
 
-void SkyboxShader::LoadViewMatrix(Camera *camera)
+void SkyboxShader::LoadViewMatrix(Camera &camera)
 {
-	Mat4 viewMatrix = camera->GetViewMatrix();
+	Mat4 viewMatrix = camera.GetViewMatrix();
 	viewMatrix.r[0].c[3] = 0.0f;
 	viewMatrix.r[1].c[3] = 0.0f;
 	viewMatrix.r[2].c[3] = 0.0f;

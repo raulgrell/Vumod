@@ -12,25 +12,13 @@ SceneShader::SceneShader(const char * name, const char * vertex_shader_source, c
     vao = std::make_unique<VertexArray>();
 }
 
-void SceneShader::Bind() const
-{
-    glUseProgram(id);
-    vao->Bind();
-}
-
-void SceneShader::Unbind() const
-{
-    vao->Unbind();
-    glUseProgram(0);
-}
-
 void SceneShader::BindAttributes()
 {
     BindAttribute(0, "vPos");
     BindAttribute(1, "vNorm");
     BindAttribute(2, "vCol");
     BindAttribute(3, "vTexCoord");
-    CheckGL();
+    CHECK_GL();
 }
 
 void SceneShader::GetUniformLocations()
@@ -38,6 +26,18 @@ void SceneShader::GetUniformLocations()
     uniform_mvp =  GetUniformLocation("MVP");
     uniform_tint = GetUniformLocation("Tint");
     uniform_texture =  GetUniformLocation("Texture");
-    CheckGL();
+    CHECK_GL();
+}
+
+void SceneShader::Bind() const
+{
+    glUseProgram(programID);
+    vao->Bind();
+}
+
+void SceneShader::Unbind() const
+{
+    vao->Unbind();
+    glUseProgram(0);
 }
 

@@ -41,21 +41,20 @@ bool VFS::TryResolvePath(const std::string &path, std::string &outPhysicalPath)
 {
     if (path[0] != '/') {
         outPhysicalPath = path;
-        return FileExists(path);
+        return file::exists(path);
     }
 
-    std::vector<std::string> dirs = splitString(path, '/');
+    std::vector<std::string> dirs = str::split(path, '/');
     const std::string &vDir = dirs.front();
 
     if (m_MountPoints.find(vDir) == m_MountPoints.end() ||
         m_MountPoints[vDir].empty())
         return false;
 
-    std::string rest =
-            path.substr(vDir.size() + 1, path.size() - vDir.size());
+    std::string rest = path.substr(vDir.size() + 1, path.size() - vDir.size());
     for (const std::string &physicalPath : m_MountPoints[vDir]) {
         std::string full_path = physicalPath + rest;
-        if (FileExists(full_path)) {
+        if (file::exists(full_path)) {
             outPhysicalPath = full_path;
             return true;
         }

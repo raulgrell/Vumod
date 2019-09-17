@@ -4,18 +4,18 @@ ParticleRenderer::ParticleRenderer(Loader &loader, Mat4 &projectionMatrix)
         : loader(loader)
 {
     buffer.resize(INSTANCE_DATA_LENGTH * MAX_INSTANCES);
-    vboID = loader.createEmptyVbo(buffer);
+    vboID = loader.CreateEmptyVbo(buffer);
     std::vector<GLfloat> vertices = {-0.5f, 0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, -0.5f};
-    quad = loader.LoadToVAO(vertices, 2);
+    quad = loader.LoadToVao(vertices, 2);
     // modelViewMatrix
-    loader.addInstancedAttribute(quad.vaoID, vboID, 1, 4, INSTANCE_DATA_LENGTH, 0);
-    loader.addInstancedAttribute(quad.vaoID, vboID, 2, 4, INSTANCE_DATA_LENGTH, 4);
-    loader.addInstancedAttribute(quad.vaoID, vboID, 3, 4, INSTANCE_DATA_LENGTH, 8);
-    loader.addInstancedAttribute(quad.vaoID, vboID, 4, 4, INSTANCE_DATA_LENGTH, 12);
+    loader.AddInstancedAttribute(quad.vaoId, vboID, 1, 4, INSTANCE_DATA_LENGTH, 0);
+    loader.AddInstancedAttribute(quad.vaoId, vboID, 2, 4, INSTANCE_DATA_LENGTH, 4);
+    loader.AddInstancedAttribute(quad.vaoId, vboID, 3, 4, INSTANCE_DATA_LENGTH, 8);
+    loader.AddInstancedAttribute(quad.vaoId, vboID, 4, 4, INSTANCE_DATA_LENGTH, 12);
     // texOffsets
-    loader.addInstancedAttribute(quad.vaoID, vboID, 5, 4, INSTANCE_DATA_LENGTH, 16);
+    loader.AddInstancedAttribute(quad.vaoId, vboID, 5, 4, INSTANCE_DATA_LENGTH, 16);
     // blendFactor
-    loader.addInstancedAttribute(quad.vaoID, vboID, 6, 1, INSTANCE_DATA_LENGTH, 20);
+    loader.AddInstancedAttribute(quad.vaoId, vboID, 6, 1, INSTANCE_DATA_LENGTH, 20);
     shader.Bind();
     shader.LoadProjectionMatrix(&projectionMatrix);
     shader.Unbind();
@@ -40,7 +40,7 @@ ParticleRenderer::render(std::unordered_map<ParticleTexture *, std::vector<Parti
             updateModelViewMatrix(particle.position, particle.rotation, particle.scale, viewMatrix, vboData);
             updateTexCoordInfo(particle, vboData);
         }
-        loader.updateVbo(vboID, vboData);
+        loader.UpdateVbo(vboID, vboData);
         glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, quad.vertexCount, particles.size());
 
     }
@@ -114,7 +114,7 @@ void ParticleRenderer::storeMatrixData(Mat4 &matrix, std::vector<GLfloat> &vboDa
 void ParticleRenderer::prepare()
 {
     shader.Bind();
-    glBindVertexArray(quad.vaoID);
+    glBindVertexArray(quad.vaoId);
     for (GLuint i = 0; i <= 6; i++) {
         glEnableVertexAttribArray(i);
     }

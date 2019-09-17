@@ -44,15 +44,15 @@ void NormalMappingShader::GetUniformLocations()
     }
 }
 
-void NormalMappingShader::connectTextureUnits()
+void NormalMappingShader::ConnectTextureUnits()
 {
     LoadInt(location_modelTexture, 0);
     LoadInt(location_normalMap, 1);
 }
 
-void NormalMappingShader::LoadTransformationMatrix(const Mat4 *matrix)
+void NormalMappingShader::LoadTransformationMatrix(const Mat4 &matrix)
 {
-    LoadMatrix(location_transformationMatrix, *matrix);
+    LoadMatrix(location_transformationMatrix, matrix);
 }
 
 void NormalMappingShader::LoadLights(const std::vector<Light *> &lights)

@@ -1,8 +1,10 @@
 #pragma once
 
-#include "Util.h"
+#include "MathUtils.h"
 #include "Vec.h"
 #include "Quat.h"
+
+#include <algorithm>
 
 struct Mat4
 {
@@ -19,15 +21,20 @@ struct Mat4
     explicit
     constexpr Mat4(float diagonal) noexcept : m {0}
     {
-        m[0 + 0 * 4] = diagonal;
-        m[1 + 1 * 4] = diagonal;
-        m[2 + 2 * 4] = diagonal;
-        m[3 + 3 * 4] = diagonal;
+        r[0].c[0] = diagonal;
+        r[1].c[0] = diagonal;
+        r[2].c[0] = diagonal;
+        r[3].c[0] = diagonal;
     }
 
     constexpr Mat4(const Vec4 &a, const Vec4 &b, const Vec4 &c, const Vec4 &d) noexcept
             : r {a, b, c, d}
     {
+    }
+
+    float *Get()
+    {
+        return &m[0];
     }
 
     Vec4 operator[](int index)
@@ -74,6 +81,31 @@ struct Mat4
         return v;
     };
 
+    bool operator==(const Mat4 &other)
+    {
+        for (int i = 0; i < 16; ++i) {
+            if (m[i] != other.m[i])
+                return false;
+        }
+        return true;
+    }
+
+    Mat4 operator+(const Mat4 &other)
+    {
+        return {{r[0].x + other.r[0].x, r[0].y + other.r[0].y, r[0].z + other.r[0].z, r[0].w + other.r[0].w},
+                {r[1].x + other.r[1].x, r[1].y + other.r[1].y, r[1].z + other.r[1].z, r[1].w + other.r[1].w},
+                {r[2].x + other.r[2].x, r[2].y + other.r[2].y, r[2].z + other.r[2].z, r[2].w + other.r[2].w},
+                {r[3].x + other.r[3].x, r[3].y + other.r[3].y, r[3].z + other.r[3].z, r[3].w + other.r[3].w}};
+    }
+
+    Mat4 operator-(const Mat4 &other)
+    {
+        return {{r[0].x - other.r[0].x, r[0].y - other.r[0].y, r[0].z - other.r[0].z, r[0].w - other.r[0].w},
+                {r[1].x - other.r[1].x, r[1].y - other.r[1].y, r[1].z - other.r[1].z, r[1].w - other.r[1].w},
+                {r[2].x - other.r[2].x, r[2].y - other.r[2].y, r[2].z - other.r[2].z, r[2].w - other.r[2].w},
+                {r[3].x - other.r[3].x, r[3].y - other.r[3].y, r[3].z - other.r[3].z, r[3].w - other.r[3].w}};
+    }
+
     static Mat4 LookAt(const Vec3 &camera, const Vec3 &object, const Vec3 &up)
     {
         Mat4 result(1.0f);
@@ -81,17 +113,15 @@ struct Mat4
         Vec3 s = Vec3::Cross(f, Vec3::Normal(up));
         Vec3 u = Vec3::Cross(s, f);
 
-        result.m[0 + 0 * 4] = s.x;
-        result.m[0 + 1 * 4] = s.y;
-        result.m[0 + 2 * 4] = s.z;
-
-        result.m[1 + 0 * 4] = u.x;
-        result.m[1 + 1 * 4] = u.y;
-        result.m[1 + 2 * 4] = u.z;
-
-        result.m[2 + 0 * 4] = -f.x;
-        result.m[2 + 1 * 4] = -f.y;
-        result.m[2 + 2 * 4] = -f.z;
+        result.r[0].c[0] = s.x;
+        result.r[1].c[0] = s.y;
+        result.r[2].c[0] = s.z;
+        result.r[0].c[1] = u.x;
+        result.r[1].c[1] = u.y;
+        result.r[2].c[1] = u.z;
+        result.r[0].c[2] = -f.x;
+        result.r[1].c[2] = -f.y;
+        result.r[2].c[2] = -f.z;
 
         result *= Translate({-camera.x, -camera.y, -camera.z});
 
@@ -101,9 +131,9 @@ struct Mat4
     static Mat4 Translate(const Vec3 &translation)
     {
         Mat4 result(1.0f);
-        result.m[3 + 0 * 4] = translation.x;
-        result.m[3 + 1 * 4] = translation.y;
-        result.m[3 + 2 * 4] = translation.z;
+        result.r[0].c[3] = translation.x;
+        result.r[1].c[3] = translation.y;
+        result.r[2].c[3] = translation.z;
         return result;
     }
 
@@ -120,17 +150,17 @@ struct Mat4
         float y = axis.y;
         float z = axis.z;
 
-        result.m[0 + 0 * 4] = x * x * omc + c;
-        result.m[0 + 1 * 4] = y * x * omc + z * s;
-        result.m[0 + 2 * 4] = x * z * omc - y * s;
+        result.r[0].c[0] = x * x * omc + c;
+        result.r[1].c[0] = y * x * omc + z * s;
+        result.r[2].c[0] = x * z * omc - y * s;
 
-        result.m[1 + 0 * 4] = x * y * omc - z * s;
-        result.m[1 + 1 * 4] = y * y * omc + c;
-        result.m[1 + 2 * 4] = y * z * omc + x * s;
+        result.r[0].c[1] = x * y * omc - z * s;
+        result.r[1].c[1] = y * y * omc + c;
+        result.r[2].c[1] = y * z * omc + x * s;
 
-        result.m[2 + 0 * 4] = x * z * omc + y * s;
-        result.m[2 + 1 * 4] = y * z * omc - x * s;
-        result.m[2 + 2 * 4] = z * z * omc + c;
+        result.r[0].c[2] = x * z * omc + y * s;
+        result.r[1].c[2] = y * z * omc - x * s;
+        result.r[2].c[2] = z * z * omc + c;
 
         return result;
     }
@@ -247,45 +277,41 @@ struct Mat4
         return result;
     }
 
-    Mat4 Orthographic(float left, float right, float bottom, float top, float near, float far)
+    static Mat4 Orthographic(float left, float right, float bottom, float top, float near_plane, float far_plane)
     {
         Mat4 result(1);
-        result.m[0 + 0 * 4] = 2.0f / (right - left);
-        result.m[1 + 1 * 4] = 2.0f / (top - bottom);
-        result.m[2 + 2 * 4] = 2.0f / (near - far);
-        result.m[3 + 0 * 4] = (left + right) / (left - right);
-        result.m[3 + 1 * 4] = (bottom + top) / (bottom - top);
-        result.m[3 + 2 * 4] = (far + near) / (far - near);
+        result.r[0].c[0] = 2.0f / (right - left);
+        result.r[1].c[1] = 2.0f / (top - bottom);
+        result.r[2].c[2] = 2.0f / (near_plane - far_plane);
+        result.r[0].c[3] = (left + right) / (left - right);
+        result.r[1].c[3] = (bottom + top) / (bottom - top);
+        result.r[2].c[3] = (far_plane + near_plane) / (far_plane - near_plane);
         return result;
     }
 
-    static Mat4 Perspective(float fov, float aspectRatio, float near, float far)
+    static Mat4 Perspective(float fov, float aspectRatio, float near_plane, float far_plane)
     {
-        Mat4 result(1.0f);
+        Mat4 result(1);
 
         float q = 1.0f / tan(math::radians(0.5f * fov));
         float a = q / aspectRatio;
 
-        float b = (near + far) / (near - far);
-        float c = (2.0f * near * far) / (near - far);
+        float b = (near_plane + far_plane) / (near_plane - far_plane);
+        float c = (2.0f * near_plane * far_plane) / (near_plane - far_plane);
 
-        result.m[0 + 0 * 4] = a;
-        result.m[1 + 1 * 4] = q;
-        result.m[2 + 2 * 4] = b;
-        result.m[2 + 3 * 4] = -1.0f;
-        result.m[3 + 2 * 4] = c;
-        result.m[3 + 3 * 4] = 0;
+        result.r[0].c[0] = a;
+        result.r[1].c[1] = q;
+        result.r[2].c[2] = b;
+        result.r[3].c[2] = -1.0f;
+        result.r[2].c[3] = c;
+        result.r[3].c[3] = 0;
 
         return result;
     }
 
     static Mat4 Identity()
     {
-        Mat4 result;
-        result.m[0 + 0 * 4] = 1.0;
-        result.m[1 + 1 * 4] = 1.0;
-        result.m[2 + 2 * 4] = 1.0;
-        result.m[3 + 3 * 4] = 1.0;
+        Mat4 result(1);
         return result;
     }
 

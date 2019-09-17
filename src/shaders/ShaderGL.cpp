@@ -19,7 +19,7 @@ ShaderGL::ShaderGL(std::string name, std::string vertexFile, std::string fragmen
 	programID = glCreateProgram();
 	glAttachShader(programID, vertexShaderID);
 	glAttachShader(programID, fragmentShaderID);
-    CheckGL();
+    CHECK_GL();
 }
 
 ShaderGL::~ShaderGL()
@@ -97,7 +97,7 @@ void ShaderGL::LoadMatrix(int location, const Mat4 &matrix)
 
 int ShaderGL::LoadShader(const std::string& fileName, GLenum type)
 {
-	std::string src = ReadTextFile(fileName);
+	std::string src = file::readText(fileName);
 	auto pSrc = src.c_str();
 
 	GLuint shaderID = glCreateShader(type);

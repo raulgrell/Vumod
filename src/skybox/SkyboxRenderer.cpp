@@ -10,32 +10,32 @@
 
 SkyboxRenderer::SkyboxRenderer(Loader& loader, Mat4& projectionMatrix)
 {
-	cube = loader.LoadToVAO(VERTICES, 3);
+	cube = loader.LoadToVao(VERTICES, 3);
 	texture = loader.LoadCubeMap(TEXTURE_FILES);
 	nightTexture = loader.LoadCubeMap(NIGHT_TEXTURE_FILES);
     shader.Bind();
-    CheckGL();
+    CHECK_GL();
     shader.ConnectTextureUnits();
-    CheckGL();
+    CHECK_GL();
     shader.LoadProjectionMatrix(&projectionMatrix);
-    CheckGL();
+    CHECK_GL();
     shader.Unbind();
-    CheckGL();
+    CHECK_GL();
 }
 
-void SkyboxRenderer::Render(Camera *camera, float r, float g, float b)
+void SkyboxRenderer::Render(Camera &camera, float r, float g, float b)
 {
     shader.Bind();
 	shader.LoadViewMatrix(camera);
 	shader.LoadFogColor(r, g, b);
-    CheckGL();
+    CHECK_GL();
 
 	// Disable this, otherwise one side of the sky is clipped from the
 	// reflection and refraction textures
 	// glDisable(GL_CLIP_DISTANCE0);
-	glBindVertexArray(cube.vaoID);
+	glBindVertexArray(cube.vaoId);
 	glEnableVertexAttribArray(0);
-    CheckGL();
+    CHECK_GL();
 
     BindTextures();
 	glDrawArrays(GL_TRIANGLES, 0, cube.vertexCount);
@@ -78,5 +78,5 @@ void SkyboxRenderer::BindTextures()
 	glActiveTexture(GL_TEXTURE1);
 	glBindTexture(GL_TEXTURE_CUBE_MAP, texture2);
 	shader.LoadBlendFactor(blendFactor);
-    CheckGL();
+    CHECK_GL();
 }

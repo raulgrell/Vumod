@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <memory>
 #include <math/Mat.h>
-#include <interfaces/IShader.h>
+#include <api/IShader.h>
 
 class ShaderLibrary
 {

@@ -11,14 +11,14 @@ class ObjLoader
 public:
     static RawModel LoadOBJ(const std::string &objFileName, Loader &loader);
 private:
-    static void processVertex(
+    static void ProcessVertex(
             unsigned int index,
             unsigned int textureIndex,
             unsigned int normalIndex,
             std::vector<Vertex *> &vertices,
             std::vector<unsigned int> &indices);
 
-    static float convertDataToArrays(
+    static float ConvertDataToArrays(
             std::vector<Vertex *> &vertices,
             std::vector<Vec2> &textures,
             std::vector<Vec3> &normals,
@@ -26,13 +26,13 @@ private:
             std::vector<float> &texturesArray,
             std::vector<float> &normalsArray);
 
-    static void dealWithAlreadyProcessedVertex(
+    static void DealWithAlreadyProcessedVertex(
             Vertex *previousVertex,
             int newTextureIndex,
             int newNormalIndex,
             std::vector<unsigned int> &indices,
             std::vector<Vertex *> &vertices);
 
-    static void removeUnusedVertices(std::vector<Vertex *> &vertices);
+    static void RemoveUnusedVertices(std::vector<Vertex *> &vertices);
 };
 

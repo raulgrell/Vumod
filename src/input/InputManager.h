@@ -8,22 +8,22 @@ class InputManager
 public:
     InputManager() = default;
 
-    static void update();
+    static void Update();
 
-    static void pressKey(unsigned int keyID);
-    static void releaseKey(unsigned int keyID);
+    static void PressKey(unsigned int keyId);
+    static void ReleaseKey(unsigned int keyId);
 
-    static bool isKeyDown(unsigned int keyID);
-    static bool isKeyPressed(unsigned int keyID);
+    static bool IsKeyDown(unsigned int keyId);
+    static bool IsKeyPressed(unsigned int keyId);
 
-    static bool isButtonDown(unsigned int buttonId);
-    static bool isButtonPressed(unsigned int buttonId);
+    static bool IsButtonDown(unsigned int buttonId);
+    static bool IsButtonPressed(unsigned int buttonId);
 
-    static void setMouseCoords(float x, float y);
-    static Vec2 getMouseCoords() { return m_MouseCoords; }
-    static Vec2 getMouseMotion() { return m_MouseCoords - m_PrevMouseCoords; };
+    static void SetMouseCoords(float x, float y);
+    static Vec2 GetMouseCoords() { return m_MouseCoords; }
+    static Vec2 GetMouseMotion() { return m_MouseCoords - m_PrevMouseCoords; };
+    static int GetScroll() { return m_CurrScroll - m_PrevScroll; }
 
-    static int getScroll() { return m_CurrScroll - m_PrevScroll; }
 
 private:
     inline static std::unordered_map<unsigned int, bool> m_KeyMap;
@@ -35,7 +35,7 @@ private:
     inline static int m_CurrScroll;
     inline static int m_PrevScroll;
 
-    static bool wasKeyDown(unsigned int keyID);
-    static bool wasButtonDown(unsigned int buttonID);
+    static bool WasKeyDown(unsigned int keyId);
+    static bool WasButtonDown(unsigned int buttonId);
 };
 

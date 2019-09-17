@@ -1,6 +1,7 @@
 #include "Utils.h"
 
 #include <sys/time.h>
+#include <cstdlib>
 
 //TODO: use c++ random funtions instead of rand()
 
@@ -22,7 +23,7 @@ void Random::Seed(int seed)
 	srand((unsigned int)seed);
 }
 
-uint64_t Time::microseconds()
+uint64_t Time::Microseconds()
 {
     struct timeval tv;
     gettimeofday(&tv, nullptr);

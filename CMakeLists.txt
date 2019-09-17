@@ -12,6 +12,17 @@ link_directories(glfw/lib-mingw-w64)
 link_libraries(glfw3 opengl32 user32 gdi32 shell32)
 
 add_executable(
+        TestMath
+        test/test_math.cpp
+        src/math/Math.cpp
+        )
+
+add_executable(
+        TestShader
+        test/test_shader.cpp
+        )
+
+add_executable(
         Viewer
         ext/ext.cpp
         src/fx/PostProcessing.cpp
@@ -59,7 +70,7 @@ add_executable(
         src/scene/Scene.cpp
         src/files/VFS.cpp
         src/gui/VuGui.cpp
-        src/texture/VuMaterial.cpp
+        src/texture/Material.cpp
         src/models/VuObject.cpp
         src/scene/SceneRenderer.cpp
         src/script/VuScript.cpp
@@ -70,6 +81,8 @@ add_executable(
 
 target_compile_options(Viewer PRIVATE )
 
-add_custom_command(TARGET Viewer POST_BUILD
+add_custom_command(
+        TARGET Viewer
+        POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/data/ $<TARGET_FILE_DIR:Viewer>/data)
