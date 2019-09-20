@@ -40,5 +40,4 @@ public:
     void SetReflectivity(float value) { reflectivity = value; }
     void SetHasTransparency(bool value) { hasTransparency = value; }
     void SetUseFakeLighting(bool value) { useFakeLighting = value; }
-
 };

@@ -33,7 +33,7 @@ void NormalMappingRenderer::Render(
         if (it != entityMap.end()) {
             for (auto entity : *it->second) {
                 PrepareInstance(*entity);
-                glDrawElements(GL_TRIANGLES, model->rawModel.vertexCount, GL_UNSIGNED_INT, nullptr);
+                glDrawElements(GL_TRIANGLES, model->model.GetVertexCount(), GL_UNSIGNED_INT, nullptr);
             }
         }
 
@@ -45,8 +45,8 @@ void NormalMappingRenderer::Render(
 
 void NormalMappingRenderer::PrepareTexturedModel(TexturedModel &model)
 {
-    RawModel &rawModel = model.rawModel;
-    glBindVertexArray(rawModel.vaoId);
+    IndexedModel &rawModel = model.model;
+    glBindVertexArray(rawModel.GetVaoId());
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);

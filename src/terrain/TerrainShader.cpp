@@ -1,6 +1,6 @@
 #include "TerrainShader.h"
 
-#include <scene/Camera.h>
+#include <camera/Camera.h>
 #include <scene/SceneShader.h>
 
 static const char* SHADER_FILE = "data/shaders/terrain.glsl";

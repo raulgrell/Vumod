@@ -17,7 +17,7 @@ void TerrainRenderer::Render(std::vector<Terrain *> &terrains)
 	for (auto terrain : terrains) {
         Prepare(*terrain);
 		LoadModelMatrix(*terrain);
-		glDrawElements(GL_TRIANGLES, terrain->model.vertexCount, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_TRIANGLES, terrain->model->GetVertexCount(), GL_UNSIGNED_INT, nullptr);
        UnbindTexturedModel();
 	}
     CHECK_GL();
@@ -25,7 +25,7 @@ void TerrainRenderer::Render(std::vector<Terrain *> &terrains)
 
 void TerrainRenderer::Prepare(Terrain& terrain)
 {
-	glBindVertexArray(terrain.model.vaoId);
+	glBindVertexArray(terrain.model->GetVaoId());
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);

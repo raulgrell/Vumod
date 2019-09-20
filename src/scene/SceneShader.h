@@ -1,6 +1,6 @@
 #pragma once
 
-#include <graphics/Buffer.h>
+#include <graphics/VertexBuffer.h>
 #include <shaders/ShaderLibrary.h>
 #include <graphics/VertexArray.h>
 #include <shaders/ShaderGL.h>

@@ -3,7 +3,7 @@
 #include <light/Light.h>
 #include <math/Mat.h>
 #include <shaders/ShaderGL.h>
-#include <scene/Camera.h>
+#include <camera/Camera.h>
 
 #include <vector>
 

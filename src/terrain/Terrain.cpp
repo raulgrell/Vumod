@@ -49,7 +49,7 @@ float Terrain::GetHeightOfTerrain(float worldX, float worldZ)
     return answer;
 }
 
-RawModel Terrain::Generate(const std::string &heightMap)
+std::unique_ptr<IndexedModel> Terrain::Generate(const std::string &heightMap)
 {
     int stepSize = 4;
 
@@ -64,26 +64,26 @@ RawModel Terrain::Generate(const std::string &heightMap)
     }
     heightsLength = vertexCount;
 
-    std::vector<float> verticesArray;
-    std::vector<float> normalsArray;
-    std::vector<float> textureArray;
-    std::vector<unsigned int> indicesArray;
+    std::vector<float> positions;
+    std::vector<float> normals;
+    std::vector<float> textureCoords;
+    std::vector<unsigned int> indices;
 
     for (int i = 0; i < vertexCount; i++) {
         for (int j = 0; j < vertexCount; j++) {
             float s = ((float) j) / ((float) (vertexCount - 1));
             float t = ((float) i) / ((float) (vertexCount - 1));
-            verticesArray.push_back(s * SIZE);
+            positions.push_back(s * SIZE);
             float height = GenerateHeight(j, i, generator);
             heights[j][i] = height;
-            verticesArray.push_back(height);
-            verticesArray.push_back(t * SIZE);
+            positions.push_back(height);
+            positions.push_back(t * SIZE);
             Vec3 normal = CalculateNormal(j, i, generator);
-            normalsArray.push_back(normal.x);
-            normalsArray.push_back(normal.y);
-            normalsArray.push_back(normal.z);
-            textureArray.push_back(s);
-            textureArray.push_back(t);
+            normals.push_back(normal.x);
+            normals.push_back(normal.y);
+            normals.push_back(normal.z);
+            textureCoords.push_back(s);
+            textureCoords.push_back(t);
         }
     }
 
@@ -93,16 +93,34 @@ RawModel Terrain::Generate(const std::string &heightMap)
             unsigned int topRight = topLeft + 1;
             unsigned int bottomLeft = ((gz + 1) * vertexCount) + gx;
             unsigned int bottomRight = bottomLeft + 1;
-            indicesArray.push_back(topLeft);
-            indicesArray.push_back(bottomLeft);
-            indicesArray.push_back(topRight);
-            indicesArray.push_back(topRight);
-            indicesArray.push_back(bottomLeft);
-            indicesArray.push_back(bottomRight);
+            indices.push_back(topLeft);
+            indices.push_back(bottomLeft);
+            indices.push_back(topRight);
+            indices.push_back(topRight);
+            indices.push_back(bottomLeft);
+            indices.push_back(bottomRight);
         }
     }
 
-    return Loader::LoadToVao(verticesArray, textureArray, normalsArray, indicesArray);
+    auto vao = std::make_shared<VertexArray>();
+    auto ibo = std::make_shared<IndexBuffer>(&indices[0], indices.size());
+    vao->SetIndexBuffer(ibo);
+
+    auto pos = std::make_shared<VertexBuffer>(&positions[0], positions.size() * 4);
+    auto tex = std::make_shared<VertexBuffer>(&textureCoords[0], textureCoords.size() * 4);
+    auto nor = std::make_shared<VertexBuffer>(&normals[0], normals.size() * 4);
+
+    pos->SetLayout({{0, GL_FLOAT, 3}});
+    tex->SetLayout({{1, GL_FLOAT, 2}});
+    nor->SetLayout({{2, GL_FLOAT, 3}});
+
+    vao->AddVertexBuffer(pos);
+    vao->AddVertexBuffer(tex);
+    vao->AddVertexBuffer(nor);
+
+    vao->Unbind();
+
+    return std::make_unique<IndexedModel>(vao, ibo);
 }
 
 float Terrain::GenerateHeight(int x, int z, HeightsGenerator &generator)

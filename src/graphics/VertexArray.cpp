@@ -3,6 +3,7 @@
 VertexArray::VertexArray()
 {
     glGenVertexArrays(1, &id);
+    glBindVertexArray(id);
 }
 
 VertexArray::~VertexArray()
@@ -26,25 +27,37 @@ void VertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer> &vertexBuf
     vertexBuffer->Bind();
 
     const auto &layout = vertexBuffer->GetLayout();
-    uint32_t index = 0;
     for (const auto &element : layout) {
-        glEnableVertexAttribArray(index);
-        glVertexAttribPointer(index,
-                              element.Count,
-                              element.Type,
-                              element.Normalized ? GL_TRUE : GL_FALSE,
+        glEnableVertexAttribArray(element.location);
+        glVertexAttribPointer(element.location,
+                              element.count,
+                              element.type,
+                              element.normalized ? GL_TRUE : GL_FALSE,
                               layout.GetStride(),
-                              reinterpret_cast<void *>(element.Offset));
-        index++;
+                              reinterpret_cast<void *>(element.offset));
     }
 
+    glBindVertexArray(0);
+
     m_VertexBuffers.push_back(vertexBuffer);
+}
+
+void VertexArray::AddFloatBuffer(int location, int size, const std::shared_ptr<FloatBuffer> &buffer)
+{
+    glBindVertexArray(id);
+    buffer->Bind();
+    glEnableVertexAttribArray(location);
+    glVertexAttribPointer(location, size, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glBindVertexArray(0);
+
+    m_FloatBuffers.push_back(buffer);
 }
 
 void VertexArray::SetIndexBuffer(const std::shared_ptr<IndexBuffer> &indexBuffer)
 {
     glBindVertexArray(id);
     indexBuffer->Bind();
+    glBindVertexArray(0);
 
     m_IndexBuffer = indexBuffer;
 }

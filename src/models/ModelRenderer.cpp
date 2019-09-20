@@ -28,7 +28,7 @@ void ModelRenderer::Render(std::unordered_map<TexturedModel *, std::vector<Entit
 
             for (auto entity : *batch) {
                 PrepareInstance(*entity);
-                glDrawElements(GL_TRIANGLES, model->rawModel.vertexCount, GL_UNSIGNED_INT, nullptr);
+                glDrawElements(GL_TRIANGLES, model->model.GetVertexCount(), GL_UNSIGNED_INT, nullptr);
             }
         }
 
@@ -39,8 +39,8 @@ void ModelRenderer::Render(std::unordered_map<TexturedModel *, std::vector<Entit
 
 void ModelRenderer::PrepareTexturedModel(TexturedModel &model)
 {
-    RawModel &rawModel = model.rawModel;
-    glBindVertexArray(rawModel.vaoId);
+    IndexedModel &rawModel = model.model;
+    glBindVertexArray(rawModel.GetVaoId());
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);

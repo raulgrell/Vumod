@@ -1,6 +1,6 @@
 #pragma once
 
-#include <scene/Camera.h>
+#include <camera/Camera.h>
 #include <terrain/Terrain.h>
 #include <light/Light.h>
 #include "platform/VuWindow.h"
@@ -13,7 +13,7 @@
 
 struct Scene
 {
-    Camera vc;
+    Camera camera;
     SceneShader vs;
     std::vector<VuObject> objects;
     std::vector<Entity> entities;

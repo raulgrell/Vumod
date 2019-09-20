@@ -22,8 +22,8 @@ static const char *SHADER_FILE = "data/shaders/scene.glsl";
 
 Scene::Scene() : vs(SHADER_FILE)
 {
-    vc.position = {0, 10, 0};
-    vc.rotation = {30, 0, 0};
+    camera.position = {0, 10, 0};
+    camera.rotation = {30, 0, 0};
 }
 
 void Scene::LoadFile(const char *path)
@@ -89,10 +89,10 @@ bool Scene::LoadObject(const char *filename)
 
         if (!o.buffer.empty()) {
             BufferLayout layout {
-                    {"vPos",  GL_FLOAT, 3},
-                    {"vCol",  GL_FLOAT, 3},
-                    {"vNorm", GL_FLOAT, 3},
-                    {"vUV",   GL_FLOAT, 2}};
+                    {0, GL_FLOAT, 3},
+                    {1, GL_FLOAT, 3},
+                    {2, GL_FLOAT, 3},
+                    {3, GL_FLOAT, 2}};
 
             o.vbo = std::make_shared<VertexBuffer>(&o.buffer.at(0), o.buffer.size() * layout.GetStride());
             o.vbo->SetLayout(layout);
@@ -116,7 +116,7 @@ void Scene::Prepare()
 
 void Scene::Update()
 {
-
+    camera.Update();
 }
 
 void Scene::Render()
@@ -133,7 +133,7 @@ void Scene::Render()
         object.ibo->Bind();
         object.mtl->Bind();
 
-        vs.LoadMatrix(vs.uniformMvp, vc.GetViewMatrix());
+        vs.LoadMatrix(vs.uniformMvp, camera.GetViewMatrix());
         vs.LoadVector(vs.uniformTint, {1, 1, 1, 1});
 
         glDrawElements(GL_TRIANGLES, object.indices.size(), GL_UNSIGNED_INT, nullptr);

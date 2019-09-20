@@ -34,7 +34,7 @@ void WaterRenderer::Render(std::vector<WaterTile> &water, Camera &camera, Light 
         Vec3 position {tile.GetX(), tile.GetHeight(), tile.GetZ()};
         Mat4 matrix = Mat4::TRS(position, {0.0f, 0.0f, 0.0f}, tile.GetScale());
         shader.LoadTransformationMatrix(matrix);
-        glDrawArrays(GL_TRIANGLES, 0, quad.GetVertexCount());
+        glDrawArrays(GL_TRIANGLES, 0, quad->GetVertexCount());
     }
     Unbind();
 }
@@ -52,7 +52,7 @@ void WaterRenderer::Prepare(Camera &camera, Light &sun)
     shader.LoadWaterReflectivity(waterReflectivity);
     shader.LoadLight(sun);
     shader.LoadShineVariables(shineDamper, reflectivity);
-    glBindVertexArray(quad.GetVaoId());
+    glBindVertexArray(quad->GetVaoId());
     glEnableVertexAttribArray(0);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, fbos.GetReflectionTexture());
@@ -78,13 +78,7 @@ void WaterRenderer::Unbind()
 
 void WaterRenderer::SetUpVao()
 {
-    // Just x and z vertex positions, y is set in shader
-    std::vector<float> vertices = {
-            -0.5, -0.5,
-            -0.5,  0.5,
-             0.5, -0.5,
-             0.5, -0.5,
-            -0.5,  0.5,
-             0.5,  0.5};
-    quad =Loader::LoadToVao(vertices, 2);
+    std::vector<float> vertices = {-0.5f, 0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, -0.5f};
+    std::vector<unsigned int> indices = {0, 2, 1, 1, 2, 3};
+    quad = std::make_unique<IndexedModel>(Loader::LoadToVao(vertices, indices));
 }

@@ -17,6 +17,8 @@ public:
     ShaderGL(std::string name, const std::string &vertexSrc, const std::string &fragmentSrc);
 	~ShaderGL();
 
+	void BindAttributes() override {}
+	void GetUniformLocations() override {}
 	void Link() override;
 	void Bind() const override;
 	void Unbind() const override;

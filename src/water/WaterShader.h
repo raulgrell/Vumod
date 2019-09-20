@@ -2,7 +2,7 @@
 
 #include <shaders/ShaderGL.h>
 #include <light/Light.h>
-#include <scene/Camera.h>
+#include <camera/Camera.h>
 
 class WaterShader: public ShaderGL
 {

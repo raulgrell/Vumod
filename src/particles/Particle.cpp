@@ -25,7 +25,7 @@ bool Particle::operator<(const Particle &r) const
     return this->distance > r.distance;
 }
 
-bool Particle::update(Camera &camera)
+bool Particle::Update(Camera &camera)
 {
     velocity.y += gravityEffect * DisplayManager::getFrameTimeSeconds();
     Vec3 change(velocity);
@@ -33,12 +33,12 @@ bool Particle::update(Camera &camera)
     position += change;
     Vec3 d = camera.GetPosition() - position;
     distance = d.x * d.x + d.y * d.y + d.z * d.z;
-    updateTextureCoordInfo();
+    UpdateTextureCoordInfo();
     elapsedTime += DisplayManager::getFrameTimeSeconds();
     return elapsedTime < lifeLength;
 }
 
-void Particle::updateTextureCoordInfo()
+void Particle::UpdateTextureCoordInfo()
 {
     GLfloat lifeFactor = elapsedTime / lifeLength;
     int stageCount = texture->GetNumberOfRows() * texture->GetNumberOfRows();
@@ -47,11 +47,11 @@ void Particle::updateTextureCoordInfo()
     int index2 = index1 < stageCount - 1 ? index1 + 1 : index1;
     this->blend = atlasProgression - (GLfloat) index1;
 
-    setTextureOffset(texOffset1, index1);
-    setTextureOffset(texOffset2, index2);
+    SetTextureOffset(texOffset1, index1);
+    SetTextureOffset(texOffset2, index2);
 }
 
-void Particle::setTextureOffset(Vec2 &offset, int index)
+void Particle::SetTextureOffset(Vec2 &offset, int index)
 {
     int column = index % texture->GetNumberOfRows();
     int row = index / texture->GetNumberOfRows();

@@ -4,6 +4,7 @@
 #include <tinyobjloader/tiny_obj_loader.h>
 #include "texture/Material.h"
 #include "Vertex.h"
+#include <graphics/IndexBuffer.h>
 
 #include <vector>
 #include <string>

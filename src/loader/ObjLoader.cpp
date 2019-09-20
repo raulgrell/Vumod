@@ -3,7 +3,7 @@
 #include <sstream>
 #include "ObjLoader.h"
 
-RawModel ObjLoader::LoadObj(const std::string &objFileName)
+IndexedModel ObjLoader::LoadObj(const std::string &objFileName)
 {
     std::string fileName = objFileName + ".obj";
     std::ifstream inFile(fileName, std::ios::in);
@@ -117,9 +117,10 @@ void ObjLoader::CalculateTangents(
 {
     Vec3 deltaPos1 = v1->GetPosition() - v0->GetPosition();
     Vec3 deltaPos2 = v2->GetPosition() - v0->GetPosition();
-    Vec2 uv0 = textures[v0->GetTextureIndex()];
-    Vec2 uv1 = textures[v1->GetTextureIndex()];
-    Vec2 uv2 = textures[v2->GetTextureIndex()];
+    // TODO: fiz
+    Vec2 uv0 = 0; //textures[v0->GetTextureIndex()];
+    Vec2 uv1 = 0; //textures[v1->GetTextureIndex()];
+    Vec2 uv2 = 0; //textures[v2->GetTextureIndex()];
     Vec2 deltaUv1 = uv1 - uv0;
     Vec2 deltaUv2 = uv2 - uv0;
 

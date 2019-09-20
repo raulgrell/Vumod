@@ -15,7 +15,7 @@ void ParticleMaster::Update(Camera &camera)
         auto vit = particles.begin();
         while (vit != particles.end()) {
             Particle &p = *vit;
-            bool stillAlive = p.update(camera);
+            bool stillAlive = p.Update(camera);
             if (!stillAlive) {
                 vit = particles.erase(vit);
             } else {

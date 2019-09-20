@@ -1,6 +1,6 @@
 #pragma once
 
-#include "scene/Camera.h"
+#include "camera/Camera.h"
 #include <shaders/ShaderGL.h>
 
 class SkyboxShader : public ShaderGL

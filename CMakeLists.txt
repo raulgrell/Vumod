@@ -27,8 +27,9 @@ add_executable(
         ext/ext.cpp
         src/files/VFS.cpp
         src/fx/PostProcessing.cpp
-        src/graphics/Buffer.cpp
-        src/graphics/Framebuffer.cpp
+        src/graphics/VertexBuffer.cpp
+        src/graphics/IndexBuffer.cpp
+        src/graphics/FrameBuffer.cpp
         src/graphics/Graphics.cpp
         src/graphics/Loader.cpp
         src/gui/Console.cpp
@@ -54,7 +55,7 @@ add_executable(
         src/particles/ParticleSystem.cpp
         src/particles/ParticleTexture.cpp
         src/platform/VuWindow.cpp
-        src/scene/Camera.cpp
+        src/camera/Camera.cpp
         src/scene/Entity.cpp
         src/scene/Scene.cpp
         src/scene/SceneRenderer.cpp
@@ -78,12 +79,13 @@ add_executable(
         src/water/WaterRenderer.cpp
         src/water/WaterShader.cpp
         src/main.cpp
-        )
+        src/graphics/FloatBuffer.cpp src/graphics/FloatBuffer.h)
 
 target_compile_options(Viewer PRIVATE )
 
-add_custom_command(
-        TARGET Viewer
-        PRE_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/data/ $<TARGET_FILE_DIR:Viewer>/data)
+# add_custom_target(
+#         data
+#         COMMAND ${CMAKE_COMMAND} -E copy_directory
+#         ${CMAKE_SOURCE_DIR}/data/ ${CMAKE_SOURCE_DIR}/cmake-build-debug/data)
+#
+# add_dependencies(Viewer data)

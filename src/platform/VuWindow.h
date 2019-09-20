@@ -20,7 +20,7 @@ public:
 
     void GetSize(int *width, int *height);
 
-    static float getAspectRatio() { return (float) width / height; }
-    static int getWidth() { return width; }
-    static int getHeight() { return height; }
+    static float GetAspectRatio() { return (float) width / height; }
+    static int GetWidth() { return width; }
+    static int GetHeight() { return height; }
 };

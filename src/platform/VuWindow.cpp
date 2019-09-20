@@ -39,7 +39,7 @@ void fatal_error(const std::string &errorString)
     exit(1);
 }
 
-VuWindow::VuWindow(const char *title, int width, int height)
+VuWindow::VuWindow(const char *title, int openWidth, int openHeight)
 {
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
@@ -51,7 +51,7 @@ VuWindow::VuWindow(const char *title, int width, int height)
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_COMPAT_PROFILE);
 
-    window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+    window = glfwCreateWindow(openWidth, openHeight, title, nullptr, nullptr);
     if (!window) {
         glfwTerminate();
         exit(EXIT_FAILURE);

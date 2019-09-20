@@ -1,6 +1,8 @@
 #pragma once
 
-#include "Buffer.h"
+#include "VertexBuffer.h"
+#include "IndexBuffer.h"
+#include "FloatBuffer.h"
 
 class VertexArray
 {
@@ -21,6 +23,8 @@ public:
     uint32_t id {0};
 
 private:
+    std::vector<std::shared_ptr<FloatBuffer>> m_FloatBuffers;
     std::vector<std::shared_ptr<VertexBuffer>> m_VertexBuffers;
     std::shared_ptr<IndexBuffer> m_IndexBuffer;
+    void AddFloatBuffer(int location, int size, const std::shared_ptr<FloatBuffer> &buffer);
 };

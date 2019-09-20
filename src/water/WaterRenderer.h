@@ -22,7 +22,7 @@ public:
 	void SetUpVao();
 
 private:
-	RawModel quad;
+	std::unique_ptr<IndexedModel> quad;
 	WaterShader& shader;
 	WaterFrameBuffers& fbos;
     unsigned int dudvTexture;

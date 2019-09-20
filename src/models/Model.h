@@ -1,27 +1,43 @@
 #pragma once
 
+#include <api/IModel.h>
 #include <graphics/TextureData.h>
+#include <graphics/VertexArray.h>
+#include <graphics/IndexBuffer.h>
 
-struct RawModel
+struct RawModel : IModel
 {
-    unsigned int vaoId = 0;
-    int vertexCount = 0;
+    std::shared_ptr<VertexArray> vao;
+    unsigned int vertexCount;
 
-    unsigned int GetVaoId() const { return vaoId; }
+    unsigned int GetVaoId() const { return vao->id; }
     int GetVertexCount() const { return vertexCount; }
 
-    RawModel() = default;
-    RawModel(unsigned int vaoId, int vertexCount)
-            : vaoId(vaoId), vertexCount(vertexCount) {}
+    RawModel(std::shared_ptr<VertexArray> vao, unsigned int vertexCount)
+            : vao(std::move(vao)), vertexCount(vertexCount) {}
 };
+
+struct IndexedModel : IModel
+{
+    std::shared_ptr<VertexArray> vao;
+    std::shared_ptr<IndexBuffer> ibo;
+
+    unsigned int GetVaoId() const { return vao->id; }
+    int GetVertexCount() const { return ibo->count; }
+
+    IndexedModel(std::shared_ptr<VertexArray> vao, std::shared_ptr<IndexBuffer> ibo)
+            : vao(std::move(vao)), ibo(std::move(ibo)) {}
+};
+
+
 
 struct TexturedModel
 {
-    RawModel &rawModel;
+    IndexedModel &model;
     ModelTexture &texture;
 
-    TexturedModel(RawModel &model, ModelTexture &texture)
-            : rawModel(model), texture(texture) {}
+    TexturedModel(IndexedModel &model, ModelTexture &texture)
+            : model(model), texture(texture) {}
 
     ModelTexture &GetTexture() { return texture; }
 };

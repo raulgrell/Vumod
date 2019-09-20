@@ -36,7 +36,6 @@ public:
     int GetNormalIndex() const { return normalIndex; }
     void SetNormalIndex(int value) { textureIndex = value; }
 
-
     bool IsSet() const;
     bool HasSameTextureAndNormal(int texture, int normal) const;
 

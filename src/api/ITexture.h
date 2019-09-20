@@ -4,9 +4,7 @@
 
 #include "Hazel/Core.h"
 
-namespace Hazel {
-
-	class Texture
+	class ITexture
 	{
 	public:
 		virtual ~Texture() = default;
@@ -22,5 +20,3 @@ namespace Hazel {
 	public:
 		static Ref<Texture2D> Create(const std::string& path);
 	};
-
-}

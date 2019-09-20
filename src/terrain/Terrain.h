@@ -9,9 +9,9 @@
 class Terrain {
 public:
 	Vec3 position;
-	RawModel model;
 	TerrainTexturePack& texturePack;
 	TerrainTexture& blendMap;
+	std::unique_ptr<IndexedModel> model = nullptr;
 
 private:
 	float **heights{};
@@ -25,7 +25,7 @@ public:
             const std::string &heightMap);
 
 	float GetHeightOfTerrain(float worldX, float worldZ);
-	RawModel Generate(const std::string &heightMap);
+	std::unique_ptr<IndexedModel> Generate(const std::string &heightMap);
 
 	static constexpr float SIZE = 4*300;
 	static constexpr float MAX_HEIGHT = 2*40;

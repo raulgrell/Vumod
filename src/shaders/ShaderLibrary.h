@@ -3,17 +3,19 @@
 #include <unordered_map>
 #include <memory>
 #include <math/Mat.h>
-#include <api/IShader.h>
+#include "ShaderGL.h"
 
 class ShaderLibrary
 {
 public:
-    void Add(const std::shared_ptr<IShader>& shader);
-    std::shared_ptr<IShader> Load(const std::string& file_path);
-    std::shared_ptr<IShader> Load(const std::string& name, const std::string& file_path);
-    std::shared_ptr<IShader> Get(const std::string& name);
+    void Add(const std::shared_ptr<ShaderGL>& shader);
+    void Add(const std::string &name, const std::shared_ptr<ShaderGL> &shader);
+    std::shared_ptr<ShaderGL> Load(const std::string& filePath);
+    std::shared_ptr<ShaderGL> Load(const std::string& name, const std::string& filePath);
+    std::shared_ptr<ShaderGL> Get(const std::string& name);
 
 private:
-    std::unordered_map<std::string, std::shared_ptr<IShader>> shaders;
+    std::unordered_map<std::string, std::shared_ptr<ShaderGL>> shaders;
+    bool Exists(const std::string &name) const;
 };
 

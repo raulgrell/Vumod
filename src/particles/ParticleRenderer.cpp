@@ -3,23 +3,39 @@
 ParticleRenderer::ParticleRenderer(Mat4 &projectionMatrix)
 {
     buffer.resize(INSTANCE_DATA_LENGTH * MAX_INSTANCES);
-    vboID = Loader::CreateEmptyVbo(buffer);
-    std::vector<GLfloat> vertices = {-0.5f, 0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, -0.5f};
-    quad =Loader::LoadToVao(vertices, 2);
+    vboId = Loader::CreateEmptyVbo(buffer);
+
+    std::vector<float> vertices = {-0.5f, 0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, -0.5f};
+    auto vao = std::make_shared<VertexArray>();
+
+    auto pos = std::make_shared<VertexBuffer>(&vertices[0], vertices.size() * 1 * 4);
+    pos->SetLayout({{0, GL_FLOAT, 3}});
+
+    auto inst = std::make_shared<VertexBuffer>(&vertices[0], vertices.size() * 21 * 4);
+    inst->SetLayout({{0, GL_FLOAT, 4},
+                     {0, GL_FLOAT, 4},
+                     {0, GL_FLOAT, 4},
+                     {0, GL_FLOAT, 4},
+                     {0, GL_FLOAT, 4},
+                     {0, GL_FLOAT, 1}});
+
+    vao->AddVertexBuffer(pos);
+    vao->Unbind();
+
+    quad = std::make_shared<RawModel>(vao, 4);
     // modelViewMatrix
-    Loader::AddInstancedAttribute(quad.vaoId, vboID, 1, 4, INSTANCE_DATA_LENGTH, 0);
-    Loader::AddInstancedAttribute(quad.vaoId, vboID, 2, 4, INSTANCE_DATA_LENGTH, 4);
-    Loader::AddInstancedAttribute(quad.vaoId, vboID, 3, 4, INSTANCE_DATA_LENGTH, 8);
-    Loader::AddInstancedAttribute(quad.vaoId, vboID, 4, 4, INSTANCE_DATA_LENGTH, 12);
+    Loader::AddInstancedAttribute(quad->GetVaoId(), vboId, 1, 4, INSTANCE_DATA_LENGTH, 0);
+    Loader::AddInstancedAttribute(quad->GetVaoId(), vboId, 2, 4, INSTANCE_DATA_LENGTH, 4);
+    Loader::AddInstancedAttribute(quad->GetVaoId(), vboId, 3, 4, INSTANCE_DATA_LENGTH, 8);
+    Loader::AddInstancedAttribute(quad->GetVaoId(), vboId, 4, 4, INSTANCE_DATA_LENGTH, 12);
     // texOffsets
-    Loader::AddInstancedAttribute(quad.vaoId, vboID, 5, 4, INSTANCE_DATA_LENGTH, 16);
+    Loader::AddInstancedAttribute(quad->GetVaoId(), vboId, 5, 4, INSTANCE_DATA_LENGTH, 16);
     // blendFactor
-    Loader::AddInstancedAttribute(quad.vaoId, vboID, 6, 1, INSTANCE_DATA_LENGTH, 20);
+    Loader::AddInstancedAttribute(quad->GetVaoId(), vboId, 6, 1, INSTANCE_DATA_LENGTH, 20);
     shader.Bind();
     shader.LoadProjectionMatrix(&projectionMatrix);
     shader.Unbind();
 }
-
 
 void
 ParticleRenderer::Render(std::unordered_map<ParticleTexture *, std::vector<Particle>> &particlesMap, Camera &camera)
@@ -32,28 +48,28 @@ ParticleRenderer::Render(std::unordered_map<ParticleTexture *, std::vector<Parti
         ParticleTexture *texture = mit.first;
         std::vector<Particle> &particles = mit.second;
         BindTexture(texture);
-        pointer = 0;
-        std::vector<GLfloat> vboData(particles.size() * INSTANCE_DATA_LENGTH);
+        cursor = 0;
+        std::vector<float> vboData(particles.size() * INSTANCE_DATA_LENGTH);
 
         for (auto &particle : particles) {
             UpdateModelViewMatrix(particle.position, particle.rotation, particle.scale, viewMatrix, vboData);
             UpdateTexCoordInfo(particle, vboData);
         }
-        Loader::UpdateVbo(vboID, vboData);
-        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, quad.vertexCount, particles.size());
+        Loader::UpdateVbo(vboId, vboData);
+        glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, quad->GetVertexCount(), particles.size());
 
     }
 
     FinishRendering();
 }
 
-void ParticleRenderer::UpdateTexCoordInfo(Particle &particle, std::vector<GLfloat> &vboData)
+void ParticleRenderer::UpdateTexCoordInfo(Particle &particle, std::vector<float> &vboData)
 {
-    vboData[pointer++] = particle.texOffset1.x;
-    vboData[pointer++] = particle.texOffset1.y;
-    vboData[pointer++] = particle.texOffset2.x;
-    vboData[pointer++] = particle.texOffset2.y;
-    vboData[pointer++] = particle.blend;
+    vboData[cursor++] = particle.texOffset1.x;
+    vboData[cursor++] = particle.texOffset1.y;
+    vboData[cursor++] = particle.texOffset2.x;
+    vboData[cursor++] = particle.texOffset2.y;
+    vboData[cursor++] = particle.blend;
 }
 
 void ParticleRenderer::BindTexture(ParticleTexture *texture)
@@ -90,30 +106,30 @@ void ParticleRenderer::UpdateModelViewMatrix(
     StoreMatrixData(modelViewMatrix, vboData);
 }
 
-void ParticleRenderer::StoreMatrixData(Mat4 &matrix, std::vector<GLfloat> &vboData)
+void ParticleRenderer::StoreMatrixData(Mat4 &matrix, std::vector<float> &vboData)
 {
-    vboData[pointer++] = matrix.r[0].c[0];
-    vboData[pointer++] = matrix.r[1].c[0];
-    vboData[pointer++] = matrix.r[2].c[0];
-    vboData[pointer++] = matrix.r[3].c[0];
-    vboData[pointer++] = matrix.r[0].c[1];
-    vboData[pointer++] = matrix.r[1].c[1];
-    vboData[pointer++] = matrix.r[2].c[1];
-    vboData[pointer++] = matrix.r[3].c[1];
-    vboData[pointer++] = matrix.r[0].c[2];
-    vboData[pointer++] = matrix.r[1].c[2];
-    vboData[pointer++] = matrix.r[2].c[2];
-    vboData[pointer++] = matrix.r[3].c[2];
-    vboData[pointer++] = matrix.r[0].c[3];
-    vboData[pointer++] = matrix.r[1].c[3];
-    vboData[pointer++] = matrix.r[2].c[3];
-    vboData[pointer++] = matrix.r[3].c[3];
+    vboData[cursor++] = matrix.r[0].c[0];
+    vboData[cursor++] = matrix.r[1].c[0];
+    vboData[cursor++] = matrix.r[2].c[0];
+    vboData[cursor++] = matrix.r[3].c[0];
+    vboData[cursor++] = matrix.r[0].c[1];
+    vboData[cursor++] = matrix.r[1].c[1];
+    vboData[cursor++] = matrix.r[2].c[1];
+    vboData[cursor++] = matrix.r[3].c[1];
+    vboData[cursor++] = matrix.r[0].c[2];
+    vboData[cursor++] = matrix.r[1].c[2];
+    vboData[cursor++] = matrix.r[2].c[2];
+    vboData[cursor++] = matrix.r[3].c[2];
+    vboData[cursor++] = matrix.r[0].c[3];
+    vboData[cursor++] = matrix.r[1].c[3];
+    vboData[cursor++] = matrix.r[2].c[3];
+    vboData[cursor++] = matrix.r[3].c[3];
 }
 
 void ParticleRenderer::Prepare()
 {
     shader.Bind();
-    glBindVertexArray(quad.vaoId);
+    glBindVertexArray(quad->GetVaoId());
     for (GLuint i = 0; i <= 6; i++) {
         glEnableVertexAttribArray(i);
     }

@@ -5,15 +5,25 @@
 #include <glad/glad.h>
 #include <platform/DisplayManager.h>
 #include <scene/SceneShader.h>
-#include "scene/Camera.h"
-
+#include "camera/Camera.h"
 
 SkyboxRenderer::SkyboxRenderer(Mat4 &projectionMatrix)
 {
-	cube = Loader::LoadToVao(VERTICES, 3);
+    auto vao = std::make_shared<VertexArray>();
+    auto ibo = std::make_shared<IndexBuffer>(&INDICES[0], INDICES.size());
+    vao->SetIndexBuffer(ibo);
+
+    auto pos = std::make_shared<VertexBuffer>(&VERTICES[0], VERTICES.size() * 4);
+    pos->SetLayout({{0, GL_FLOAT, 3}});
+
+    vao->AddVertexBuffer(pos);
+    vao->Unbind();
+
+    cube = std::make_unique<IndexedModel>(vao, ibo);
 	texture = Loader::LoadCubeMap(TEXTURE_FILES);
 	nightTexture = Loader::LoadCubeMap(NIGHT_TEXTURE_FILES);
-    shader.Bind();
+
+	shader.Bind();
     CHECK_GL();
     shader.ConnectTextureUnits();
     CHECK_GL();
@@ -33,12 +43,12 @@ void SkyboxRenderer::Render(Camera &camera, float r, float g, float b)
 	// Disable this, otherwise one side of the sky is clipped from the
 	// reflection and refraction textures
 	// glDisable(GL_CLIP_DISTANCE0);
-	glBindVertexArray(cube.vaoId);
+	glBindVertexArray(cube->GetVaoId());
 	glEnableVertexAttribArray(0);
     CHECK_GL();
 
     BindTextures();
-	glDrawArrays(GL_TRIANGLES, 0, cube.vertexCount);
+	glDrawArrays(GL_TRIANGLES, 0, cube->GetVertexCount());
 	glDisableVertexAttribArray(0);
 	glBindVertexArray(0);
     shader.Unbind();

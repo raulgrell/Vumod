@@ -10,16 +10,15 @@
 
 struct BufferElement
 {
-    const char *name;
-    unsigned int Size;
-    unsigned int Type;
-    unsigned int Count;
-    unsigned int Offset;
-    bool Normalized;
+    unsigned int location;
+    unsigned int size;
+    unsigned int type;
+    unsigned int count;
+    unsigned int offset;
+    bool normalized;
 
-    BufferElement(const char *name, unsigned int type, unsigned int count, bool normalized = false)
-            : name(name),
-            Size(Graphics::SizeOf(type)), Type(type), Count(count), Offset(0), Normalized(normalized)
+    BufferElement(unsigned int index, unsigned int type, unsigned int count, bool normalized = false)
+            : location(index), size(Graphics::SizeOf(type)), type(type), count(count), offset(0), normalized(normalized)
     {
     }
 };
@@ -46,7 +45,7 @@ private:
 class VertexBuffer
 {
 public:
-    VertexBuffer(void const *vertices, uint32_t size);
+    VertexBuffer(const void *vertices, uint32_t size);
     ~VertexBuffer();
 
     void Bind() const;
@@ -61,16 +60,3 @@ public:
 private:
     BufferLayout layout;
 };
-
-struct IndexBuffer
-{
-    IndexBuffer(const uint32_t *indices, uint32_t count);
-    ~IndexBuffer();
-
-    void Bind() const;
-    void Unbind() const;
-
-    uint32_t id {0};
-    uint32_t count {0};
-};
-

@@ -8,7 +8,7 @@
 class ObjLoader
 {
 public:
-    static RawModel LoadObj(const std::string &objFileName);
+    static IndexedModel LoadObj(const std::string &objFileName);
 private:
     static Vertex *ProcessVertex(
             unsigned int index,

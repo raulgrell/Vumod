@@ -52,8 +52,8 @@ void drawGui(Scene &vs)
 
     static bool showUi = true;
     ImGui::Begin("Scene", &showUi);
-    ImGui::DragFloat3("Camera position", &vs.vc.position[0], 0.1f, -32.0f, 32.0f);
-    ImGui::DragFloat3("Camera rotation", &vs.vc.rotation[0], 0.1f, -180.0f, 180.0f);
+    ImGui::DragFloat3("Camera position", &vs.camera.position[0], 0.1f, -32.0f, 32.0f);
+    ImGui::DragFloat3("Camera rotation", &vs.camera.rotation[0], 0.1f, -180.0f, 180.0f);
     ImGui::Checkbox("Wireframe", &vs.wireframe);
     ImGui::End();
 

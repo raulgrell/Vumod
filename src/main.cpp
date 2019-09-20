@@ -40,11 +40,10 @@ int main()
 
     Mat4 projectionMatrix = Mat4::Perspective(
             Camera::fov,
-            VuWindow::getAspectRatio(),
+            VuWindow::GetAspectRatio(),
             Camera::nearPlane,
             Camera::farPlane);
 
-    Camera camera(projectionMatrix);
     SceneRenderer renderer(projectionMatrix);
     ParticleMaster particleMaster(projectionMatrix);
 
@@ -55,9 +54,10 @@ int main()
     TerrainTexture gTexture(Loader::LoadTexture("data/res/pinkFlowers"));
     TerrainTexture bTexture(Loader::LoadTexture("data/res/path"));
     TerrainTexturePack texturePack(backgroundTexture, rTexture, gTexture, bTexture);
+
     TerrainTexture blendMap(Loader::LoadTexture("data/res/blendMapLake"));
 
-    auto terrain = terrains.emplace_back(0, -1, texturePack, blendMap, "");
+    auto &terrain = terrains.emplace_back(0, 0, texturePack, blendMap, "");
 
     // Models //
 
@@ -95,13 +95,13 @@ int main()
     barrelModel.texture.SetReflectivity(0.5f);
 
     // Entities //
-    auto entity = normalMapEntities.emplace_back(
+    auto &entity = normalMapEntities.emplace_back(
             barrelModel,
             Vec3 {Terrain::SIZE / 2, 0, -Terrain::SIZE / 2},
             Vec3 {0, 0, 0},
             Vec3 {1});
 
-    auto rocks = entities.emplace_back(
+    auto &rocks = entities.emplace_back(
             rocksTexturedModel,
             Vec3 {Terrain::SIZE / 2, 0.5f, -Terrain::SIZE / 2},
             Vec3 {0, 0, 0},
@@ -128,7 +128,7 @@ int main()
         }
     }
 
-    auto sun = lights.emplace_back(
+    auto &sun = lights.emplace_back(
             Vec3 {10000, 10000, -10000},
             Vec3 {1.3f, 1.3f, 1.3f});
 
@@ -137,13 +137,13 @@ int main()
     auto lampModel = TexturedModel(lampRawModel, lampModelTexture);
     lampModel.texture.SetUseFakeLighting(true);
 
-    auto lampEntity = entities.emplace_back(
+    auto &lampEntity = entities.emplace_back(
             lampModel,
             Vec3 {0, 5, 0},
             Vec3 {0, 0, 0},
             Vec3 {1, 1, 1});
 
-    auto light = lights.emplace_back(
+    auto &light = lights.emplace_back(
             Vec3 {0, 14, 0},
             Vec3 {3, 3, 0},
             Vec3 {1, 0.01f, 0.002f});
@@ -155,11 +155,11 @@ int main()
     WaterRenderer waterRenderer(
             waterShader,
             renderer.GetProjectionMatrix(),
-            camera.nearPlane,
-            camera.farPlane,
+            scene.camera.nearPlane,
+            scene.camera.farPlane,
             buffers);
 
-    auto water = waters.emplace_back(Terrain::SIZE / 2, -Terrain::SIZE / 2, 0, Terrain::SIZE);
+    auto &water = waters.emplace_back(Terrain::SIZE / 2, -Terrain::SIZE / 2, 0, Terrain::SIZE);
 
     Vec4 reflClipPlane {0, 1, 0, -water.GetHeight() + 0.5f};
     Vec4 refrClipPlane {0, -1, 0, water.GetHeight() + 0.5f};
@@ -191,7 +191,7 @@ int main()
         // Update
         window.Begin();
         InputManager::Update();
-        particleMaster.Update(camera);
+        particleMaster.Update(scene.camera);
         scene.Update();
 
         smokeSystem.GenerateParticles(Vec3(290.0f, 10.0f, -330.0f));
@@ -201,22 +201,22 @@ int main()
         renderer.Begin();
         scene.Render();
 
-        float distance = 2 * (camera.GetPosition().y - waters[0].GetHeight());
-        camera.position.y -= distance;
-        camera.InvertPitch();
-        renderer.Render(entities, normalMapEntities, terrains, lights, camera, reflClipPlane, true);
+        float distance = 2 * (scene.camera.GetPosition().y - waters[0].GetHeight());
+        scene.camera.position.y -= distance;
+        scene.camera.InvertPitch();
+//        renderer.Render(entities, normalMapEntities, terrains, lights, scene.camera, reflClipPlane, true);
 
-        camera.position.y += distance;
-        camera.InvertPitch();
+        scene.camera.position.y += distance;
+        scene.camera.InvertPitch();
         buffers.BindRefractionFrameBuffer();
-        renderer.Render(entities, normalMapEntities, terrains, lights, camera, refrClipPlane, true);
+//        renderer.Render(entities, normalMapEntities, terrains, lights, scene.camera, refrClipPlane, true);
 
         WaterFrameBuffers::UnbindCurrentFrameBuffer();
-        waterRenderer.Render(waters, camera, sun);
+//        waterRenderer.Render(waters, scene.camera, sun);
 
-        renderer.Render(entities, normalMapEntities, terrains, lights, camera, scrnClipPlane, false);
+//        renderer.Render(entities, normalMapEntities, terrains, lights, scene.camera, scrnClipPlane, false);
 
-        particleMaster.Render(camera);
+//        particleMaster.Render(scene.camera);
 
         gui.Begin();
         drawGui(scene);

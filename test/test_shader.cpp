@@ -3,7 +3,7 @@
 #include <platform/VuWindow.h>
 #include <graphics/Graphics.h>
 #include <files/VFS.h>
-#include <scene/Camera.h>
+#include <camera/Camera.h>
 #include <math/Mat.h>
 #include <input/InputManager.h>
 
@@ -18,7 +18,7 @@ int main()
 
     Camera camera;
     Mat4 projectionMatrix =
-            Mat4::Perspective(Camera::fov, VuWindow::getAspectRatio(), Camera::nearPlane, Camera::farPlane);
+            Mat4::Perspective(Camera::fov, VuWindow::GetAspectRatio(), Camera::nearPlane, Camera::farPlane);
 
     CHECK_GL();
 

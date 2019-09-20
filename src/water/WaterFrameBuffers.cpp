@@ -41,7 +41,7 @@ void WaterFrameBuffers::BindRefractionFrameBuffer()
 void WaterFrameBuffers::UnbindCurrentFrameBuffer()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, VuWindow::getWidth(), VuWindow::getHeight());
+    glViewport(0, 0, VuWindow::GetWidth(), VuWindow::GetHeight());
 }
 
 void WaterFrameBuffers::InitializeReflectionFrameBuffer()

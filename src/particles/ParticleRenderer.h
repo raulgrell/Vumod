@@ -23,14 +23,14 @@ public:
     void Prepare();
     void FinishRendering();
 
-    void bindTextures(Particle &particle);
+    void BindTextures(Particle &particle);
     void LoadModelMatrix(Particle &particle);
-    void unbindTexturedModel();
+    void UnbindTexturedModel();
 
 private:
-    RawModel quad;
+    std::shared_ptr<IModel> quad;
     ParticleShader shader;
-    GLuint vboID;
-    std::vector<GLfloat> buffer;
-    int pointer {}; // where in the buffer we are writing
+    unsigned int vboId;
+    std::vector<float> buffer;
+    int cursor = 0;
 };

@@ -4,7 +4,7 @@
 #include <scene/Entity.h>
 #include <terrain/Terrain.h>
 #include <light/Light.h>
-#include <scene/Camera.h>
+#include <camera/Camera.h>
 #include <shaders/StaticShader.h>
 #include <models/NormalMappingRenderer.h>
 #include <skybox/SkyboxRenderer.h>

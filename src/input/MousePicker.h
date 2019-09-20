@@ -2,7 +2,7 @@
 
 #include <math/Math.h>
 #include <terrain/Terrain.h>
-#include "scene/Camera.h"
+#include "camera/Camera.h"
 
 class MousePicker
 {
