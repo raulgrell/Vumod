@@ -8,30 +8,30 @@
 class Loader
 {
 public:
-    RawModel LoadToVao(
-            std::vector<float> &positions,
+    static RawModel LoadToVao(
+            const std::vector<float> &positions,
             int dimensions);
 
-    RawModel LoadToVao(
-            std::vector<float> &positions,
-            std::vector<float> &textureCoords);
+    static RawModel LoadToVao(
+            const std::vector<float> &positions,
+            const std::vector<float> &textureCoords);
 
-    RawModel LoadToVao(
-            std::vector<float> &positions,
-            std::vector<float> &textureCoords,
-            std::vector<float> &normals,
-            std::vector<unsigned int> &indices);
+    static RawModel LoadToVao(
+            const std::vector<float> &positions,
+            const std::vector<float> &textureCoords,
+            const std::vector<float> &normals,
+            const std::vector<unsigned int> &indices);
 
-    RawModel LoadToVao(
-            std::vector<float> &positions,
-            std::vector<float> &textureCoords,
-            std::vector<float> &normals,
-            std::vector<float> &tangents,
-            std::vector<unsigned int> &indices);
+    static RawModel LoadToVao(
+            const std::vector<float> &positions,
+            const std::vector<float> &textureCoords,
+            const std::vector<float> &normals,
+            const std::vector<float> &tangents,
+            const std::vector<unsigned int> &indices);
 
-    unsigned int CreateEmptyVbo(std::vector<float> &data);
+    static unsigned int CreateEmptyVbo(std::vector<float> &data);
 
-    void AddInstancedAttribute(
+    static void AddInstancedAttribute(
             unsigned int vaoId,
             unsigned int vboId,
             unsigned int attribute,
@@ -39,23 +39,21 @@ public:
             int instancedDataLength,
             int offset);
 
-    void UpdateVbo(unsigned int vboId, std::vector<float> &vboData);
+    static void UpdateVbo(unsigned int vboId, const std::vector<float> &vboData);
 
-    unsigned int LoadTexture(const std::string &fileName);
-    unsigned int LoadFontAtlasTexture(const std::string &fileName);
-    unsigned int LoadCubeMap(std::vector<std::string> &textureFiles);
+    static unsigned int LoadTexture(const std::string &fileName);
+    static unsigned int LoadFontAtlasTexture(const std::string &fileName);
+    static unsigned int LoadCubeMap(const std::vector<std::string> &textureFiles);
 
 public:
     static TextureData DecodeImage(const std::string &path);
     static unsigned char *LoadPngImage(const std::string &path, int &width, int &height, int &comp);
 
 private:
-    unsigned int CreateVao();
-    void UnbindVao();
-    unsigned int CreateVbo(unsigned int target);
-    void StoreDataInAttributeList(int attributeNumber, int coordinateSize, std::vector<float> &data);
-    void BindIndexBuffer(std::vector<unsigned int> &indices);
-    unsigned int LoadTexture(const std::string &fileName, float lodBias);
-
-    bool useMipMap = true;
+    static unsigned int CreateVao();
+    static void UnbindVao();
+    static unsigned int CreateVbo(unsigned int target);
+    static void StoreDataInAttributeList(int attributeNumber, int coordinateSize, const std::vector<float> &data);
+    static void BindIndexBuffer(const std::vector<unsigned int> &indices);
+    static unsigned int LoadTexture(const std::string &fileName, float lodBias, bool useMipMap = true);
 };

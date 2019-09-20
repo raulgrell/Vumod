@@ -50,8 +50,8 @@ namespace file
         return pos;
     }
 
-    size_t ReadTextFile(const std::string &filePath,
-                        std::vector<unsigned char> &buffer)
+    size_t readText(const std::string &filePath,
+                    std::vector<unsigned char> &buffer)
     {
         std::ifstream file(filePath);
         if (file.fail()) {
@@ -78,7 +78,7 @@ namespace file
     std::string readText(const std::string &path)
     {
         std::vector<unsigned char> fileContents = {};
-        ReadTextFile(path, fileContents);
+        readText(path, fileContents);
         return std::string(fileContents.begin(), fileContents.end());
     }
 

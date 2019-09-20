@@ -31,7 +31,7 @@ bool Particle::update(Camera &camera)
     Vec3 change(velocity);
     change *= DisplayManager::getFrameTimeSeconds();
     position += change;
-    Vec3 d = camera.getPosition() - position;
+    Vec3 d = camera.GetPosition() - position;
     distance = d.x * d.x + d.y * d.y + d.z * d.z;
     updateTextureCoordInfo();
     elapsedTime += DisplayManager::getFrameTimeSeconds();
@@ -41,7 +41,7 @@ bool Particle::update(Camera &camera)
 void Particle::updateTextureCoordInfo()
 {
     GLfloat lifeFactor = elapsedTime / lifeLength;
-    int stageCount = texture->getNumberOfRows() * texture->getNumberOfRows();
+    int stageCount = texture->GetNumberOfRows() * texture->GetNumberOfRows();
     GLfloat atlasProgression = lifeFactor * stageCount;
     int index1 = (int) floor(atlasProgression);
     int index2 = index1 < stageCount - 1 ? index1 + 1 : index1;
@@ -53,8 +53,8 @@ void Particle::updateTextureCoordInfo()
 
 void Particle::setTextureOffset(Vec2 &offset, int index)
 {
-    int column = index % texture->getNumberOfRows();
-    int row = index / texture->getNumberOfRows();
-    offset.x = (GLfloat) column / texture->getNumberOfRows();
-    offset.y = (GLfloat) row / texture->getNumberOfRows();
+    int column = index % texture->GetNumberOfRows();
+    int row = index / texture->GetNumberOfRows();
+    offset.x = (GLfloat) column / texture->GetNumberOfRows();
+    offset.y = (GLfloat) row / texture->GetNumberOfRows();
 }

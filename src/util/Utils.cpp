@@ -5,27 +5,44 @@
 
 //TODO: use c++ random funtions instead of rand()
 
-float Random::Float()
-{
-	int x = rand();
-	float f = x / RAND_MAX;
-	return f;
-}
-
-int Random::Int(int modulo)
-{
-	int x = rand() % modulo;
-	return x;
+std::mt19937_64 *Random::Engine() {
+    static std::mt19937_64 gen {std::random_device{}() };
+    return &gen;
 }
 
 void Random::Seed(int seed)
 {
-	srand((unsigned int)seed);
+    Engine()->seed(seed);
 }
 
-uint64_t Time::Microseconds()
+float Random::Float()
 {
-    struct timeval tv;
-    gettimeofday(&tv, nullptr);
-    return ((uint64_t) tv.tv_sec) * 1000000 + tv.tv_usec;
+    static std::uniform_real_distribution<float> dFloat {0, 1};
+    return dFloat(*Engine());
 }
+
+int Random::Int(int modulo)
+{
+    static std::uniform_int_distribution<int> dInt;
+    return dInt(*Engine()) % modulo;
+}
+
+uint64_t Time::Milliseconds() {
+    uint64_t ms = std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+    return ms;
+}
+
+uint64_t Time::Microseconds() {
+    uint64_t us = std::chrono::duration_cast<std::chrono::microseconds>(
+            std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+    return us;
+}
+
+uint64_t Time::Nanoseconds() {
+    uint64_t ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
+            std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+    return ns;
+}
+
+

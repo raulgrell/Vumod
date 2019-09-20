@@ -42,14 +42,14 @@ struct Mat4
         return r[index];
     }
 
-    Mat4 operator*(const Mat4 &other)
+    Mat4 operator*(const Mat4 &o)
     {
         Mat4 r;
         for (int row = 0; row < 4; row++) {
             for (int col = 0; col < 4; col++) {
                 float sum = 0;
                 for (int e = 0; e < 4; e++) {
-                    sum += m[e + row * 4] * other.m[col + e * 4];
+                    sum += m[e + row * 4] * o.m[col + e * 4];
                 }
                 r.m[col + row * 4] = sum;
             }
@@ -57,53 +57,53 @@ struct Mat4
         return r;
     };
 
-    void operator*=(const Mat4 &other)
+    void operator*=(const Mat4 &o)
     {
         Mat4 r = *this;
         for (int row = 0; row < 4; row++) {
             for (int col = 0; col < 4; col++) {
                 float sum = 0;
                 for (int e = 0; e < 4; e++) {
-                    sum += r.m[e + row * 4] * other.m[col + e * 4];
+                    sum += r.m[e + row * 4] * o.m[col + e * 4];
                 }
                 m[col + row * 4] = sum;
             }
         }
     };
 
-    Vec4 operator*(const Vec4 &other)
+    Vec4 operator*(const Vec4 &o)
     {
         Vec4 v;
-        v.x = r[0].x * other.x + r[0].y * other.y + r[0].z * other.z + r[0].w * other.w;
-        v.y = r[1].x * other.x + r[1].y * other.y + r[1].z * other.z + r[1].w * other.w;
-        v.z = r[2].x * other.x + r[2].y * other.y + r[2].z * other.z + r[2].w * other.w;
-        v.w = r[3].x * other.x + r[3].y * other.y + r[3].z * other.z + r[3].w * other.w;
+        v.x = r[0].x * o.x + r[0].y * o.y + r[0].z * o.z + r[0].w * o.w;
+        v.y = r[1].x * o.x + r[1].y * o.y + r[1].z * o.z + r[1].w * o.w;
+        v.z = r[2].x * o.x + r[2].y * o.y + r[2].z * o.z + r[2].w * o.w;
+        v.w = r[3].x * o.x + r[3].y * o.y + r[3].z * o.z + r[3].w * o.w;
         return v;
     };
 
-    bool operator==(const Mat4 &other)
+    bool operator==(const Mat4 &o)
     {
         for (int i = 0; i < 16; ++i) {
-            if (m[i] != other.m[i])
+            if (m[i] != o.m[i])
                 return false;
         }
         return true;
     }
 
-    Mat4 operator+(const Mat4 &other)
+    Mat4 operator+(const Mat4 &o)
     {
-        return {{r[0].x + other.r[0].x, r[0].y + other.r[0].y, r[0].z + other.r[0].z, r[0].w + other.r[0].w},
-                {r[1].x + other.r[1].x, r[1].y + other.r[1].y, r[1].z + other.r[1].z, r[1].w + other.r[1].w},
-                {r[2].x + other.r[2].x, r[2].y + other.r[2].y, r[2].z + other.r[2].z, r[2].w + other.r[2].w},
-                {r[3].x + other.r[3].x, r[3].y + other.r[3].y, r[3].z + other.r[3].z, r[3].w + other.r[3].w}};
+        return {{r[0].x + o.r[0].x, r[0].y + o.r[0].y, r[0].z + o.r[0].z, r[0].w + o.r[0].w},
+                {r[1].x + o.r[1].x, r[1].y + o.r[1].y, r[1].z + o.r[1].z, r[1].w + o.r[1].w},
+                {r[2].x + o.r[2].x, r[2].y + o.r[2].y, r[2].z + o.r[2].z, r[2].w + o.r[2].w},
+                {r[3].x + o.r[3].x, r[3].y + o.r[3].y, r[3].z + o.r[3].z, r[3].w + o.r[3].w}};
     }
 
-    Mat4 operator-(const Mat4 &other)
+    Mat4 operator-(const Mat4 &o)
     {
-        return {{r[0].x - other.r[0].x, r[0].y - other.r[0].y, r[0].z - other.r[0].z, r[0].w - other.r[0].w},
-                {r[1].x - other.r[1].x, r[1].y - other.r[1].y, r[1].z - other.r[1].z, r[1].w - other.r[1].w},
-                {r[2].x - other.r[2].x, r[2].y - other.r[2].y, r[2].z - other.r[2].z, r[2].w - other.r[2].w},
-                {r[3].x - other.r[3].x, r[3].y - other.r[3].y, r[3].z - other.r[3].z, r[3].w - other.r[3].w}};
+        return {{r[0].x - o.r[0].x, r[0].y - o.r[0].y, r[0].z - o.r[0].z, r[0].w - o.r[0].w},
+                {r[1].x - o.r[1].x, r[1].y - o.r[1].y, r[1].z - o.r[1].z, r[1].w - o.r[1].w},
+                {r[2].x - o.r[2].x, r[2].y - o.r[2].y, r[2].z - o.r[2].z, r[2].w - o.r[2].w},
+                {r[3].x - o.r[3].x, r[3].y - o.r[3].y, r[3].z - o.r[3].z, r[3].w - o.r[3].w}};
     }
 
     static Mat4 LookAt(const Vec3 &camera, const Vec3 &object, const Vec3 &up)
@@ -195,9 +195,9 @@ struct Mat4
     static Mat4 Scale(const Vec3 &scale)
     {
         Mat4 result(1.0f);
-        result.m[0 + 0 * 4] = scale.x;
-        result.m[1 + 1 * 4] = scale.y;
-        result.m[2 + 2 * 4] = scale.z;
+        result.r[0].c[0] = scale.x;
+        result.r[1].c[1] = scale.y;
+        result.r[2].c[2] = scale.z;
         return result;
     }
 
@@ -289,15 +289,15 @@ struct Mat4
         return result;
     }
 
-    static Mat4 Perspective(float fov, float aspectRatio, float near_plane, float far_plane)
+    static Mat4 Perspective(float fov, float aspectRatio, float nearPlane, float farPlane)
     {
         Mat4 result(1);
 
         float q = 1.0f / tan(math::radians(0.5f * fov));
         float a = q / aspectRatio;
 
-        float b = (near_plane + far_plane) / (near_plane - far_plane);
-        float c = (2.0f * near_plane * far_plane) / (near_plane - far_plane);
+        float b = (nearPlane + farPlane) / (nearPlane - farPlane);
+        float c = (2.0f * nearPlane * farPlane) / (nearPlane - farPlane);
 
         result.r[0].c[0] = a;
         result.r[1].c[1] = q;

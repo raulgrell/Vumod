@@ -7,17 +7,17 @@ ParticleTexture::ParticleTexture(GLuint textureID, int numberOfRows, bool additi
 	this->additive = additive;
 }
 
-GLuint ParticleTexture::getTextureId()
+GLuint ParticleTexture::GetTextureId()
 {
 	return this->textureID;
 }
 
-int ParticleTexture::getNumberOfRows()
+int ParticleTexture::GetNumberOfRows()
 {
 	return this->numberOfRows;
 }
 
-bool ParticleTexture::isAdditive()
+bool ParticleTexture::IsAdditive()
 {
 	return this->additive;
 }

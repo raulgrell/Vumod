@@ -8,11 +8,11 @@
 #include "scene/Camera.h"
 
 
-SkyboxRenderer::SkyboxRenderer(Loader& loader, Mat4& projectionMatrix)
+SkyboxRenderer::SkyboxRenderer(Mat4 &projectionMatrix)
 {
-	cube = loader.LoadToVao(VERTICES, 3);
-	texture = loader.LoadCubeMap(TEXTURE_FILES);
-	nightTexture = loader.LoadCubeMap(NIGHT_TEXTURE_FILES);
+	cube = Loader::LoadToVao(VERTICES, 3);
+	texture = Loader::LoadCubeMap(TEXTURE_FILES);
+	nightTexture = Loader::LoadCubeMap(NIGHT_TEXTURE_FILES);
     shader.Bind();
     CHECK_GL();
     shader.ConnectTextureUnits();

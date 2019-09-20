@@ -7,69 +7,69 @@
 #include <scene/SceneShader.h>
 
 RawModel Loader::LoadToVao(
-        std::vector<float> &positions,
-        std::vector<float> &textureCoords,
-        std::vector<float> &normals,
-        std::vector<float> &tangents,
-        std::vector<unsigned int> &indices)
+        const std::vector<float> &positions,
+        const std::vector<float> &textureCoords,
+        const std::vector<float> &normals,
+        const std::vector<float> &tangents,
+        const std::vector<unsigned int> &indices)
 {
-    unsigned int vaoID = CreateVao();
+    unsigned int vaoId = CreateVao();
     BindIndexBuffer(indices);
     StoreDataInAttributeList(0, 3, positions);
     StoreDataInAttributeList(1, 2, textureCoords);
     StoreDataInAttributeList(2, 3, normals);
     StoreDataInAttributeList(3, 3, tangents);
     UnbindVao();
-    return RawModel(vaoID, indices.size());
+    return RawModel(vaoId, indices.size());
 }
 
 RawModel Loader::LoadToVao(
-        std::vector<float> &positions,
-        std::vector<float> &textureCoords,
-        std::vector<float> &normals,
-        std::vector<unsigned int> &indices)
+        const std::vector<float> &positions,
+        const std::vector<float> &textureCoords,
+        const std::vector<float> &normals,
+        const std::vector<unsigned int> &indices)
 {
-    unsigned int vaoID = CreateVao();
+    unsigned int vaoId = CreateVao();
     BindIndexBuffer(indices);
     StoreDataInAttributeList(0, 3, positions);
     StoreDataInAttributeList(1, 2, textureCoords);
     StoreDataInAttributeList(2, 3, normals);
     UnbindVao();
-    return RawModel(vaoID, indices.size());
+    return RawModel(vaoId, indices.size());
 }
 
 RawModel Loader::LoadToVao(
-        std::vector<float> &positions,
-        std::vector<float> &textureCoords)
+        const std::vector<float> &positions,
+        const std::vector<float> &textureCoords)
 {
-    unsigned int vaoID = CreateVao();
+    unsigned int vaoId = CreateVao();
     StoreDataInAttributeList(0, 2, positions);
     StoreDataInAttributeList(1, 2, textureCoords);
     UnbindVao();
-    return RawModel(vaoID, 0);
+    return RawModel(vaoId, 0);
 }
 
 RawModel Loader::LoadToVao(
-        std::vector<float> &positions,
+        const std::vector<float> &positions,
         int dimensions)
 {
-    unsigned int vaoID = CreateVao();
+    unsigned int vaoId = CreateVao();
     StoreDataInAttributeList(0, dimensions, positions);
     UnbindVao();
 
-    return RawModel(vaoID, positions.size() / dimensions);
+    return RawModel(vaoId, positions.size() / dimensions);
 }
 
 unsigned int Loader::CreateEmptyVbo(std::vector<float> &data)
 {
-    unsigned int vboID = 0;
-    glGenBuffers(1, &vboID);
-    glBindBuffer(GL_ARRAY_BUFFER, vboID);
+    unsigned int vboId = 0;
+    glGenBuffers(1, &vboId);
+    glBindBuffer(GL_ARRAY_BUFFER, vboId);
     glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float), &data[0], GL_STREAM_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     CHECK_GL();
 
-    return vboID;
+    return vboId;
 }
 
 void Loader::AddInstancedAttribute(
@@ -90,7 +90,7 @@ void Loader::AddInstancedAttribute(
     CHECK_GL();
 }
 
-void Loader::UpdateVbo(unsigned int vboId, std::vector<float> &vboData)
+void Loader::UpdateVbo(unsigned int vboId, const std::vector<float> &vboData)
 {
     glBindBuffer(GL_ARRAY_BUFFER, vboId);
     glBufferData(GL_ARRAY_BUFFER, vboData.size() * sizeof(float), &vboData[0], GL_STREAM_DRAW);
@@ -105,13 +105,13 @@ void Loader::UpdateVbo(unsigned int vboId, std::vector<float> &vboData)
 // GL_TEXTURE_CUBE_MAP_NEGATIVE_Y   = Bottom Face
 // GL_TEXTURE_CUBE_MAP_POSITIVE_Z   = Back Face
 // GL_TEXTURE_CUBE_MAP_NEGATIVE_Z   = Front Face
-unsigned int Loader::LoadCubeMap(std::vector<std::string> &textureFiles)
+unsigned int Loader::LoadCubeMap(const std::vector<std::string> &textureFiles)
 {
-    unsigned int textureID;
+    unsigned int textureId;
     GLenum target = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
-    glGenTextures(1, &textureID);
+    glGenTextures(1, &textureId);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, textureId);
     int i = 0;
     for (const std::string &fileName : textureFiles) {
         TextureData data = DecodeImage(fileName + ".png");
@@ -133,7 +133,7 @@ unsigned int Loader::LoadCubeMap(std::vector<std::string> &textureFiles)
 
     CHECK_GL();
 
-    return textureID;
+    return textureId;
 }
 
 unsigned int Loader::LoadTexture(const std::string &fileName)
@@ -141,9 +141,9 @@ unsigned int Loader::LoadTexture(const std::string &fileName)
     return LoadTexture(fileName, 0.0);
 }
 
-unsigned int Loader::LoadTexture(const std::string &fileName, float lodBias)
+unsigned int Loader::LoadTexture(const std::string &fileName, float lodBias, bool useMipMap)
 {
-    unsigned int textureID;
+    unsigned int textureId;
     int width, height, channels;
     unsigned char *bytes;
 
@@ -155,8 +155,8 @@ unsigned int Loader::LoadTexture(const std::string &fileName, float lodBias)
         exit(1);
     }
 
-    glGenTextures(1, &textureID);
-    glBindTexture(GL_TEXTURE_2D, textureID);
+    glGenTextures(1, &textureId);
+    glBindTexture(GL_TEXTURE_2D, textureId);
 
     if (channels == 3)
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, bytes);
@@ -181,7 +181,7 @@ unsigned int Loader::LoadTexture(const std::string &fileName, float lodBias)
 
     CHECK_GL();
 
-    return textureID;
+    return textureId;
 }
 
 unsigned int Loader::LoadFontAtlasTexture(const std::string &fileName)
@@ -191,10 +191,10 @@ unsigned int Loader::LoadFontAtlasTexture(const std::string &fileName)
 
 unsigned int Loader::CreateVao()
 {
-    unsigned int vaoID = 0;
-    glGenVertexArrays(1, &vaoID);
-    glBindVertexArray(vaoID);
-    return vaoID;
+    unsigned int vaoId = 0;
+    glGenVertexArrays(1, &vaoId);
+    glBindVertexArray(vaoId);
+    return vaoId;
 }
 
 void Loader::UnbindVao()
@@ -204,13 +204,13 @@ void Loader::UnbindVao()
 
 unsigned int Loader::CreateVbo(GLenum target)
 {
-    unsigned int vboID = 0;
-    glGenBuffers(1, &vboID);
-    glBindBuffer(target, vboID);
-    return vboID;
+    unsigned int vboId = 0;
+    glGenBuffers(1, &vboId);
+    glBindBuffer(target, vboId);
+    return vboId;
 }
 
-void Loader::StoreDataInAttributeList(int attributeNumber, int coordinateSize, std::vector<float> &data)
+void Loader::StoreDataInAttributeList(int attributeNumber, int coordinateSize, const std::vector<float> &data)
 {
     CreateVbo(GL_ARRAY_BUFFER);
     glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float), &data[0], GL_STATIC_DRAW);
@@ -219,7 +219,7 @@ void Loader::StoreDataInAttributeList(int attributeNumber, int coordinateSize, s
     CHECK_GL();
 }
 
-void Loader::BindIndexBuffer(std::vector<unsigned int> &indices)
+void Loader::BindIndexBuffer(const std::vector<unsigned int> &indices)
 {
     CreateVbo(GL_ELEMENT_ARRAY_BUFFER);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);

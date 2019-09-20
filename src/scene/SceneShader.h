@@ -10,13 +10,11 @@
 struct SceneShader : ShaderGL
 {
     std::unique_ptr<VertexArray> vao;
-    int uniform_mvp = 0;
-    int uniform_tint = 0;
-    int uniform_texture = 0;
+    int uniformMvp = 0;
+    int uniformTint = 0;
+    int uniformTexture = 0;
 
-    explicit
-    SceneShader(const char *file_path) : ShaderGL(file_path) {}
-    SceneShader(const char *name, const char *vertex_src, const char *fragment_src);
+    explicit SceneShader(const char *path);
 
     void BindAttributes() override;
     void GetUniformLocations() override;

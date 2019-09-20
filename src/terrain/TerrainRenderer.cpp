@@ -7,22 +7,20 @@ TerrainRenderer::TerrainRenderer(TerrainShader& shader, Mat4& projectionMatrix) 
 {
     shader.Bind();
 	shader.LoadProjectionMatrix(projectionMatrix);
-	CHECK_GL();
-	shader.connectTextureUnits();
+    shader.ConnectTextureUnits();
     shader.Unbind();
+	CHECK_GL();
 }
 
-void TerrainRenderer::Render(std::vector<Terrain *> *terrains)
+void TerrainRenderer::Render(std::vector<Terrain *> &terrains)
 {
-	for (auto terrain : *terrains) {
+	for (auto terrain : terrains) {
         Prepare(*terrain);
 		LoadModelMatrix(*terrain);
-	CHECK_GL();
 		glDrawElements(GL_TRIANGLES, terrain->model.vertexCount, GL_UNSIGNED_INT, nullptr);
-	CHECK_GL();
        UnbindTexturedModel();
-	CHECK_GL();
 	}
+    CHECK_GL();
 }
 
 void TerrainRenderer::Prepare(Terrain& terrain)
@@ -31,10 +29,8 @@ void TerrainRenderer::Prepare(Terrain& terrain)
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
-	CHECK_GL();
 
     BindTextures(terrain);
-    	CHECK_GL();
 
 	shader.LoadShineVariables(1, 0);
 	CHECK_GL();
@@ -44,15 +40,15 @@ void TerrainRenderer::BindTextures(Terrain &terrain)
 {
 	TerrainTexturePack& texturePack = terrain.texturePack;
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texturePack.getBackgroundTexture().getTextureId());
+	glBindTexture(GL_TEXTURE_2D, texturePack.GetBackgroundTexture().GetTextureId());
 	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, texturePack.getrTexture().getTextureId());
+	glBindTexture(GL_TEXTURE_2D, texturePack.GetRTexture().GetTextureId());
 	glActiveTexture(GL_TEXTURE2);
-	glBindTexture(GL_TEXTURE_2D, texturePack.getgTexture().getTextureId());
+	glBindTexture(GL_TEXTURE_2D, texturePack.GetGTexture().GetTextureId());
 	glActiveTexture(GL_TEXTURE3);
-	glBindTexture(GL_TEXTURE_2D, texturePack.getbTexture().getTextureId());
+	glBindTexture(GL_TEXTURE_2D, texturePack.GetBTexture().GetTextureId());
 	glActiveTexture(GL_TEXTURE4);
-	glBindTexture(GL_TEXTURE_2D, terrain.blendMap.getTextureId());
+	glBindTexture(GL_TEXTURE_2D, terrain.blendMap.GetTextureId());
     CHECK_GL();
 }
 

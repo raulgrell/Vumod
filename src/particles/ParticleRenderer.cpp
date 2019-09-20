@@ -1,21 +1,20 @@
 #include "ParticleRenderer.h"
 
-ParticleRenderer::ParticleRenderer(Loader &loader, Mat4 &projectionMatrix)
-        : loader(loader)
+ParticleRenderer::ParticleRenderer(Mat4 &projectionMatrix)
 {
     buffer.resize(INSTANCE_DATA_LENGTH * MAX_INSTANCES);
-    vboID = loader.CreateEmptyVbo(buffer);
+    vboID = Loader::CreateEmptyVbo(buffer);
     std::vector<GLfloat> vertices = {-0.5f, 0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, -0.5f};
-    quad = loader.LoadToVao(vertices, 2);
+    quad =Loader::LoadToVao(vertices, 2);
     // modelViewMatrix
-    loader.AddInstancedAttribute(quad.vaoId, vboID, 1, 4, INSTANCE_DATA_LENGTH, 0);
-    loader.AddInstancedAttribute(quad.vaoId, vboID, 2, 4, INSTANCE_DATA_LENGTH, 4);
-    loader.AddInstancedAttribute(quad.vaoId, vboID, 3, 4, INSTANCE_DATA_LENGTH, 8);
-    loader.AddInstancedAttribute(quad.vaoId, vboID, 4, 4, INSTANCE_DATA_LENGTH, 12);
+    Loader::AddInstancedAttribute(quad.vaoId, vboID, 1, 4, INSTANCE_DATA_LENGTH, 0);
+    Loader::AddInstancedAttribute(quad.vaoId, vboID, 2, 4, INSTANCE_DATA_LENGTH, 4);
+    Loader::AddInstancedAttribute(quad.vaoId, vboID, 3, 4, INSTANCE_DATA_LENGTH, 8);
+    Loader::AddInstancedAttribute(quad.vaoId, vboID, 4, 4, INSTANCE_DATA_LENGTH, 12);
     // texOffsets
-    loader.AddInstancedAttribute(quad.vaoId, vboID, 5, 4, INSTANCE_DATA_LENGTH, 16);
+    Loader::AddInstancedAttribute(quad.vaoId, vboID, 5, 4, INSTANCE_DATA_LENGTH, 16);
     // blendFactor
-    loader.AddInstancedAttribute(quad.vaoId, vboID, 6, 1, INSTANCE_DATA_LENGTH, 20);
+    Loader::AddInstancedAttribute(quad.vaoId, vboID, 6, 1, INSTANCE_DATA_LENGTH, 20);
     shader.Bind();
     shader.LoadProjectionMatrix(&projectionMatrix);
     shader.Unbind();
@@ -23,32 +22,32 @@ ParticleRenderer::ParticleRenderer(Loader &loader, Mat4 &projectionMatrix)
 
 
 void
-ParticleRenderer::render(std::unordered_map<ParticleTexture *, std::vector<Particle>> &particlesMap, Camera &camera)
+ParticleRenderer::Render(std::unordered_map<ParticleTexture *, std::vector<Particle>> &particlesMap, Camera &camera)
 {
     Mat4 viewMatrix = camera.GetViewMatrix();
 
-    prepare();
+    Prepare();
 
     for (auto &mit : particlesMap) {
         ParticleTexture *texture = mit.first;
         std::vector<Particle> &particles = mit.second;
-        bindTexture(texture);
+        BindTexture(texture);
         pointer = 0;
         std::vector<GLfloat> vboData(particles.size() * INSTANCE_DATA_LENGTH);
 
         for (auto &particle : particles) {
-            updateModelViewMatrix(particle.position, particle.rotation, particle.scale, viewMatrix, vboData);
-            updateTexCoordInfo(particle, vboData);
+            UpdateModelViewMatrix(particle.position, particle.rotation, particle.scale, viewMatrix, vboData);
+            UpdateTexCoordInfo(particle, vboData);
         }
-        loader.UpdateVbo(vboID, vboData);
+        Loader::UpdateVbo(vboID, vboData);
         glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, quad.vertexCount, particles.size());
 
     }
 
-    finishRendering();
+    FinishRendering();
 }
 
-void ParticleRenderer::updateTexCoordInfo(Particle &particle, std::vector<GLfloat> &vboData)
+void ParticleRenderer::UpdateTexCoordInfo(Particle &particle, std::vector<GLfloat> &vboData)
 {
     vboData[pointer++] = particle.texOffset1.x;
     vboData[pointer++] = particle.texOffset1.y;
@@ -57,19 +56,19 @@ void ParticleRenderer::updateTexCoordInfo(Particle &particle, std::vector<GLfloa
     vboData[pointer++] = particle.blend;
 }
 
-void ParticleRenderer::bindTexture(ParticleTexture *texture)
+void ParticleRenderer::BindTexture(ParticleTexture *texture)
 {
-    if (texture->isAdditive()) {
+    if (texture->IsAdditive()) {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     } else {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     }
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture->getTextureId());
-    shader.LoadNumberOfRows(texture->getNumberOfRows());
+    glBindTexture(GL_TEXTURE_2D, texture->GetTextureId());
+    shader.LoadNumberOfRows(texture->GetNumberOfRows());
 }
 
-void ParticleRenderer::updateModelViewMatrix(
+void ParticleRenderer::UpdateModelViewMatrix(
         Vec3 &position, float rotation, float scale, Mat4 &viewMatrix,
         std::vector<float> &vboData)
 {
@@ -88,10 +87,10 @@ void ParticleRenderer::updateModelViewMatrix(
     modelMatrix *= Mat4::Rotate(math::radians(rotation), Vec3(0.0f, 0.0f, 1.0f));
     modelMatrix *= Mat4::Scale(Vec3(scale));
     Mat4 modelViewMatrix = viewMatrix * modelMatrix;
-    storeMatrixData(modelViewMatrix, vboData);
+    StoreMatrixData(modelViewMatrix, vboData);
 }
 
-void ParticleRenderer::storeMatrixData(Mat4 &matrix, std::vector<GLfloat> &vboData)
+void ParticleRenderer::StoreMatrixData(Mat4 &matrix, std::vector<GLfloat> &vboData)
 {
     vboData[pointer++] = matrix.r[0].c[0];
     vboData[pointer++] = matrix.r[1].c[0];
@@ -111,7 +110,7 @@ void ParticleRenderer::storeMatrixData(Mat4 &matrix, std::vector<GLfloat> &vboDa
     vboData[pointer++] = matrix.r[3].c[3];
 }
 
-void ParticleRenderer::prepare()
+void ParticleRenderer::Prepare()
 {
     shader.Bind();
     glBindVertexArray(quad.vaoId);
@@ -123,7 +122,7 @@ void ParticleRenderer::prepare()
 
 }
 
-void ParticleRenderer::finishRendering()
+void ParticleRenderer::FinishRendering()
 {
     glDepthMask(GL_TRUE);
     glDisable(GL_BLEND);

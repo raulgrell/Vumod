@@ -6,7 +6,7 @@
 #include <iostream>
 #include <cassert>
 
-std::unordered_map<std::string, VuTexture> VuTexture::s_Cache;
+std::unordered_map<std::string, VuTexture> VuTexture::sCache;
 
 static VuTexture LoadPng(const std::string &filePath)
 {
@@ -28,10 +28,10 @@ static VuTexture LoadPng(const std::string &filePath)
 
 VuTexture VuTexture::Load(const std::string &texturePath)
 {
-    auto textureIterator = VuTexture::s_Cache.find(texturePath);
-    if (textureIterator == VuTexture::s_Cache.end()) {
+    auto textureIterator = sCache.find(texturePath);
+    if (textureIterator == sCache.end()) {
         VuTexture newTexture = LoadPng(texturePath);
-        VuTexture::s_Cache.insert(make_pair(texturePath, newTexture));
+        sCache.insert(std::make_pair(texturePath, newTexture));
         std::cout << "<Texture "
             << texturePath
             << " width=" << newTexture.width

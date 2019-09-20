@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cmath>
+#include <cassert>
 
 struct Vec2
 {
@@ -182,11 +183,25 @@ struct Vec3
         return x * x + y * y + z * z;
     }
 
-    static Vec3 Normal(Vec3 v)
+    static Vec3 Normal(const Vec3 &v)
     {
         Vec3 vec = v;
         vec.Normalize();
         return vec;
+    }
+
+    static Vec3 Normal(const Vec3 &v0, const Vec3 &v1, const Vec3 &v2)
+    {
+        Vec3 v10 = v1 - v0;
+        Vec3 v20 = v2 - v0;
+        Vec3 n = Vec3::Cross(v10, v20);
+
+        float len2 = n.Length2();
+        if (len2 > 0.0f) {
+            n /= sqrtf(len2);
+        }
+
+        return n;
     }
 
     static Vec3 Cross(Vec3 v, Vec3 k)
@@ -267,4 +282,3 @@ struct Vec4
         return (x == vec.x) && (y == vec.y) && (z == vec.z) && (w == vec.w);
     }
 };
-

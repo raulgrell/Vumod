@@ -5,28 +5,30 @@ public:
 	WaterFrameBuffers();
 	~WaterFrameBuffers();
 
-	void bindReflectionFrameBuffer();
-	void bindRefractionFrameBuffer();
-	void unbindCurrentFrameBuffer();
-	unsigned int getReflectionTexture() { return reflectionTextureID; }
-	unsigned int getRefractionTexture() { return refractionTextureID; }
-	unsigned int getRefractionDepthTexture() { return refractionDepthTextureID; }
-	
+	void BindReflectionFrameBuffer();
+	void BindRefractionFrameBuffer();
+	unsigned int GetReflectionTexture() { return reflectionTextureId; }
+	unsigned int GetRefractionTexture() { return refractionTextureId; }
+	unsigned int GetRefractionDepthTexture() { return refractionDepthTextureId; }
+
+	static void UnbindCurrentFrameBuffer();
+
 private:
-	unsigned int reflectionFrameBufferID = 0;
-	unsigned int reflectionTextureID = 0;
-	unsigned int reflectionDepthBufferID = 0;
+	unsigned int reflectionFrameBufferId = 0;
+	unsigned int reflectionTextureId = 0;
+	unsigned int reflectionDepthBufferId = 0;
 	
-	unsigned int refractionFrameBufferID = 0;
-	unsigned int refractionTextureID = 0;
-	unsigned int refractionDepthBufferID = 0;
-	unsigned int refractionDepthTextureID = 0;
+	unsigned int refractionFrameBufferId = 0;
+	unsigned int refractionTextureId = 0;
+	unsigned int refractionDepthBufferId = 0;
+	unsigned int refractionDepthTextureId = 0;
 	
-	void initializeRefractionFrameBuffer();
-	void initializeReflectionFrameBuffer();
-	void bindFrameBuffer(unsigned int framebufferID, int width, int height);
-	unsigned int createFrameBuffer();
-	unsigned int createTextureAttachment(int width, int height);
-	unsigned int createDepthTextureAttachment(int width, int height);
-	unsigned int createDepthBufferAttachment(int width, int height);
+	void InitializeRefractionFrameBuffer();
+	void InitializeReflectionFrameBuffer();
+
+	static void BindFrameBuffer(unsigned int framebufferId, int width, int height);
+	static unsigned int CreateFrameBuffer();
+	static unsigned int CreateTextureAttachment(int width, int height);
+	static unsigned int CreateDepthTextureAttachment(int width, int height);
+	static unsigned int CreateDepthBufferAttachment(int width, int height);
 };

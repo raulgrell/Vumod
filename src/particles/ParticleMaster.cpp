@@ -1,8 +1,8 @@
 #include <algorithm>
 #include "ParticleMaster.h"
 
-ParticleMaster::ParticleMaster(Loader &loader, Mat4 &projectionMatrix)
-        : renderer(loader, projectionMatrix)
+ParticleMaster::ParticleMaster(Mat4 &projectionMatrix)
+        : renderer( projectionMatrix)
 {
 }
 
@@ -23,7 +23,7 @@ void ParticleMaster::Update(Camera &camera)
             }
         }
 
-        if (!texture->isAdditive()) {
+        if (!texture->IsAdditive()) {
             // Alpha blended particles must be drawn back to front, uses operator <
             std::sort(particles.begin(), particles.end());
         }
@@ -33,7 +33,7 @@ void ParticleMaster::Update(Camera &camera)
 
 void ParticleMaster::Render(Camera &camera)
 {
-    renderer.render(particlesMap, camera);
+    renderer.Render(particlesMap, camera);
 }
 
 void ParticleMaster::AddParticle(Particle particle)

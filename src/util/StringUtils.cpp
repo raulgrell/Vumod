@@ -15,22 +15,6 @@ namespace str
         return result;
     }
 
-    void ltrim(std::string &s)
-    {
-        s.erase(begin(s), std::find_if(begin(s), end(s), [](int ch) { return !isspace(ch); }));
-    }
-
-    void rtrim(std::string &s)
-    {
-        s.erase(std::find_if(s.rbegin(), s.rend(), [](int ch) { return !isspace(ch); }).base(), s.end());
-    }
-
-    void trim(std::string &s)
-    {
-        ltrim(s);
-        rtrim(s);
-    }
-
     std::string trimmed(const std::string &str)
     {
         size_t first = str.find_first_not_of(' ');

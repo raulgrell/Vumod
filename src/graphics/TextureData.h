@@ -18,16 +18,27 @@ struct ModelTexture
     float reflectivity = 0;
     bool hasTransparency = false;
     bool useFakeLighting = false;
-    int numberOfRows = 1;
 
 private:
     unsigned int textureId = 0;
     unsigned int normalMapId = 0;
+    int numberOfRows = 1;
 
 public:
     explicit ModelTexture(unsigned int id) : textureId(id) {}
+    ModelTexture(unsigned int id, int numRows) : textureId(id), numberOfRows(numRows) {}
 
-    unsigned int getTextureID() const { return textureId; }
-    unsigned int getNormalMap() const { return normalMapId; }
+    unsigned int GetTextureId() const { return textureId; }
+
+    unsigned int GetNormalMapId() const { return normalMapId; }
+    void SetNormalMapId(unsigned int value) { normalMapId = value; }
+
+    int GetNumberOfRows() const { return numberOfRows; }
+    void SetNumberOfRows(int value) { numberOfRows = value; }
+
+    void SetShineDamper(float value) { shineDamper = value; }
+    void SetReflectivity(float value) { reflectivity = value; }
+    void SetHasTransparency(bool value) { hasTransparency = value; }
+    void SetUseFakeLighting(bool value) { useFakeLighting = value; }
 
 };

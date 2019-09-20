@@ -1,9 +1,8 @@
 #include "ParticleShader.h"
 
-static const char *VERTEX_FILE = "data/shaders/particleVShader.glsl";
-static const char *FRAGMENT_FILE = "data/shaders/particleFShader.glsl";
+static const char *SHADER_FILE = "data/shaders/particle.glsl";
 
-ParticleShader::ParticleShader() : ShaderGL("Particle", VERTEX_FILE, FRAGMENT_FILE)
+ParticleShader::ParticleShader() : ShaderGL(SHADER_FILE)
 {
     BindAttributes();
     Link();
@@ -20,16 +19,16 @@ void ParticleShader::BindAttributes()
 
 void ParticleShader::LoadNumberOfRows(float numRows)
 {
-    LoadFloat(location_numberOfRows, numRows);
+    LoadFloat(uNumberOfRows, numRows);
 }
 
 void ParticleShader::LoadProjectionMatrix(const Mat4 *matrix)
 {
-    LoadMatrix(location_projectionMatrix, *matrix);
+    LoadMatrix(uProjectionMatrix, *matrix);
 }
 
 void ParticleShader::GetUniformLocations()
 {
-    location_projectionMatrix = GetUniformLocation("projectionMatrix");
-    location_numberOfRows = GetUniformLocation("numberOfRows");
+    uProjectionMatrix = GetUniformLocation("projectionMatrix");
+    uNumberOfRows = GetUniformLocation("numberOfRows");
 }

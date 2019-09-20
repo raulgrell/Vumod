@@ -14,7 +14,7 @@ public:
 	void LoadProjectionMatrix(const Mat4 *matrix);
 	void LoadNumberOfRows(float numRows);
 private:
-	int location_projectionMatrix{};
-	int location_numberOfRows{};
+	int uProjectionMatrix{};
+	int uNumberOfRows{};
 };
 

@@ -7,7 +7,7 @@
 class TerrainRenderer {
 public:
 	TerrainRenderer(TerrainShader& shader, Mat4& projectionMatrix);
-	void Render(std::vector<Terrain *> *terrains);
+	void Render(std::vector<Terrain *> &terrains);
 	void Prepare(Terrain& terrain);
 	void BindTextures(Terrain &terrain);
 	void LoadModelMatrix(Terrain& terrain);

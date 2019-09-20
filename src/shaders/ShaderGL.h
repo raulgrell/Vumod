@@ -5,12 +5,16 @@
 #include <math/Math.h>
 #include <api/IShader.h>
 
+struct ShaderGLSource {
+    std::string vertexSrc, fragmentSource;
+};
+
 class ShaderGL : IShader
 {
 public:
     explicit
     ShaderGL(const std::string& path);
-    ShaderGL(std::string name, std::string vertexFile, std::string fragmentFile);
+    ShaderGL(std::string name, const std::string &vertexSrc, const std::string &fragmentSrc);
 	~ShaderGL();
 
 	void Link() override;
@@ -28,17 +32,16 @@ public:
 	void LoadBoolean(int location, bool value);
 	void LoadMatrix(int location, const Mat4 &matrix);
 
-	int GetID() { return programID; }
+	int GetId() { return programId; }
     const std::string &GetName() const override { return name; }
 
 private:
-	int LoadShader(const std::string &fileName, unsigned int type);
+    ShaderGLSource PreProcess(const std::string &source);
 
 protected:
 	std::string name;
-	std::string vertexFile;
-	std::string fragmentFile;
-	int programID;
-	int vertexShaderID;
-	int fragmentShaderID;
+	int programId = 0;
+	int vertexShaderId = 0;
+	int fragmentShaderId = 0;
+    void Compile(const std::string &vertexSrc, const std::string &fragmentSrc);
 };

@@ -44,15 +44,14 @@ void ModelRenderer::PrepareTexturedModel(TexturedModel &model)
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
     glEnableVertexAttribArray(2);
-    ModelTexture &texture = model.texture;
-    shader.LoadNumberOfRows(texture.numberOfRows);
-    if (texture.hasTransparency) {
+    shader.LoadNumberOfRows(model.texture.GetNumberOfRows());
+    if (model.texture.hasTransparency) {
         Graphics::CullBackFaces(false);
     }
-    shader.LoadFakeLightingVariable(texture.useFakeLighting);
-    shader.LoadShineVariables(texture.shineDamper, texture.reflectivity);
+    shader.LoadFakeLightingVariable(model.texture.useFakeLighting);
+    shader.LoadShineVariables(model.texture.shineDamper, model.texture.reflectivity);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, model.texture.getTextureID());
+    glBindTexture(GL_TEXTURE_2D, model.texture.GetTextureId());
     CHECK_GL();
 }
 
@@ -70,7 +69,7 @@ void ModelRenderer::PrepareInstance(Entity &entity)
 {
     Mat4 transformationMatrix = Mat4::TRS(entity.position, entity.rotation, entity.scale);
     shader.LoadTransformationMatrix(&transformationMatrix);
-    shader.LoadTextureOffset(entity.getTextureXOffset(), entity.getTextureYOffset());
+    shader.LoadTextureOffset(entity.GetTextureXOffset(), entity.GetTextureYOffset());
     CHECK_GL();
 }
 

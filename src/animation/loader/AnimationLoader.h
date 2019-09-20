@@ -5,7 +5,7 @@ class AnimationLoader
 {
 public:
 	static Animation loadAnimation(MyFile colladaFile) {
-		AnimationData animationData = ColladaLoader.loadColladaAnimation(colladaFile);
+		AnimationData animationData = ColladaLoader::LoadColladaAnimation(colladaFile);
 		KeyFrame[] frames = new KeyFrame[animationData.keyFrames.length];
 		for (int i = 0; i < frames.length; i++) {
 			frames[i] = createKeyFrame(animationData.keyFrames[i]);

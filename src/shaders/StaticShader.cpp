@@ -2,10 +2,9 @@
 #include "scene/SceneShader.h"
 
 
-static const char* VERTEX_FILE = "data/shaders/vertexShader.glsl";
-static const char* FRAGMENT_FILE = "data/shaders/fragmentShader.glsl";
+static const char* SHADER_FILE = "data/shaders/static.glsl";
 
-StaticShader::StaticShader() : ShaderGL("Static", VERTEX_FILE, FRAGMENT_FILE)
+StaticShader::StaticShader() : ShaderGL(SHADER_FILE)
 {
     BindAttributes();
     Link();
@@ -34,16 +33,14 @@ void StaticShader::GetUniformLocations()
 	location_numberOfRows = GetUniformLocation("numberOfRows");
 	location_textureOffset = GetUniformLocation("textureOffset");
 	location_clipPlane = GetUniformLocation("clipPlane");
-    CHECK_GL();
-
 
 	for (int i = 0; i < MAX_LIGHTS; i++) {
 		std::string iStr = std::to_string(i);
 		location_lightPosition[i] = GetUniformLocation("lightPosition[" + iStr + "]");
 		location_lightColor[i] = GetUniformLocation("lightColor[" + iStr + "]");
 		location_attenuation[i] = GetUniformLocation("attenuation[" + iStr + "]");
-        CHECK_GL();
 	}
+    CHECK_GL();
 }
 
 void StaticShader::LoadTransformationMatrix(const Mat4 *matrix)
@@ -52,14 +49,14 @@ void StaticShader::LoadTransformationMatrix(const Mat4 *matrix)
     CHECK_GL();
 }
 
-void StaticShader::LoadLights(std::vector<Light*>& lights)
+void StaticShader::LoadLights(std::vector<Light> &lights)
 {
 	for (int i = 0; i < MAX_LIGHTS; i++) {
 		if (i < (int)lights.size()) {
-			Light* light = lights[i];
-            LoadVector(location_lightPosition[i], light->position);
-            LoadVector(location_lightColor[i], light->color);
-            LoadVector(location_attenuation[i], light->attenuation);
+			auto light = lights[i];
+            LoadVector(location_lightPosition[i], light.position);
+            LoadVector(location_lightColor[i], light.color);
+            LoadVector(location_attenuation[i], light.attenuation);
 		} else {
 			// If less than MAX_LIGHTS lights are in the lights vector,
 			// load up empty information to the shaders.

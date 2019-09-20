@@ -2,7 +2,7 @@
 
 namespace math
 {
-    float Barycenter(Vec3 &p1, Vec3 &p2, Vec3 &p3, Vec2 &pos)
+    float barycenter(Vec3 &p1, Vec3 &p2, Vec3 &p3, Vec2 &pos)
     {
         float det = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);
         float l1 = ((p2.z - p3.z) * (pos.x - p3.x) + (p3.x - p2.x) * (pos.y - p3.z)) / det;

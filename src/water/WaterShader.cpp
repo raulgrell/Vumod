@@ -1,9 +1,8 @@
 #include "WaterShader.h"
 
-static const char* VERTEX_FILE = "data/shaders/waterVertex.glsl";
-static const char* FRAGMENT_FILE = "data/shaders/waterFragment.glsl";
+static const char* SHADER_FILE = "data/shaders/water.glsl";
 
-WaterShader::WaterShader() : ShaderGL("Water", VERTEX_FILE, FRAGMENT_FILE)
+WaterShader::WaterShader() : ShaderGL(SHADER_FILE)
 {
     BindAttributes();
     Link();
@@ -15,111 +14,108 @@ void WaterShader::BindAttributes()
     BindAttribute(0, "position");
 }
 
-void WaterShader::connectTextureUnits()
+void WaterShader::ConnectTextureUnits()
 {
-    LoadInt(location_reflectionTexture, 0);
-    LoadInt(location_refractionTexture, 1);
-    LoadInt(location_dudvMap, 2);
-    LoadInt(location_normalMap, 3);
-    LoadInt(location_depthMap, 4);
+    LoadInt(uReflectionTexture, 0);
+    LoadInt(uRefractionTexture, 1);
+    LoadInt(uDudvMap, 2);
+    LoadInt(uNormalMap, 3);
+    LoadInt(uDepthMap, 4);
 }
 
 void WaterShader::LoadShineVariables(float shineDamper, float reflectivity)
 {
-    LoadFloat(location_shineDamper, shineDamper);
-    LoadFloat(location_reflectivity, reflectivity);
+    LoadFloat(uShineDamper, shineDamper);
+    LoadFloat(uReflectivity, reflectivity);
 }
 
 // TODO: multiple lights
 void WaterShader::LoadLight(Light& sun)
 {
-    LoadVector(location_lightColor, sun.color);
-    LoadVector(location_lightPosition, sun.position);
+    LoadVector(uLightColor, sun.color);
+    LoadVector(uLightPosition, sun.position);
 }
 
 void WaterShader::LoadNearPlane(float nearPlane)
 {
-    LoadFloat(location_nearPlane, nearPlane);
+    LoadFloat(uNearPlane, nearPlane);
 }
 
 void WaterShader::LoadFarPlane(float farPlane)
 {
-    LoadFloat(location_farPlane, farPlane);
+    LoadFloat(uFarPlane, farPlane);
 }
 
-// 10.0: very reflective, 0.5: quite transparent
 void WaterShader::LoadWaterReflectivity(float reflectivity)
 {
-    LoadFloat(location_waterReflectivity, reflectivity);
+    LoadFloat(uWaterReflectivity, reflectivity);
 }
 
 void WaterShader::LoadWaterTiling(float factor)
 {
-    LoadFloat(location_waterTiling, factor);
+    LoadFloat(uWaterTiling, factor);
 }
 
 void WaterShader::LoadMoveFactor(float factor)
 {
-    LoadFloat(location_moveFactor, factor);
+    LoadFloat(uMoveFactor, factor);
 }
-
 
 void WaterShader::LoadWaveStrength(float factor)
 {
-    LoadFloat(location_waveStrength, factor);
+    LoadFloat(uWaveStrength, factor);
 }
-
 
 void WaterShader::LoadSkyColor(Vec3 colour)
 {
-    LoadVector(location_skyColor, colour);
+    LoadVector(uSkyColor, colour);
 }
 
 void WaterShader::LoadFogVariables(float density, float gradient)
 {
-    LoadFloat(location_fogDensity, density);
-    LoadFloat(location_fogGradient, gradient);
+    LoadFloat(uFogDensity, density);
+    LoadFloat(uFogGradient, gradient);
 }
 
 void WaterShader::LoadProjectionMatrix(Mat4& matrix)
 {
-    LoadMatrix(location_projectionMatrix, matrix);
+    LoadMatrix(uProjectionMatrix, matrix);
 }
 
 void WaterShader::LoadViewMatrix(Camera& camera)
 {
 	Mat4 viewMatrix = camera.GetViewMatrix();
-    LoadMatrix(location_viewMatrix, viewMatrix);
-    LoadVector(location_cameraPosition, camera.getPosition());
+    LoadMatrix(uViewMatrix, viewMatrix);
+    LoadVector(uCameraPosition, camera.GetPosition());
 }
 
 void WaterShader::LoadTransformationMatrix(Mat4& matrix)
 {
-    LoadMatrix(location_transformationMatrix, matrix);
+    LoadMatrix(uTransformationMatrix, matrix);
 }
 
 void WaterShader::GetUniformLocations()
 {
-	location_projectionMatrix = GetUniformLocation("projectionMatrix");
-	location_viewMatrix = GetUniformLocation("viewMatrix");
-	location_transformationMatrix = GetUniformLocation("transformationMatrix");
-	location_waterTiling = GetUniformLocation("waterTiling");
-	location_reflectionTexture = GetUniformLocation("reflectionTexture");
-	location_refractionTexture = GetUniformLocation("refractionTexture");
-	location_dudvMap = GetUniformLocation("dudvMap");
-	location_waveStrength = GetUniformLocation("waveStrength");
-	location_moveFactor = GetUniformLocation("moveFactor");
-	location_cameraPosition = GetUniformLocation("cameraPosition");
-	location_waterReflectivity = GetUniformLocation("waterReflectivity");
-	location_normalMap = GetUniformLocation("normalMap");
-	location_lightColor = GetUniformLocation("lightColor");
-	location_lightPosition = GetUniformLocation("lightPosition");
-	location_shineDamper = GetUniformLocation("shineDamper");
-	location_reflectivity = GetUniformLocation("reflectivity");
-	location_depthMap = GetUniformLocation("depthMap");
-	location_nearPlane = GetUniformLocation("nearPlane");
-	location_farPlane = GetUniformLocation("farPlane");
-	location_skyColor = GetUniformLocation("skyColor");
-	location_fogDensity = GetUniformLocation("fogDensity");
-	location_fogGradient = GetUniformLocation("fogGradient");
+	uProjectionMatrix = GetUniformLocation("projectionMatrix");
+	uViewMatrix = GetUniformLocation("viewMatrix");
+	uTransformationMatrix = GetUniformLocation("transformationMatrix");
+	uWaterTiling = GetUniformLocation("waterTiling");
+	uReflectionTexture = GetUniformLocation("reflectionTexture");
+	uRefractionTexture = GetUniformLocation("refractionTexture");
+	uDudvMap = GetUniformLocation("dudvMap");
+	uWaveStrength = GetUniformLocation("waveStrength");
+	uMoveFactor = GetUniformLocation("moveFactor");
+	uCameraPosition = GetUniformLocation("cameraPosition");
+	uWaterReflectivity = GetUniformLocation("waterReflectivity");
+	uNormalMap = GetUniformLocation("normalMap");
+	uLightColor = GetUniformLocation("lightColor");
+	uLightPosition = GetUniformLocation("lightPosition");
+	uShineDamper = GetUniformLocation("shineDamper");
+	uReflectivity = GetUniformLocation("reflectivity");
+	uDepthMap = GetUniformLocation("depthMap");
+	uNearPlane = GetUniformLocation("nearPlane");
+	uFarPlane = GetUniformLocation("farPlane");
+	uSkyColor = GetUniformLocation("skyColor");
+	uFogDensity = GetUniformLocation("fogDensity");
+	uFogGradient = GetUniformLocation("fogGradient");
 }

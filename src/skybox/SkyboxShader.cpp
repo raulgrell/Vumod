@@ -1,10 +1,9 @@
 #include <platform/DisplayManager.h>
 #include "SkyboxShader.h"
 
-static const char* VERTEX_FILE = "data/shaders/skyboxVertexShader.glsl";
-static const char* FRAGMENT_FILE = "data/shaders/skyboxFragmentShader.glsl";
+static const char* SHADER_FILE = "data/shaders/skybox.glsl";
 
-SkyboxShader::SkyboxShader() : ShaderGL("Skybox", VERTEX_FILE, FRAGMENT_FILE)
+SkyboxShader::SkyboxShader() : ShaderGL(SHADER_FILE)
 {
     BindAttributes();
     Link();

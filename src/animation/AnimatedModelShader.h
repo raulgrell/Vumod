@@ -6,8 +6,7 @@ class AnimatedModelShader : Shader {
 	constexpr static int MAX_JOINTS = 50;
 	constexpr static int DIFFUSE_TEX_UNIT = 0;
 
-	constexpr static const char *VERTEX_SHADER = "shader/animatedEntityVertex.glsl";
-	constexpr static const char *FRAGMENT_SHADER = "shader/animatedEntityFragment.glsl";
+	constexpr static const char *SHADER_FILE = "shader/animated.glsl";
 
 	int u_projectionViewMatrix = 0;
 	int u_lightDirection = 0;

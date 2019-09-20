@@ -4,36 +4,43 @@
 
 #include <math/Math.h>
 
-class ParticleSystem {
+class ParticleSystem
+{
 public:
-	ParticleSystem(ParticleTexture& texture, GLfloat pps, GLfloat speed, GLfloat gravityCompliant, GLfloat lifeLength, GLfloat scale);
-	void setDirection(Vec3 direction, GLfloat deviation);
-	void randomizeRotation();
+    ParticleSystem(ParticleTexture &texture,
+                   float pps,
+                   float speed,
+                   float gravityCompliant,
+                   float lifeLength,
+                   float scale);
 
-	void setSpeedError(GLfloat error) { this->speedError = error * averageSpeed; }
-	void setLifeError(GLfloat error) { this->lifeError = error * averageLifeLength; }
-	void setScaleError(float error) { this->scaleError = error * averageScale; }
+    void SetDirection(Vec3 direction, float deviation);
+    void RandomizeRotation();
 
-	void generateParticles(Vec3 systemCenter);
-	void emitParticle(Vec3& center);
-	GLfloat generateValue(GLfloat average, GLfloat errorMargin);
-	GLfloat generateRotation();
-	Vec3 generateRandomUnitVectorWithinCone(Vec3& coneDirection, GLfloat angle);
-	Vec3 generateRandomUnitVector();
+    void SetSpeedError(float error) { speedError = error * averageSpeed; }
+    void SetLifeError(float error) { lifeError = error * averageLifeLength; }
+    void SetScaleError(float error) { scaleError = error * averageScale; }
+
+    void GenerateParticles(Vec3 systemCenter);
+    void EmitParticle(Vec3 &center);
+    float GenerateValue(float average, float errorMargin);
+    float GenerateRotation();
+    Vec3 GenerateRandomUnitVectorWithinCone(Vec3 &coneDirection, float angle);
+    Vec3 GenerateRandomUnitVector();
 private:
-	ParticleTexture& texture;
-	GLfloat pps;
-	GLfloat averageSpeed;
-	GLfloat gravityCompliant;
-	GLfloat averageLifeLength;
-	GLfloat averageScale;
+    ParticleTexture &texture;
+    float pps;
+    float averageSpeed;
+    float gravityCompliant;
+    float averageLifeLength;
+    float averageScale;
 
-	GLfloat speedError{};
-	GLfloat lifeError{};
-	GLfloat scaleError = 0;
-	bool randomRotation = false;
-	Vec3 direction;
-	bool haveDirection = false;
-	GLfloat directionDeviation = 0;
+    float speedError {};
+    float lifeError {};
+    float scaleError = 0;
+    bool randomRotation = false;
+    Vec3 direction;
+    bool haveDirection = false;
+    float directionDeviation = 0;
 };
 

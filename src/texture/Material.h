@@ -1,22 +1,34 @@
 #pragma once
 
-#include <tinyobjloader/tiny_obj_loader.h>
-#include "scene/SceneShader.h"
 #include "VuTexture.h"
+#include "scene/SceneShader.h"
+
+#include <tinyobjloader/tiny_obj_loader.h>
+
+#include <unordered_map>
+#include <string>
 
 struct Material
 {
     std::string name;
-    std::string diffuse_texname;
-    std::string normal_texname;
+    std::string diffuseTexname;
+    std::string normalTexname;
 
-    const SceneShader& shader;
-    VuTexture diffuse_texture;
-    VuTexture normal_texture;
+    VuTexture diffuseTexture;
+    VuTexture normalTexture;
 
-    explicit Material(const SceneShader &shader);
-    Material(const SceneShader &shader, const tinyobj::material_t &material, const std::string &base_dir);
+    Material() = default;
+    explicit Material(std::string name);
+    explicit Material(const tinyobj::material_t &material);
 
     void Bind() const;
     void Unbind() const;
+
+    void SetDiffuse(const std::string &filename);
+    void SetNormalMap(const std::string &filename);
+
+    static Material &Load(const tinyobj::material_t &param);
+
+private:
+    static std::unordered_map<std::string, Material> sCache;
 };

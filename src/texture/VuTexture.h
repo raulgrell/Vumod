@@ -3,6 +3,7 @@
 #include "common.h"
 
 #include <unordered_map>
+#include <string>
 
 struct VuTexture
 {
@@ -17,7 +18,9 @@ struct VuTexture
     void Bind() const;
     void Unbind() const;
 
-    static std::unordered_map<std::string, VuTexture> s_Cache;
     static VuTexture Load(const std::string &texturePath);
+
+private:
+    static std::unordered_map<std::string, VuTexture> sCache;
 };
 

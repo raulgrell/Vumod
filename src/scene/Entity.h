@@ -35,7 +35,7 @@ struct Entity
     {
     }
 
-    float getTextureXOffset();
-    float getTextureYOffset();
+    float GetTextureXOffset();
+    float GetTextureYOffset();
 };
 

@@ -9,38 +9,38 @@
 
 #include <iostream>
 
-SceneRenderer::SceneRenderer(Loader &loader, Mat4 &projectionMatrix)
+SceneRenderer::SceneRenderer(Mat4 &projectionMatrix)
         : projectionMatrix(projectionMatrix),
           staticShader(),
           terrainShader(),
           modelRenderer(staticShader, projectionMatrix),
           terrainRenderer(terrainShader, projectionMatrix),
-          skyboxRenderer(loader, projectionMatrix),
+          skyboxRenderer(projectionMatrix),
           normalMappingRenderer(projectionMatrix)
 {
     Graphics::CullBackFaces(true);
 }
 
 void SceneRenderer::Render(
-        std::vector<Entity *> &entities,
-        std::vector<Entity *> &normalMapEntities,
+        std::vector<Entity> &entities,
+        std::vector<Entity> &normalMapEntities,
         std::vector<Terrain> &terrains,
-        std::vector<Light *> &lights,
+        std::vector<Light> &lights,
         Camera &camera,
         Vec4 &clipPlane,
         bool useClipping)
 {
-    for (Terrain terrain : terrains) {
+    for (auto &terrain : terrains) {
         ProcessTerrain(terrain);
     }
-    for (Entity *entity : entities) {
-        ProcessEntity(*entity);
+    for (auto &entity : entities) {
+        ProcessEntity(entity);
     }
-    for (Entity *entity : normalMapEntities) {
-        ProcessNormalMapEntity(*entity);
+    for (auto &entity : normalMapEntities) {
+        ProcessNormalMapEntity(entity);
     }
 
-    render(lights, camera, clipPlane, useClipping);
+    Draw(lights, camera, clipPlane, useClipping);
 }
 
 void SceneRenderer::Begin()
@@ -49,8 +49,8 @@ void SceneRenderer::Begin()
     CHECK_GL();
 }
 
-void SceneRenderer::render(
-        std::vector<Light *> &lights,
+void SceneRenderer::Draw(
+        std::vector<Light> &lights,
         Camera &camera,
         Vec4 &clipPlane,
         bool useClipping)
@@ -74,7 +74,7 @@ void SceneRenderer::render(
     terrainShader.LoadFogVariables(fogDensity, fogGradient);
     terrainShader.LoadLights(lights);
     terrainShader.LoadViewMatrix(&camera);
-    terrainRenderer.Render(&terrains);
+    terrainRenderer.Render(terrains);
     terrainShader.Unbind();
 
     Graphics::EnableClipping(false);

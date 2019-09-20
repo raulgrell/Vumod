@@ -7,12 +7,21 @@ class Camera;
 
 class SkyboxRenderer {
 public:
-	SkyboxRenderer(Loader& loader, Mat4& projectionMatrix);
+	SkyboxRenderer(Mat4 &projectionMatrix);
 	void Render(Camera &camera, float r, float g, float b);
+
 private:
 	void BindTextures();
 
+private:
 	static constexpr float SIZE = 5000.0f;
+
+	RawModel cube;
+	unsigned int texture;
+	unsigned int nightTexture;
+	SkyboxShader shader;
+	float myTime = 5000;
+
 	std::vector<float> VERTICES = {
 		-SIZE, SIZE,-SIZE,
 		-SIZE,-SIZE,-SIZE,
@@ -75,10 +84,6 @@ private:
 		"data/res/nightFront"
 	};
 
-	RawModel cube;
-	unsigned int texture;
-	unsigned int nightTexture;
-	SkyboxShader shader;
-	float myTime = 5000;
+
 };
 

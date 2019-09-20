@@ -7,7 +7,7 @@ class AnimatedModelLoader
 {
 public:
     static AnimatedModel loadEntity(MyFile modelFile, MyFile textureFile) {
-		AnimatedModelData entityData = ColladaLoader.loadColladaModel(modelFile, GeneralSettings.MAX_WEIGHTS);
+		AnimatedModelData entityData = ColladaLoader::LoadColladaModel(modelFile, GeneralSettings.MAX_WEIGHTS);
 		Vao model = createVao(entityData.getMeshData());
 		Texture texture = LoadTexture(textureFile);
 		SkeletonData skeletonData = entityData.getJointsData();

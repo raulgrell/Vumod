@@ -22,9 +22,9 @@ struct Graphics
     static void Wireframe(bool goWireframe);
 
     static int SizeOf(unsigned int type);
-    static void CheckErrors(const char *file, int line);
+    static void CheckErrors(const char *function, const char *file, int line);
     static bool CheckShader(unsigned int handle, const char *desc);
     static bool CheckProgram(unsigned int handle, const char *desc);
 };
 
-#define CHECK_GL() Graphics::CheckErrors(__FILE__, __LINE__)
+#define CHECK_GL() Graphics::CheckErrors(__FUNCTION__, __FILE__, __LINE__)

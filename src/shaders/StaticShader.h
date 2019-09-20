@@ -19,7 +19,7 @@ public:
 
 	void LoadShineVariables(float damper, float reflectivity);
 	void LoadTransformationMatrix(const Mat4 *matrix);
-	void LoadLights(std::vector<Light*>& lights);
+	void LoadLights(std::vector<Light> &lights);
 	void LoadProjectionMatrix(Mat4& matrix);
 	void LoadViewMatrix(Camera &camera);
 	void LoadFakeLightingVariable(bool useFakeLighting);

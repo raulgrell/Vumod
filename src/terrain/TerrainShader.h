@@ -17,10 +17,10 @@ public:
     void BindAttributes() override;
     void GetUniformLocations() override;
 
-    void connectTextureUnits();
+    void ConnectTextureUnits();
     void LoadShineVariables(float damper, float reflectivity);
     void LoadTransformationMatrix(Mat4 &matrix);
-    void LoadLights(std::vector<Light *> &lights);
+    void LoadLights(std::vector<Light> &lights);
     void LoadProjectionMatrix(Mat4 &matrix);
     void LoadViewMatrix(Camera *camera);
     void LoadSkyColor(float r, float g, float b);

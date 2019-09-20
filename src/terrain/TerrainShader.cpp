@@ -3,15 +3,13 @@
 #include <scene/Camera.h>
 #include <scene/SceneShader.h>
 
-static const char* VERTEX_FILE = "data/shaders/terrainVertexShader.glsl";
-static const char* FRAGMENT_FILE = "data/shaders/terrainFragmentShader.glsl";
+static const char* SHADER_FILE = "data/shaders/terrain.glsl";
 
-TerrainShader::TerrainShader() : ShaderGL("Terrain", VERTEX_FILE, FRAGMENT_FILE)
+TerrainShader::TerrainShader() : ShaderGL(SHADER_FILE)
 {
     BindAttributes();
     Link();
     GetUniformLocations();
-
 }
 
 void TerrainShader::BindAttributes()
@@ -54,15 +52,14 @@ void TerrainShader::LoadTransformationMatrix(Mat4& matrix)
     LoadMatrix(location_transformationMatrix, matrix);
 }
 
-void TerrainShader::LoadLights(std::vector<Light*>& lights)
+void TerrainShader::LoadLights(std::vector<Light> &lights)
 {
 	for (int i = 0; i < MAX_LIGHTS; i++) {
 		if (i < (int)lights.size()) {
-			Light* light = lights[i];
-            LoadVector(location_lightPosition[i], light->position);
-            LoadVector(location_lightColor[i], light->color);
-            LoadVector(location_attenuation[i], light->attenuation);
-            CHECK_GL();
+			auto light = lights[i];
+            LoadVector(location_lightPosition[i], light.position);
+            LoadVector(location_lightColor[i], light.color);
+            LoadVector(location_attenuation[i], light.attenuation);
 		} else {
 			// If less than MAX_LIGHTS lights are in the lights vector,
 			// load up empty information to the shaders.
@@ -71,9 +68,9 @@ void TerrainShader::LoadLights(std::vector<Light*>& lights)
             LoadVector(location_lightPosition[i], zero);
             LoadVector(location_lightColor[i], zero);
             LoadVector(location_attenuation[i], unit);
-            CHECK_GL();
 		}
 	}
+	CHECK_GL();
 }
 
 void TerrainShader::LoadProjectionMatrix(Mat4& matrix)
@@ -87,8 +84,7 @@ void TerrainShader::LoadViewMatrix(Camera *camera)
     LoadMatrix(location_viewMatrix, viewMatrix);
 }
 
-
-void TerrainShader::connectTextureUnits()
+void TerrainShader::ConnectTextureUnits()
 {
     LoadInt(location_backgroundTexture, 0);
     LoadInt(location_rTexture, 1);
@@ -105,8 +101,7 @@ void TerrainShader::LoadShineVariables(float damper, float reflectivity)
 
 void TerrainShader::LoadSkyColor(float r, float g, float b)
 {
-	Vec3 vec(r, g, b);
-    LoadVector(location_skyColor, vec);
+    LoadVector(location_skyColor, {r, g, b});
 }
 
 void TerrainShader::LoadFogVariables(float density, float gradient)

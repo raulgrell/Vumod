@@ -6,9 +6,9 @@ class ParticleTexture
 {
 public:
     ParticleTexture(GLuint textureID, int numberOfRows, bool additive);
-    GLuint getTextureId();
-    int getNumberOfRows();
-    bool isAdditive();
+    GLuint GetTextureId();
+    int GetNumberOfRows();
+    bool IsAdditive();
 private:
     GLuint textureID;
     int numberOfRows = 1;

@@ -66,6 +66,7 @@ VuWindow::VuWindow(const char *title, int width, int height)
     glClearColor(0, 0, 0, 1);
 
     glfwSwapInterval(1);
+    CHECK_GL();
 }
 
 VuWindow::~VuWindow()

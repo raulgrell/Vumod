@@ -9,27 +9,27 @@
 
 class ParticleRenderer
 {
+    static constexpr int MAX_INSTANCES = 10000;
+    static constexpr int INSTANCE_DATA_LENGTH = 21; // 16 (model view matrix) + 4 (texture info) + 1 (blend factor)
+
 public:
-    ParticleRenderer(Loader &loader, Mat4 &projectionMatrix);
-    void render(std::unordered_map<ParticleTexture *, std::vector<Particle>> &particlesMap, Camera &camera);
-    void updateTexCoordInfo(Particle &particle, std::vector<GLfloat> &vboData);
-    void bindTexture(ParticleTexture *texture);
-    void updateModelViewMatrix(Vec3 &position, GLfloat rotation, GLfloat scale, Mat4 &viewMatrix,
+    ParticleRenderer(Mat4 &projectionMatrix);
+    void Render(std::unordered_map<ParticleTexture *, std::vector<Particle>> &particlesMap, Camera &camera);
+    void UpdateTexCoordInfo(Particle &particle, std::vector<GLfloat> &vboData);
+    void BindTexture(ParticleTexture *texture);
+    void UpdateModelViewMatrix(Vec3 &position, GLfloat rotation, GLfloat scale, Mat4 &viewMatrix,
                                std::vector<GLfloat> &vboData);
-    void storeMatrixData(Mat4 &matrix, std::vector<GLfloat> &vboData);
-    void prepare();
-    void finishRendering();
+    void StoreMatrixData(Mat4 &matrix, std::vector<GLfloat> &vboData);
+    void Prepare();
+    void FinishRendering();
 
     void bindTextures(Particle &particle);
     void LoadModelMatrix(Particle &particle);
     void unbindTexturedModel();
 
 private:
-    static constexpr int MAX_INSTANCES = 10000;
-    static constexpr int INSTANCE_DATA_LENGTH = 21; // 16 (model view matrix) + 4 (texture info) + 1 (blend factor)
     RawModel quad;
     ParticleShader shader;
-    Loader &loader;
     GLuint vboID;
     std::vector<GLfloat> buffer;
     int pointer {}; // where in the buffer we are writing

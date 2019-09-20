@@ -11,7 +11,7 @@ class ParticleMaster
     ParticleRenderer renderer;
 
 public:
-    ParticleMaster(Loader &loader, Mat4 &projectionMatrix);
+    ParticleMaster(Mat4 &projectionMatrix);
 
     void Update(Camera &camera);
     void Render(Camera &camera);

@@ -6,7 +6,7 @@
 #include <light/Light.h>
 #include <scene/Camera.h>
 #include <shaders/StaticShader.h>
-#include <normal_mapping/NormalMappingRenderer.h>
+#include <models/NormalMappingRenderer.h>
 #include <skybox/SkyboxRenderer.h>
 #include <terrain/TerrainRenderer.h>
 #include <terrain/TerrainShader.h>
@@ -20,15 +20,15 @@ public:
     inline static float fogGradient = 1.5f;;
 
 public:
-    SceneRenderer(Loader &loader, Mat4 &projectionMatrix);
+    SceneRenderer(Mat4 &projectionMatrix);
 
     void Begin();
 
     void Render(
-            std::vector<Entity *> &entities,
-            std::vector<Entity *> &normalMapEntities,
+            std::vector<Entity> &entities,
+            std::vector<Entity> &normalMapEntities,
             std::vector<Terrain> &terrains,
-            std::vector<Light *> &lights,
+            std::vector<Light> &lights,
             Camera &camera,
             Vec4 &clipPlane,
             bool useClipping);
@@ -40,8 +40,8 @@ public:
     Mat4 &GetProjectionMatrix() { return projectionMatrix; }
 
 private:
-    void render(
-            std::vector<Light *> &lights,
+    void Draw(
+            std::vector<Light> &lights,
             Camera &camera,
             Vec4 &clipPlane,
             bool useClipping);

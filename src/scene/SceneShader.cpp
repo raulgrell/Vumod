@@ -2,13 +2,11 @@
 
 #include "glad/glad.h"
 
-SceneShader::SceneShader(const char * name, const char * vertex_shader_source, const char * fragment_shader_source)
-    : ShaderGL(name, vertex_shader_source, fragment_shader_source)
+SceneShader::SceneShader(const char * path) : ShaderGL(path)
 {
     BindAttributes();
     Link();
     GetUniformLocations();
-
     vao = std::make_unique<VertexArray>();
 }
 
@@ -23,15 +21,15 @@ void SceneShader::BindAttributes()
 
 void SceneShader::GetUniformLocations()
 {
-    uniform_mvp =  GetUniformLocation("MVP");
-    uniform_tint = GetUniformLocation("Tint");
-    uniform_texture =  GetUniformLocation("Texture");
+    uniformMvp =  GetUniformLocation("MVP");
+    uniformTint = GetUniformLocation("Tint");
+    uniformTexture =  GetUniformLocation("Texture");
     CHECK_GL();
 }
 
 void SceneShader::Bind() const
 {
-    glUseProgram(programID);
+    glUseProgram(programId);
     vao->Bind();
 }
 

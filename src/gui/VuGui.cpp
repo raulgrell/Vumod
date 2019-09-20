@@ -1,44 +1,24 @@
 #include "VuGui.h"
 
 #include <imgui.h>
+#include <imgui/impl/imgui_impl_opengl3.h>
+#include <imgui/impl/imgui_impl_glfw.h>
 
-#include "gui/console.cpp"
-#include "gui/file.cpp"
-#include "gui/imfilebrowser.cpp"
-#include "gui/internal.cpp"
+#include "gui/FileBrowser.h"
+#include "Console.h"
+#include "Debug.h"
 
 #include <iostream>
+#include <GLFW/glfw3.h>
 
-static const GLchar *vertex_shader_glsl_130 = R"(
-#version 130
-uniform mat4 ProjMtx;
-in vec2 Position;
-in vec2 UV;
-in vec4 Color;
-out vec2 Frag_UV;
-out vec4 Frag_Color;
-void main() {
-    Frag_UV = UV;
-    Frag_Color = Color;
-    gl_Position = ProjMtx * vec4(Position.xy,0,1);
-})";
-
-static const GLchar *fragment_shader_glsl_130 = R"(
-#version 130
-uniform sampler2D Texture;
-in vec2 Frag_UV;
-in vec4 Frag_Color;
-out vec4 Out_Color;
-void main() {
-    Out_Color = Frag_Color * texture(Texture, Frag_UV.st);
-})";
+static ImGui::FileBrowser fileDialog;
 
 void drawMainMenu()
 {
     if (ImGui::BeginMainMenuBar()) {
         if (ImGui::BeginMenu("File")) {
             if (ImGui::MenuItem("Open", "CTRL+O")) {
-                printf("%s\n", "Open");
+                fileDialog.Open();
             }
             if (ImGui::MenuItem("Save", "CTRL+S")) {
                 printf("%s\n", "Save");
@@ -57,131 +37,107 @@ void drawMainMenu()
         ImGui::EndMainMenuBar();
     }
 }
-
-void drawFileGui()
+void drawGui(Scene &vs)
 {
-    static std::string filePathName;
-    static std::string path;
-    static std::string fileName;
-    static std::string filter;
-    static bool show_file_gui = true;
-    static ImGui::FileBrowser fileDialog;
-
-
-    ImGui::Begin("Files");
-    if (show_file_gui) {
-        if (FileGui::Instance()->FileDialog("Choose File", "*\0", "./data", "")) {
-            if (FileGui::Instance()->Valid) {
-                filePathName = FileGui::Instance()->GetFilepathName();
-                path = FileGui::Instance()->GetCurrentPath();
-                fileName = FileGui::Instance()->GetCurrentFileName();
-                filter = FileGui::Instance()->GetCurrentFilter();
-            } else {
-                filePathName = "";
-                path = "";
-                fileName = "";
-                filter = "";
-            }
-            show_file_gui = false;
-        }
-    }
-
-    if (ImGui::Button("open file dialog"))
-        fileDialog.Open();
+    drawMainMenu();
 
     fileDialog.Display();
-
     if (fileDialog.HasSelected()) {
         std::cout << "Selected filename" << fileDialog.GetSelected().string() << std::endl;
         fileDialog.ClearSelected();
     }
 
-    if (ImGui::Button("Open file")) show_file_gui = true;
+    static bool showDebug = true;
+    Debug::Draw("Debug", &showDebug);
 
-    if (!filePathName.empty()) ImGui::Text("Chose File Path Name : %s", filePathName.c_str());
-    if (!path.empty()) ImGui::Text("Chose Path Name : %s", path.c_str());
-    if (!fileName.empty()) ImGui::Text("Chose File Name : %s", fileName.c_str());
-    if (!filter.empty()) ImGui::Text("Chose Filter : %s", filter.c_str());
-    ImGui::End();
-}
-
-void drawGui(Scene &vs)
-{
-    drawMainMenu();
-    drawFileGui();
-
-    static bool show_ui = true;
-    ImGui::Begin("Scene", &show_ui);
-    ImGui::DragFloat3("Camera position", &vs.vc.position[0], 0.01f, -16.0f, 16.0f);
-    ImGui::DragFloat3("Camera rotation", &vs.vc.rotation[0], 0.01f, -90.0f, 90.0f);
+    static bool showUi = true;
+    ImGui::Begin("Scene", &showUi);
+    ImGui::DragFloat3("Camera position", &vs.vc.position[0], 0.1f, -32.0f, 32.0f);
+    ImGui::DragFloat3("Camera rotation", &vs.vc.rotation[0], 0.1f, -180.0f, 180.0f);
     ImGui::Checkbox("Wireframe", &vs.wireframe);
     ImGui::End();
 
-    static bool show_demo_window = true;
-    if (show_demo_window) {
-        ImGui::ShowDemoWindow(&show_demo_window);
+    static bool showDemoWindow = true;
+    if (showDemoWindow) {
+        ImGui::ShowDemoWindow(&showDemoWindow);
     }
 
-    static bool show_console_window = true;
-    if (show_console_window)
-        ShowConsole(&show_console_window);
+    static bool showConsoleWindow = true;
+    if (showConsoleWindow) {
+        showConsole(&showConsoleWindow);
+    }
 }
 
-VuGui::VuGui(VuWindow &vw) : m_Window((GLFWwindow *) vw.window), m_Time(0.0)
+VuGui::VuGui(VuWindow &vw)
 {
+    // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGui_GL_Init((GLFWwindow *) vw.window);
-    ImGui_GL_CreateDeviceObjects(vertex_shader_glsl_130, fragment_shader_glsl_130);
+
+    ImGuiIO &io = ImGui::GetIO();
+    (void) io;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+    io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    //io.ConfigViewportsNoAutoMerge = true;
+    //io.ConfigViewportsNoTaskBarIcon = true;
+
+    io.Fonts->AddFontDefault();
+
+    ImGui::StyleColorsDark();
+
+    ImGuiStyle &style = ImGui::GetStyle();
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+        style.WindowRounding = 0.0f;
+        style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+    }
+
+    ImGui_ImplGlfw_InitForOpenGL((GLFWwindow *) vw.window, true);
+    ImGui_ImplOpenGL3_Init("#version 130");
+    CHECK_GL();
 }
 
 VuGui::~VuGui()
 {
-    ImGui_GL_DestroyDeviceObjects();
-    ImGui_GLFW_Shutdown();
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 }
 
 void VuGui::Begin()
 {
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
     ImGuiIO &io = ImGui::GetIO();
     IM_ASSERT(io.Fonts->IsBuilt() && "Font atlas not built.");
-
-    // Setup display size every frame to account for window resizing
-    int w, h;
-    int display_w, display_h;
-    glfwGetWindowSize((GLFWwindow *) m_Window, &w, &h);
-    glfwGetFramebufferSize((GLFWwindow *) m_Window, &display_w, &display_h);
-    io.DisplaySize = ImVec2((float) w, (float) h);
-    if (w > 0 && h > 0)
-        io.DisplayFramebufferScale = ImVec2((float) display_w / w, (float) display_h / h);
-
-    // Setup time step
-    double current_time = glfwGetTime();
-    io.DeltaTime = m_Time > 0.0 ? (float) (current_time - m_Time) : (1.0f / 60.0f);
-    m_Time = current_time;
-
-    ImGui_GLFW_UpdateMousePosAndButtons((GLFWwindow *) m_Window);
-    ImGui_GLFW_UpdateMouseCursor((GLFWwindow *) m_Window);
-    ImGui_GLFW_UpdateGamepads();
-
-    ImGui::NewFrame();
 }
 
 void VuGui::End()
 {
     ImGui::Render();
+    ImDrawData *drawData = ImGui::GetDrawData();
 
-    VuGuiRenderState rs;
-    ImGui_GL_BackupRenderState(rs);
+    // scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
+    int fbWidth = (int) (drawData->DisplaySize.x * drawData->FramebufferScale.x);
+    int fbHeight = (int) (drawData->DisplaySize.y * drawData->FramebufferScale.y);
 
-    ImDrawData *draw_data = ImGui::GetDrawData();
-    // Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
-    int fb_width = (int) (draw_data->DisplaySize.x * draw_data->FramebufferScale.x);
-    int fb_height = (int) (draw_data->DisplaySize.y * draw_data->FramebufferScale.y);
-    if (fb_width <= 0 || fb_height <= 0)
+    // Avoid rendering when minimized
+    if (fbWidth <= 0 || fbHeight <= 0)
         return;
 
-    ImGui_GL_RenderDrawData(rs, draw_data, fb_width, fb_height);
-    ImGui_GL_RestoreRenderState(rs);
+    ImGui_ImplOpenGL3_RenderDrawData(drawData);
+
+    ImGuiIO &io = ImGui::GetIO();
+
+    if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
+        GLFWwindow *backupCurrentContext = glfwGetCurrentContext();
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
+        glfwMakeContextCurrent(backupCurrentContext);
+    }
+
+    CHECK_GL();
 }

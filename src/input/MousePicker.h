@@ -6,33 +6,36 @@
 
 class MousePicker
 {
+    static constexpr int RECURSION_COUNT = 200;
+	static constexpr float RAY_RANGE = 1000;
+
 public:
 	MousePicker(Camera& camera, Mat4& projection, Terrain* terrain);
 
-	Vec3* getCurrentTerrainPoint() {
-		if (currentTerrainPointIsOK) {
+	Vec3* GetCurrentTerrainPoint() {
+		if (currentTerrainPointIsOk) {
 			return &currentTerrainPoint;
 		} else {
 			return nullptr;
 		}
 	}
-	Vec3& getCurrentRay() {
+
+	Vec3& GetCurrentRay() {
 		return currentRay;
 	}
-	void update();
-private:
-	Vec3 calculateMouseRay();
-	Vec3 toWorldCoords(Vec4 eyeCoords);
-	Vec4 toEyeCoords(Vec4 clipCoords);
-	Vec2 getNormalizedDeviceCoords(float mouseX, float mouseY);
-	Vec3 getPointOnRay(Vec3& ray, float distance);
-	Vec3 binarySearch(int count, float start, float finish, Vec3& ray, bool& ok);
-	bool intersectionInRange(float start, float finish, Vec3& ray);
-	bool isUnderGround(Vec3& testPoint);
-	Terrain* getTerrain(float worldX, float worldZ);
 
-	static constexpr int RECURSION_COUNT = 200;
-	static constexpr float RAY_RANGE = 1000; // 600;
+	void Update();
+
+private:
+	Vec3 CalculateMouseRay();
+	Vec3 ToWorldCoords(Vec4 eyeCoords);
+	Vec4 ToEyeCoords(Vec4 clipCoords);
+	Vec2 GetNormalizedDeviceCoords(float mouseX, float mouseY);
+	Vec3 GetPointOnRay(Vec3 &ray, float distance);
+	Vec3 BinarySearch(int count, float start, float finish, Vec3 &ray, bool &ok);
+	bool IntersectionInRange(float start, float finish, Vec3 &ray);
+	bool IsUnderGround(Vec3 &testPoint);
+	Terrain* GetTerrain(float worldX, float worldZ);
 
 	Vec3 currentRay;
 	Mat4 projectionMatrix;
@@ -40,5 +43,5 @@ private:
 	Camera& camera;
 	Terrain* terrain;
 	Vec3 currentTerrainPoint;
-	bool currentTerrainPointIsOK;
+	bool currentTerrainPointIsOk;
 };

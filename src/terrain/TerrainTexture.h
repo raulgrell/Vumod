@@ -3,12 +3,12 @@
 class TerrainTexture
 {
 public:
-    explicit
-    TerrainTexture(unsigned int textureID) : textureID(textureID) {}
+    explicit TerrainTexture(unsigned int textureId) : textureId(textureId) {}
 
-    unsigned int getTextureId() { return textureID; }
+    unsigned int GetTextureId() const { return textureId; }
+
 private:
-    unsigned int textureID;
+    unsigned int textureId;
 };
 
 class TerrainTexturePack
@@ -26,10 +26,10 @@ public:
     {
     }
 
-    TerrainTexture &getBackgroundTexture() { return backgroundTexture; }
-    TerrainTexture &getrTexture() { return rTexture; }
-    TerrainTexture &getgTexture() { return gTexture; }
-    TerrainTexture &getbTexture() { return bTexture; }
+    TerrainTexture &GetBackgroundTexture() { return backgroundTexture; }
+    TerrainTexture &GetRTexture() { return rTexture; }
+    TerrainTexture &GetGTexture() { return gTexture; }
+    TerrainTexture &GetBTexture() { return bTexture; }
 
 private:
     TerrainTexture &backgroundTexture;

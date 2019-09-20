@@ -18,10 +18,14 @@ private:
 	int heightsLength{};
 
 public:
-	Terrain(int gridX, int gridZ, Loader &loader,
-		TerrainTexturePack &texturePack, TerrainTexture& blendMap, const std::string& heightMap);
-	float getHeightOfTerrain(float worldX, float worldZ);
-	RawModel Generate(Loader &loader, const std::string &heightMap);
+	Terrain(int gridX,
+            int gridZ,
+            TerrainTexturePack &texturePack,
+            TerrainTexture &blendMap,
+            const std::string &heightMap);
+
+	float GetHeightOfTerrain(float worldX, float worldZ);
+	RawModel Generate(const std::string &heightMap);
 
 	static constexpr float SIZE = 4*300;
 	static constexpr float MAX_HEIGHT = 2*40;
@@ -30,5 +34,4 @@ public:
 private:
 	static float GenerateHeight(int x, int z, HeightsGenerator &generator);
 	static Vec3 CalculateNormal(int x, int z, HeightsGenerator &generator);
-
 };

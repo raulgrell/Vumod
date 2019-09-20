@@ -18,7 +18,7 @@ int main()
 
     Camera camera;
     Mat4 projectionMatrix =
-            Mat4::Perspective(Camera::fov, VuWindow::getAspectRatio(), Camera::near_plane, Camera::far_plane);
+            Mat4::Perspective(Camera::fov, VuWindow::getAspectRatio(), Camera::nearPlane, Camera::farPlane);
 
     CHECK_GL();
 
