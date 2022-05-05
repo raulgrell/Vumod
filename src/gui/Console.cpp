@@ -36,7 +36,6 @@ void Console::Draw(const char *title, bool *pOpen)
         return;
     }
 
-    // Here we create a context menu only available from the title bar.
     if (ImGui::BeginPopupContextItem()) {
         if (ImGui::MenuItem("Close Console"))
             *pOpen = false;
@@ -44,13 +43,6 @@ void Console::Draw(const char *title, bool *pOpen)
     }
 
     ImGui::TextWrapped("Enter 'HELP' for help, press TAB to use text completion.");
-
-    if (ImGui::SmallButton("Add Dummy Text"))
-        AddLog("text %llu", items.size());
-
-    ImGui::SameLine();
-    if (ImGui::SmallButton("Add Dummy Error"))
-        AddLog("[error] something went wrong");
 
     ImGui::SameLine();
     if (ImGui::SmallButton("Clear"))
@@ -88,6 +80,7 @@ void Console::Draw(const char *title, bool *pOpen)
 
     if (copyToClipboard)
         ImGui::LogFinish();
+
     if (scrollToBottom)
         ImGui::SetScrollHereY(1.0f);
 
@@ -98,7 +91,6 @@ void Console::Draw(const char *title, bool *pOpen)
 
     // Command-line
     bool reclaimFocus = false;
-
     int flags = ImGuiInputTextFlags_EnterReturnsTrue
             | ImGuiInputTextFlags_CallbackCompletion
             | ImGuiInputTextFlags_CallbackHistory;
@@ -131,7 +123,6 @@ void Console::Execute(const char *commandLine)
     std::string commandString(commandLine);
 
     // Insert into history. First find match and delete it so it can be pushed to the back.
-    // This isn't trying to be smart or optimal.
     historyPos = -1;
     for (size_t i = history.size() - 1; i >= 0; i--)
         if (history[i] == commandString) {
@@ -140,16 +131,14 @@ void Console::Execute(const char *commandLine)
         }
 
     history.push_back(commandString);
-    AddLog("Unknown command: '%s'", commandLine);
+
     scrollToBottom = true;
 }
 
 int Console::TextEditCallback(ImGuiInputTextCallbackData *data)
 {
     switch (data->EventFlag) {
-        case ImGuiInputTextFlags_CallbackCompletion: {
-            break;
-        }
+        case ImGuiInputTextFlags_CallbackCompletion: break;
         case ImGuiInputTextFlags_CallbackHistory: {
             const int prevHistoryPos = historyPos;
             if (data->EventKey == ImGuiKey_UpArrow) {
@@ -163,14 +152,13 @@ int Console::TextEditCallback(ImGuiInputTextCallbackData *data)
                         historyPos = -1;
             }
 
-            // A better implementation would preserve the data on the current input line along with cursor position.
             if (prevHistoryPos != historyPos) {
                 const char *historyStr = (historyPos >= 0) ? history[historyPos].c_str() : "";
                 data->DeleteChars(0, data->BufTextLen);
                 data->InsertChars(0, historyStr);
             }
         }
-        default:break;
+        default: break;
     }
     return 0;
 }

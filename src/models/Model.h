@@ -13,7 +13,7 @@ struct RawModel : IModel
     unsigned int GetVaoId() const { return vao->id; }
     int GetVertexCount() const { return vertexCount; }
 
-    RawModel(std::shared_ptr<VertexArray> vao, unsigned int vertexCount)
+    RawModel(std::shared_ptr<VertexArray> vao, int vertexCount)
             : vao(std::move(vao)), vertexCount(vertexCount) {}
 };
 

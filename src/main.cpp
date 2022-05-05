@@ -15,6 +15,8 @@
 #include <water/WaterRenderer.h>
 
 #include <memory>
+#include <graphics/FrameBuffer.h>
+#include <fx/PostProcessing.h>
 
 static constexpr int WIDTH = 1280;
 static constexpr int HEIGHT = 720;
@@ -186,6 +188,11 @@ int main()
 
     CHECK_GL();
 
+    FrameBuffer fb(
+            VuWindow::GetWidth(),
+            VuWindow::GetHeight(),
+            FrameBuffer::DEPTH_RENDER_BUFFER);
+
     while (window.Continue()) {
 
         // Update
@@ -204,19 +211,22 @@ int main()
         float distance = 2 * (scene.camera.GetPosition().y - waters[0].GetHeight());
         scene.camera.position.y -= distance;
         scene.camera.InvertPitch();
-//        renderer.Render(entities, normalMapEntities, terrains, lights, scene.camera, reflClipPlane, true);
+        renderer.Render(entities, normalMapEntities, terrains, lights, scene.camera, reflClipPlane, true);
 
         scene.camera.position.y += distance;
         scene.camera.InvertPitch();
         buffers.BindRefractionFrameBuffer();
-//        renderer.Render(entities, normalMapEntities, terrains, lights, scene.camera, refrClipPlane, true);
-
+        renderer.Render(entities, normalMapEntities, terrains, lights, scene.camera, refrClipPlane, true);
         WaterFrameBuffers::UnbindCurrentFrameBuffer();
-//        waterRenderer.Render(waters, scene.camera, sun);
 
-//        renderer.Render(entities, normalMapEntities, terrains, lights, scene.camera, scrnClipPlane, false);
+        fb.Bind();
+        waterRenderer.Render(waters, scene.camera, sun);
 
-//        particleMaster.Render(scene.camera);
+        renderer.Render(entities, normalMapEntities, terrains, lights, scene.camera, scrnClipPlane, false);
+        particleMaster.Render(scene.camera);
+        fb.Unbind();
+
+        // PostProcessing::Render(fb.GetColourTexture());
 
         gui.Begin();
         drawGui(scene);

@@ -10,21 +10,6 @@ class Loader
 public:
     static IndexedModel LoadToVao(
             const std::vector<float> &positions,
-            const std::vector<unsigned int> &indices);
-
-    static IndexedModel LoadToVao(
-            const std::vector<float> &positions,
-            const std::vector<float> &textureCoords,
-            const std::vector<unsigned int> &indices);
-
-    static IndexedModel LoadToVao(
-            const std::vector<float> &positions,
-            const std::vector<float> &textureCoords,
-            const std::vector<float> &normals,
-            const std::vector<unsigned int> &indices);
-
-    static IndexedModel LoadToVao(
-            const std::vector<float> &positions,
             const std::vector<float> &textureCoords,
             const std::vector<float> &normals,
             const std::vector<float> &tangents,

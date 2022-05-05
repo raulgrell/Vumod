@@ -14,8 +14,8 @@ WaterRenderer::WaterRenderer(WaterShader &shader,
                              float farPlane,
                              WaterFrameBuffers &fbos) : shader(shader), fbos(fbos)
 {
-    dudvTexture =Loader::LoadTexture(DUDV_MAP);
-    normalMap =Loader::LoadTexture(NORMAL_MAP);
+    dudvTexture = Loader::LoadTexture(DUDV_MAP);
+    normalMap = Loader::LoadTexture(NORMAL_MAP);
     shader.Bind();
     shader.ConnectTextureUnits();
     shader.LoadProjectionMatrix(projectionMatrix);
@@ -24,7 +24,12 @@ WaterRenderer::WaterRenderer(WaterShader &shader,
     shader.LoadSkyColor(SceneRenderer::skyColour);
     shader.LoadFogVariables(SceneRenderer::fogDensity, SceneRenderer::fogGradient);
     shader.Unbind();
-    SetUpVao();
+
+    std::vector<float> vertices = {-0.5f, 0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, -0.5f};
+    auto vao = std::make_shared<VertexArray>();
+    auto vbo = std::make_shared<VertexBuffer>(&vertices[0], vertices.size() * 4);
+    vao->AddVertexBuffer(vbo);
+    quad = std::make_unique<RawModel>(vao, 4);
 }
 
 void WaterRenderer::Render(std::vector<WaterTile> &water, Camera &camera, Light &sun)
@@ -74,11 +79,4 @@ void WaterRenderer::Unbind()
     glDisableVertexAttribArray(0);
     glBindVertexArray(0);
     shader.Unbind();
-}
-
-void WaterRenderer::SetUpVao()
-{
-    std::vector<float> vertices = {-0.5f, 0.5f, -0.5f, -0.5f, 0.5f, 0.5f, 0.5f, -0.5f};
-    std::vector<unsigned int> indices = {0, 2, 1, 1, 2, 3};
-    quad = std::make_unique<IndexedModel>(Loader::LoadToVao(vertices, indices));
 }

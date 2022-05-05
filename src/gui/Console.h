@@ -21,5 +21,3 @@ struct Console
     void Execute(const char *commandLine);
     int TextEditCallback(ImGuiInputTextCallbackData *data);
 };
-
-void showConsole(bool *pOpen);

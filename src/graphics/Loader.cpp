@@ -38,13 +38,6 @@ IndexedModel Loader::LoadToVao(
     return IndexedModel(vao, ibo);
 }
 
-IndexedModel Loader::LoadToVao(
-        const std::vector<float> &positions,
-        const std::vector<unsigned int> &indices)
-{
-
-}
-
 unsigned int Loader::CreateEmptyVbo(std::vector<float> &data)
 {
     unsigned int vboId = 0;

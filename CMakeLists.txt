@@ -26,6 +26,8 @@ add_executable(
         Viewer
         ext/ext.cpp
         src/files/VFS.cpp
+        src/fx/ContrastShader.cpp
+        src/fx/ImageRenderer.cpp
         src/fx/PostProcessing.cpp
         src/graphics/VertexBuffer.cpp
         src/graphics/IndexBuffer.cpp
@@ -79,7 +81,8 @@ add_executable(
         src/water/WaterRenderer.cpp
         src/water/WaterShader.cpp
         src/main.cpp
-        src/graphics/FloatBuffer.cpp src/graphics/FloatBuffer.h)
+        src/graphics/FloatBuffer.cpp
+)
 
 target_compile_options(Viewer PRIVATE )
 

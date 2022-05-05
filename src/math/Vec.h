@@ -18,11 +18,6 @@ struct Vec2
     constexpr Vec2(float value) noexcept : x(value), y(value) {}
     constexpr Vec2(float x, float y) noexcept : x(x), y(y) {}
 
-    float *Get()
-    {
-        return &c[0];
-    }
-
     float &operator[](int index)
     {
         return c[index];
@@ -78,11 +73,6 @@ struct Vec3
     constexpr Vec3() noexcept : x(0), y(0), z(0) {}
     constexpr Vec3(float value) noexcept : x(value), y(value), z(value) {}
     constexpr Vec3(float x, float y, float z) noexcept : x(x), y(y), z(z) {}
-
-    float *Get()
-    {
-        return &c[0];
-    }
 
     float &operator[](int index)
     {
@@ -236,11 +226,6 @@ struct Vec4
     constexpr Vec4() noexcept : x(0), y(0), z(0), w(0) {}
     constexpr Vec4(float value) noexcept : x(value), y(value), z(value), w(value) {};
     constexpr Vec4(float x, float y, float z, float w) noexcept : x(x), y(y), z(z), w(w) {}
-
-    float *Get()
-    {
-        return &c[0];
-    }
 
     float &operator[](int index)
     {

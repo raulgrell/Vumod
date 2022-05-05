@@ -11,7 +11,6 @@ void vec3fAllocate(WrenVM *vm) {
 void vec3fFinalize(void *bytes) {}
 
 void vec3fNorm(WrenVM *vm) {
-    // we can access the byte array of the object in slot zero
     const auto *v = (const Vec3 *) wrenGetSlotForeign(vm, 0);
     wrenSetSlotDouble(vm, 0, v->Length());
 }
